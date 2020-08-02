@@ -33,7 +33,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
             if (cluster != null)
             { 
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                var hull = new ConvexHull(cluster.Points);
+                //var hull = new ConvexHull(cluster.Points);
             }//DrawLineInt((Bitmap)this.PictureBox.Image, hull);
         }
         public void PrevButtonClicked(object sender, EventArgs e)
@@ -44,7 +44,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
             if (cluster != null)
             {
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                var hull = new ConvexHull(cluster.Points);
+                //var hull = new ConvexHull(cluster.Points);
             }//DrawLineInt((Bitmap)this.PictureBox.Image, hull);
         }
         public void BrowseViewButtonClicked(object sender, EventArgs e)
@@ -57,7 +57,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
         }
         public void LoadClustersClicked(object sender, EventArgs e)
         {
-           Cluster.getTextFileNames(new StreamReader(InViewFilePathBox.Text), out pxFile, out clFile);
+           Cluster.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), true, clusterNumber);
 
            HistogramPoints = (new Histogram(new StreamReader(clFile), new StreamReader(pxFile), cl => (double)cl.PixelCount)).Points;
@@ -66,7 +66,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
            if (cluster != null)
            {
                PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-               var hull = new ConvexHull(cluster.Points);
+               //var hull = new ConvexHull(cluster.Points);
            }
 
        }
@@ -101,11 +101,13 @@ namespace ClusterUI //TODO : Hull for less points than 3
        }
        public void ProcessFilterClicked(object sender, EventArgs e)
        {
-           const string tempFileName = "temporaryFilteredOut753";
-           Cluster.getTextFileNames(new StreamReader(InFilePathBox.Text), out string pxFile, out string clFile);
-           var filteredOut = new StreamWriter(OutFileNameClBox.Text);
+           string tempFileName = "temporaryFilteredOut"+ String.Format("{0:y/M/d/h/m/s/fff}", DateTime.Now);
+           var workingDirName = Cluster.GetPrefixPath(InFilePathBox.Text);
+           Cluster.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
+           var filteredOut = new StreamWriter(workingDirName + OutFileNameClBox.Text);
            var tempFile = new StreamWriter(tempFileName);
-           CreateNewIniFile(new StreamReader(InFilePathBox.Text), new StreamWriter(OutFileNameIniBox.Text), clFile, OutFileNameClBox.Text);
+           CreateNewIniFile(new StreamReader(InFilePathBox.Text), new StreamWriter(workingDirName + OutFileNameIniBox.Text), clFile, OutFileNameClBox.Text);
+            
            var pixelCountFilter = new PixelCountFilter(new StreamReader(pxFile), 
                int.TryParse(FromPixCountFilterBox.Text, out int resultLowerP) ? resultLowerP : 0,
                int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000); //optimal is 60
@@ -113,14 +115,15 @@ namespace ClusterUI //TODO : Hull for less points than 3
            tempFile.Close();
            tempFile.Dispose();
 
-           var energyFilter = new EnergyFilter(new StreamReader(pxFile), new StreamReader("a.txt"),
-               new StreamReader("b.txt"), new StreamReader("c.txt"), new StreamReader("t.txt"),
-               int.TryParse(FromEnergyFilterBox.Text, out int resultLowerE) ? resultLowerE : 0,
-               int.TryParse(ToEnergyFilterBox.Text, out int resultUpperE) ? resultUpperE : 1000000);
-           energyFilter.Process(new StreamReader(tempFileName), filteredOut);
-           tempFile.Close();
-           tempFile.Dispose();
-           //File.Delete(tempFileName);
+           var energyFilter = new EnergyFilter(new StreamReader(pxFile), new StreamReader(workingDirName + "a.txt"),
+               new StreamReader(workingDirName + "b.txt"), new StreamReader(workingDirName + "c.txt"), new StreamReader(workingDirName + "t.txt"),
+               double.TryParse(FromEnergyFilterBox.Text, out double resultLowerE) ? resultLowerE : 0,
+               double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : 1000000);
+           var tempFileR = new StreamReader(tempFileName);
+           energyFilter.Process(tempFileR, filteredOut);
+           tempFileR.Close();
+           tempFileR.Dispose();
+           File.Delete(tempFileName);
            filteredOut.Close();
 
        }
@@ -148,7 +151,8 @@ namespace ClusterUI //TODO : Hull for less points than 3
        {
            while (example.Peek() != -1)
            {
-               output.WriteLine(example.ReadLine().Replace(oldClFileName, newClFileName));
+               output.WriteLine(example.ReadLine().Replace(oldClFileName.Substring(Cluster.GetPrefixPath(oldClFileName).Length), 
+                   newClFileName));
            }
            output.Close();
        }
@@ -156,33 +160,6 @@ namespace ClusterUI //TODO : Hull for less points than 3
        {
            InitializeComponent();
            ClusterHistogram.Visible = false;
-           /*Cluster.getTextFileNames(new StreamReader(confFileName), out pxFile, out clFile);
-
-           var filteredOutput = new StreamWriter(filteredFile);
-            //PIXEL FILTER
-           var pixelCountFilter = new PixelCountFilter(new StreamReader(pxFile), 1, 1000); //optimal is 60
-           pixelCountFilter.Process(new StreamReader(clFile), filteredOutput);
-           filteredOutput.Close();
-
-            //ENERGY FILTER
-           var energyFilter = new EnergyFilter(new StreamReader(pxFile), new StreamReader("a.txt"),
-               new StreamReader("b.txt"), new StreamReader("c.txt"), new StreamReader("t.txt"), 10000);
-           energyFilter.Process(new StreamReader(clFile), filteredOutput);
-           filteredOutput.Close();
-
-           Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(filteredFile), true, clusterNumber);
-           clFile = filteredFile;
-
-           HistogramPoints = (new Histogram(new StreamReader(clFile), new StreamReader(pxFile), cl => (double)cl.PixelCount)).Points;   
-           PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-
-           if (cluster != null)
-           {
-               PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-               var hull = new ConvexHull(cluster.Points);
-           } *///ADD TICK BOX FOR SHOW HULL
-               //DrawLineInt((Bitmap)this.PictureBox.Image, hull);
-
         }
         public void DrawLineInt(Bitmap bmp, ConvexHull hull)
         {

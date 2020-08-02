@@ -139,6 +139,7 @@ namespace Filters
         }
         public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
         {
+            
             if ((pixelCount >= this.LowerBound) && (pixelCount <= this.UpperBound))
             {
                 return true;
@@ -150,18 +151,46 @@ namespace Filters
 
 
     }
-    public class LinearityFilter 
+    public class LinearityFilter:ClusterFilter
     {
-        public LinearityFilter(ConvexHull convexHull)
+        private StreamReader PixelFile { get; }
+        private double LowerBound { get; }
+        private double UpperBound { get; }
+
+        public LinearityFilter(StreamReader pixelFile, int lowerBound, int upperBound)
         {
-            for (int i = 0; i < convexHull.HullPoints.Count; i++)
-            { 
-                
-            }
+            this.PixelFile = pixelFile;
+            this.LowerBound = lowerBound;
+            this.UpperBound = upperBound;
         }
-        public bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
+       
+        public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
         {
-            return true;          
+            PixelFile.BaseStream.Seek((long)byteOfStart, SeekOrigin.Begin);
+            PixelPoint[] points = new PixelPoint[pixelCount];
+            for (int i = 0; i < pixelCount; i++)
+            {
+                var tokens = PixelFile.ReadLine().Split();
+                if (tokens[0] == "#")
+                    tokens = PixelFile.ReadLine().Split();
+                ushort.TryParse(tokens[0], out ushort x);
+                ushort.TryParse(tokens[1], out ushort y);
+                double.TryParse(tokens[2].Replace('.', ','), out double ToA);
+                double.TryParse(tokens[3].Replace('.', ','), out double ToT);
+                points[i] = new PixelPoint(x, y, ToA, ToT);
+            }
+            double area = 0;
+            if (points.Length <= 1)
+                area = points.Length;
+            else
+            {
+                var hull = new ConvexHull(points);
+                area = hull.CalculateArea();
+            }
+            double percentage = 100 * pixelCount / area;
+            if (percentage >= LowerBound && percentage <= UpperBound)
+                return true;
+            return false;
         }
 
     }
@@ -169,6 +198,19 @@ namespace Filters
     {
         public PixelPoint MinPoint { get; }
         public List<PixelPoint> HullPoints = new List<PixelPoint>();
+        public double CalculateArea()
+        {
+            if (HullPoints.Count <= 2)
+                return HullPoints.Count;
+            double area = 0;
+            for (int i = 0; i < HullPoints.Count; i++)
+            {
+
+                area += (HullPoints[i % HullPoints.Count].xCoord * HullPoints[(i + 1) % HullPoints.Count].yCoord -
+                    HullPoints[i % HullPoints.Count].yCoord * HullPoints[(i + 1) % HullPoints.Count].xCoord);
+            }
+            return Math.Abs(area / 2);
+        }
         public ConvexHull(PixelPoint[] Points)
         {
 

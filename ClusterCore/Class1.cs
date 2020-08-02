@@ -18,15 +18,27 @@ namespace ClusterCore
         public ulong ByteStart { get; private set; }
         public PixelPoint[] Points { get; set; }
 
-        public static void getTextFileNames(TextReader reader, out string pxFile, out string clFile)
+        public static void GetTextFileNames(TextReader reader, string iniPath, out string pxFile, out string clFile)
         {
+            var prefixPath = GetPrefixPath(iniPath);
             reader.ReadLine();
             string[] tokens1 = reader.ReadLine().Split('=');
-            pxFile = tokens1[1];
+            pxFile = prefixPath + tokens1[1];
             string[] tokens2 = reader.ReadLine().Split('=');
-            clFile = tokens2[1];
+            clFile = prefixPath + tokens2[1];
         }
-
+        public static string GetPrefixPath(string iniPath)
+        {
+            if (!iniPath.Contains('/') && !iniPath.Contains('\\'))
+                return ""; //relative adress is used
+            int lastIndex = 0;
+            for (int i = 0; i < iniPath.Length; i++)
+            {
+                if (iniPath[i] == '/' || iniPath[i] == '\\')
+                    lastIndex = i;
+            }
+            return iniPath.Substring(0, lastIndex + 1);
+        }
         private static string getLine(int clusterNumber, StreamReader reader)
         {
             for (int i = 0; i < clusterNumber - 1; i++)
