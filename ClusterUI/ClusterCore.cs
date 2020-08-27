@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-namespace ClusterCore
+namespace ClusterUI
 {
     public class Cluster
     {
@@ -100,25 +100,7 @@ namespace ClusterCore
             }
             return (cluster);
         }
-        /*public static string[] SimpleLoadNext(StreamReader pixelReader, StreamReader clusterReader)
-        {
-            string[] clusterInfo = getLine(1, clusterReader).Split(' ');
-            cluster.FirstToA = double.Parse(clusterInfo[0]);
-            cluster.PixelCount = uint.Parse(clusterInfo[1]);
-            cluster.ByteStart = ulong.Parse(clusterInfo[3]);
-            cluster.Points = new PixelPoint[cluster.PixelCount];
-            pixelReader.BaseStream.Seek((long)cluster.ByteStart, SeekOrigin.Begin);
-            for (int i = 0; i < cluster.PixelCount; i++)
-            {
-                string[] pixel = pixelReader.ReadLine().Split(' ');
-                cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]));
-                cluster.data[Int32.Parse(pixel[0]), Int32.Parse(pixel[1])] = Double.Parse(pixel[3].Replace('.', ','));   //pixel[2] contains info about time 
-            }
-            return (cluster);
-        }*/
-
-
-
+        
     }
     public struct PixelPoint
     {

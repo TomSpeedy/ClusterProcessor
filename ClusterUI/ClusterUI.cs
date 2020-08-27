@@ -9,14 +9,12 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.IO;
-using Filters;
-using ClusterCore;
 using System.Runtime.InteropServices.ComTypes;
 using System.Drawing.Text;
 
 namespace ClusterUI //TODO : Hull for less points than 3
 {
-    public partial class Form1 : Form
+    public partial class ClusterUI : Form
     {
         //const string confFileName = "info.ini";
         int clusterNumber = 1;
@@ -33,8 +31,9 @@ namespace ClusterUI //TODO : Hull for less points than 3
             if (cluster != null)
             { 
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                //var hull = new ConvexHull(cluster.Points);
-            }//DrawLineInt((Bitmap)this.PictureBox.Image, hull);
+                var hull = new ConvexHull(cluster.Points);
+                DrawLineInt((Bitmap)this.PictureBox.Image, hull);
+            }
         }
         public void PrevButtonClicked(object sender, EventArgs e)
         {
@@ -44,8 +43,9 @@ namespace ClusterUI //TODO : Hull for less points than 3
             if (cluster != null)
             {
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                //var hull = new ConvexHull(cluster.Points);
-            }//DrawLineInt((Bitmap)this.PictureBox.Image, hull);
+                var hull = new ConvexHull(cluster.Points);
+                DrawLineInt((Bitmap)this.PictureBox.Image, hull);
+            }
         }
         public void BrowseViewButtonClicked(object sender, EventArgs e)
         {
@@ -101,6 +101,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
        }
        public void ProcessFilterClicked(object sender, EventArgs e)
        {
+
            string tempFileName = "temporaryFilteredOut"+ String.Format("{0:y/M/d/h/m/s/fff}", DateTime.Now);
            var workingDirName = Cluster.GetPrefixPath(InFilePathBox.Text);
            Cluster.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
@@ -110,7 +111,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
             
            var pixelCountFilter = new PixelCountFilter(new StreamReader(pxFile), 
                int.TryParse(FromPixCountFilterBox.Text, out int resultLowerP) ? resultLowerP : 0,
-               int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000); //optimal is 60
+               int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000); 
            pixelCountFilter.Process(new StreamReader(clFile), tempFile);
            tempFile.Close();
            tempFile.Dispose();
@@ -156,7 +157,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
            }
            output.Close();
        }
-       public Form1()
+       public ClusterUI()
        {
            InitializeComponent();
            ClusterHistogram.Visible = false;

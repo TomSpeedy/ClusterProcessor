@@ -6,13 +6,19 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClusterCore;
 using System.IO;
-using Filters;
 using System.Diagnostics;
+using System.Windows.Forms;
 
-namespace Filters
+namespace ClusterUI
 {
+    public static class Extensions
+    {
+        public static double Sqr(this double value) => value * value;
+        public static int Sqr(this int value) => value * value;
+
+    }
+
     public abstract class ClusterFilter
     {
         public int ProcessedCount { get; protected set; } = 0;
@@ -38,7 +44,18 @@ namespace Filters
         }
 
     }
-    
+    public class MultiFilter : ClusterFilter
+    {
+        public IList<ClusterFilter> Filters { get; }
+        public MultiFilter(IList<ClusterFilter> filters)
+        {
+            this.Filters = filters;
+        }
+        public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
+        {
+            return Filters.All(filter => filter.MatchesFilter(FirstToA, pixelCount, lineOfStart, byteOfStart));
+        }
+    }
     public class EnergyFilter : ClusterFilter
     {
 
@@ -186,12 +203,35 @@ namespace Filters
             {
                 var hull = new ConvexHull(points);
                 area = hull.CalculateArea();
+                //CalculateWidth(hull);
             }
+            
             double percentage = 100 * pixelCount / area;
             if (percentage >= LowerBound && percentage <= UpperBound)
                 return true;
             return false;
         }
+        private double CalculateWidth(ConvexHull hull)
+        {
+            double max = 0;
+            for (int i = 0; i < hull.HullPoints.Count; i++)
+            {
+                for(int j = i + 1; j < hull.HullPoints.Count; j++)
+                {
+                    var dist = GetDistance(hull.HullPoints[i], hull.HullPoints[j]);
+                    if (dist > max)
+                    {
+                        max = dist;
+                    }
+                }
+            }
+            return max;
+        }
+        private double GetDistance(PixelPoint first, PixelPoint second)
+        {
+            return Math.Sqrt((first.xCoord - second.xCoord).Sqr() + (first.yCoord - second.yCoord).Sqr());
+        }
+            
 
     }
     public class ConvexHull

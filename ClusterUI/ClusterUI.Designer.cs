@@ -1,6 +1,6 @@
 ﻿namespace ClusterUI
 {
-    partial class Form1
+    partial class ClusterUI
     {
         /// <summary>
         /// Required designer variable.
@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ClusterHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.showHistogram = new System.Windows.Forms.Button();
             this.PreviousButton = new System.Windows.Forms.Button();
@@ -38,8 +38,8 @@
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.FilterButton = new System.Windows.Forms.Button();
             this.FilterGroup = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.ToEnergyLabel = new System.Windows.Forms.Label();
+            this.pixCountLabel = new System.Windows.Forms.Label();
+            this.energyLabel = new System.Windows.Forms.Label();
             this.ToPixCountFilterBox = new System.Windows.Forms.TextBox();
             this.labelToPixCount = new System.Windows.Forms.Label();
             this.labelFromPixCount = new System.Windows.Forms.Label();
@@ -65,6 +65,11 @@
             this.OrLabel = new System.Windows.Forms.Label();
             this.InViewFilePathBox = new System.Windows.Forms.TextBox();
             this.FilePathLabel = new System.Windows.Forms.Label();
+            this.linearityLabel = new System.Windows.Forms.Label();
+            this.labelFromLinearity = new System.Windows.Forms.Label();
+            this.labelToLinearity = new System.Windows.Forms.Label();
+            this.FromLinearityTextBox = new System.Windows.Forms.TextBox();
+            this.ToLinearityTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
@@ -74,27 +79,25 @@
             // 
             // ClusterHistogram
             // 
-            chartArea2.Name = "ChartArea1";
-            this.ClusterHistogram.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.ClusterHistogram.Legends.Add(legend2);
-            this.ClusterHistogram.Location = new System.Drawing.Point(841, 500);
-            this.ClusterHistogram.Margin = new System.Windows.Forms.Padding(4);
+            chartArea1.Name = "ChartArea1";
+            this.ClusterHistogram.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.ClusterHistogram.Legends.Add(legend1);
+            this.ClusterHistogram.Location = new System.Drawing.Point(631, 406);
             this.ClusterHistogram.Name = "ClusterHistogram";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.ClusterHistogram.Series.Add(series2);
-            this.ClusterHistogram.Size = new System.Drawing.Size(1048, 336);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.ClusterHistogram.Series.Add(series1);
+            this.ClusterHistogram.Size = new System.Drawing.Size(786, 273);
             this.ClusterHistogram.TabIndex = 0;
             this.ClusterHistogram.Text = "Histogram";
             // 
             // showHistogram
             // 
-            this.showHistogram.Location = new System.Drawing.Point(841, 450);
-            this.showHistogram.Margin = new System.Windows.Forms.Padding(4);
+            this.showHistogram.Location = new System.Drawing.Point(631, 366);
             this.showHistogram.Name = "showHistogram";
-            this.showHistogram.Size = new System.Drawing.Size(224, 31);
+            this.showHistogram.Size = new System.Drawing.Size(168, 25);
             this.showHistogram.TabIndex = 1;
             this.showHistogram.Text = "Show Histogram";
             this.showHistogram.UseVisualStyleBackColor = true;
@@ -102,10 +105,9 @@
             // 
             // PreviousButton
             // 
-            this.PreviousButton.Location = new System.Drawing.Point(7, 155);
-            this.PreviousButton.Margin = new System.Windows.Forms.Padding(4);
+            this.PreviousButton.Location = new System.Drawing.Point(5, 126);
             this.PreviousButton.Name = "PreviousButton";
-            this.PreviousButton.Size = new System.Drawing.Size(134, 40);
+            this.PreviousButton.Size = new System.Drawing.Size(100, 32);
             this.PreviousButton.TabIndex = 2;
             this.PreviousButton.Text = "Previous";
             this.PreviousButton.UseVisualStyleBackColor = true;
@@ -113,10 +115,9 @@
             // 
             // NextButton
             // 
-            this.NextButton.Location = new System.Drawing.Point(158, 155);
-            this.NextButton.Margin = new System.Windows.Forms.Padding(4);
+            this.NextButton.Location = new System.Drawing.Point(118, 126);
             this.NextButton.Name = "NextButton";
-            this.NextButton.Size = new System.Drawing.Size(140, 40);
+            this.NextButton.Size = new System.Drawing.Size(105, 32);
             this.NextButton.TabIndex = 3;
             this.NextButton.Text = "Next";
             this.NextButton.UseVisualStyleBackColor = true;
@@ -125,18 +126,18 @@
             // PictureBox
             // 
             this.PictureBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.PictureBox.Location = new System.Drawing.Point(13, 220);
-            this.PictureBox.Margin = new System.Windows.Forms.Padding(4);
+            this.PictureBox.Location = new System.Drawing.Point(10, 179);
             this.PictureBox.Name = "PictureBox";
-            this.PictureBox.Size = new System.Drawing.Size(800, 800);
+            this.PictureBox.Size = new System.Drawing.Size(601, 651);
             this.PictureBox.TabIndex = 4;
             this.PictureBox.TabStop = false;
             // 
             // FilterButton
             // 
-            this.FilterButton.Location = new System.Drawing.Point(841, 348);
+            this.FilterButton.Location = new System.Drawing.Point(632, 300);
+            this.FilterButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.FilterButton.Name = "FilterButton";
-            this.FilterButton.Size = new System.Drawing.Size(138, 52);
+            this.FilterButton.Size = new System.Drawing.Size(104, 42);
             this.FilterButton.TabIndex = 5;
             this.FilterButton.Text = "Process";
             this.FilterButton.UseVisualStyleBackColor = true;
@@ -144,8 +145,13 @@
             // 
             // FilterGroup
             // 
-            this.FilterGroup.Controls.Add(this.label2);
-            this.FilterGroup.Controls.Add(this.ToEnergyLabel);
+            this.FilterGroup.Controls.Add(this.ToLinearityTextBox);
+            this.FilterGroup.Controls.Add(this.FromLinearityTextBox);
+            this.FilterGroup.Controls.Add(this.labelToLinearity);
+            this.FilterGroup.Controls.Add(this.labelFromLinearity);
+            this.FilterGroup.Controls.Add(this.linearityLabel);
+            this.FilterGroup.Controls.Add(this.pixCountLabel);
+            this.FilterGroup.Controls.Add(this.energyLabel);
             this.FilterGroup.Controls.Add(this.ToPixCountFilterBox);
             this.FilterGroup.Controls.Add(this.labelToPixCount);
             this.FilterGroup.Controls.Add(this.labelFromPixCount);
@@ -155,110 +161,124 @@
             this.FilterGroup.Controls.Add(this.labelFromEnergyBox);
             this.FilterGroup.Controls.Add(this.ToEnergyFilterBox);
             this.FilterGroup.Controls.Add(this.FromEnergyFilterBox);
-            this.FilterGroup.Location = new System.Drawing.Point(841, 178);
+            this.FilterGroup.Location = new System.Drawing.Point(631, 145);
+            this.FilterGroup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.FilterGroup.Name = "FilterGroup";
-            this.FilterGroup.Size = new System.Drawing.Size(516, 152);
+            this.FilterGroup.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FilterGroup.Size = new System.Drawing.Size(387, 151);
             this.FilterGroup.TabIndex = 6;
             this.FilterGroup.TabStop = false;
             this.FilterGroup.Text = "Select filters";
             // 
-            // label2
+            // pixCountLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label2.Location = new System.Drawing.Point(6, 98);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(105, 20);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Pixel Count";
+            this.pixCountLabel.AutoSize = true;
+            this.pixCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.pixCountLabel.Location = new System.Drawing.Point(4, 68);
+            this.pixCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.pixCountLabel.Name = "pixCountLabel";
+            this.pixCountLabel.Size = new System.Drawing.Size(89, 17);
+            this.pixCountLabel.TabIndex = 10;
+            this.pixCountLabel.Text = "Pixel Count";
             // 
-            // ToEnergyLabel
+            // energyLabel
             // 
-            this.ToEnergyLabel.AutoSize = true;
-            this.ToEnergyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.ToEnergyLabel.Location = new System.Drawing.Point(6, 57);
-            this.ToEnergyLabel.Name = "ToEnergyLabel";
-            this.ToEnergyLabel.Size = new System.Drawing.Size(139, 20);
-            this.ToEnergyLabel.TabIndex = 9;
-            this.ToEnergyLabel.Text = "Energy (in keV)";
+            this.energyLabel.AutoSize = true;
+            this.energyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.energyLabel.Location = new System.Drawing.Point(4, 32);
+            this.energyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.energyLabel.Name = "energyLabel";
+            this.energyLabel.Size = new System.Drawing.Size(121, 17);
+            this.energyLabel.TabIndex = 9;
+            this.energyLabel.Text = "Energy (in keV)";
             // 
             // ToPixCountFilterBox
             // 
-            this.ToPixCountFilterBox.Location = new System.Drawing.Point(365, 98);
+            this.ToPixCountFilterBox.Location = new System.Drawing.Point(274, 68);
+            this.ToPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ToPixCountFilterBox.Name = "ToPixCountFilterBox";
-            this.ToPixCountFilterBox.Size = new System.Drawing.Size(75, 22);
+            this.ToPixCountFilterBox.Size = new System.Drawing.Size(57, 20);
             this.ToPixCountFilterBox.TabIndex = 8;
             // 
             // labelToPixCount
             // 
             this.labelToPixCount.AutoSize = true;
-            this.labelToPixCount.Location = new System.Drawing.Point(330, 103);
+            this.labelToPixCount.Location = new System.Drawing.Point(236, 71);
+            this.labelToPixCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelToPixCount.Name = "labelToPixCount";
-            this.labelToPixCount.Size = new System.Drawing.Size(29, 17);
+            this.labelToPixCount.Size = new System.Drawing.Size(23, 13);
             this.labelToPixCount.TabIndex = 7;
             this.labelToPixCount.Text = "To:";
             // 
             // labelFromPixCount
             // 
             this.labelFromPixCount.AutoSize = true;
-            this.labelFromPixCount.Location = new System.Drawing.Point(161, 103);
+            this.labelFromPixCount.Location = new System.Drawing.Point(121, 71);
+            this.labelFromPixCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelFromPixCount.Name = "labelFromPixCount";
-            this.labelFromPixCount.Size = new System.Drawing.Size(44, 17);
+            this.labelFromPixCount.Size = new System.Drawing.Size(33, 13);
             this.labelFromPixCount.TabIndex = 6;
             this.labelFromPixCount.Text = "From:";
             // 
             // FromPixCountFilterBox
             // 
-            this.FromPixCountFilterBox.Location = new System.Drawing.Point(220, 98);
+            this.FromPixCountFilterBox.Location = new System.Drawing.Point(158, 68);
+            this.FromPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.FromPixCountFilterBox.Name = "FromPixCountFilterBox";
-            this.FromPixCountFilterBox.Size = new System.Drawing.Size(75, 22);
+            this.FromPixCountFilterBox.Size = new System.Drawing.Size(57, 20);
             this.FromPixCountFilterBox.TabIndex = 5;
             // 
             // labelToEnergyBox
             // 
             this.labelToEnergyBox.AutoSize = true;
-            this.labelToEnergyBox.Location = new System.Drawing.Point(329, 60);
+            this.labelToEnergyBox.Location = new System.Drawing.Point(236, 36);
+            this.labelToEnergyBox.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelToEnergyBox.Name = "labelToEnergyBox";
-            this.labelToEnergyBox.Size = new System.Drawing.Size(29, 17);
+            this.labelToEnergyBox.Size = new System.Drawing.Size(23, 13);
             this.labelToEnergyBox.TabIndex = 4;
             this.labelToEnergyBox.Text = "To:";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(231, 47);
+            this.label1.Location = new System.Drawing.Point(173, 38);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(0, 17);
+            this.label1.Size = new System.Drawing.Size(0, 13);
             this.label1.TabIndex = 3;
             // 
             // labelFromEnergyBox
             // 
             this.labelFromEnergyBox.AutoSize = true;
-            this.labelFromEnergyBox.Location = new System.Drawing.Point(161, 60);
+            this.labelFromEnergyBox.Location = new System.Drawing.Point(121, 35);
+            this.labelFromEnergyBox.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelFromEnergyBox.Name = "labelFromEnergyBox";
-            this.labelFromEnergyBox.Size = new System.Drawing.Size(44, 17);
+            this.labelFromEnergyBox.Size = new System.Drawing.Size(33, 13);
             this.labelFromEnergyBox.TabIndex = 2;
             this.labelFromEnergyBox.Text = "From:";
             // 
             // ToEnergyFilterBox
             // 
-            this.ToEnergyFilterBox.Location = new System.Drawing.Point(365, 57);
+            this.ToEnergyFilterBox.Location = new System.Drawing.Point(274, 33);
+            this.ToEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ToEnergyFilterBox.Name = "ToEnergyFilterBox";
-            this.ToEnergyFilterBox.Size = new System.Drawing.Size(75, 22);
+            this.ToEnergyFilterBox.Size = new System.Drawing.Size(57, 20);
             this.ToEnergyFilterBox.TabIndex = 1;
             // 
             // FromEnergyFilterBox
             // 
-            this.FromEnergyFilterBox.Location = new System.Drawing.Point(220, 60);
+            this.FromEnergyFilterBox.Location = new System.Drawing.Point(158, 32);
+            this.FromEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.FromEnergyFilterBox.Name = "FromEnergyFilterBox";
-            this.FromEnergyFilterBox.Size = new System.Drawing.Size(75, 22);
+            this.FromEnergyFilterBox.Size = new System.Drawing.Size(57, 20);
             this.FromEnergyFilterBox.TabIndex = 0;
             // 
             // HideHistogramButton
             // 
-            this.HideHistogramButton.Location = new System.Drawing.Point(1091, 450);
+            this.HideHistogramButton.Location = new System.Drawing.Point(818, 366);
+            this.HideHistogramButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.HideHistogramButton.Name = "HideHistogramButton";
-            this.HideHistogramButton.Size = new System.Drawing.Size(205, 31);
+            this.HideHistogramButton.Size = new System.Drawing.Size(154, 25);
             this.HideHistogramButton.TabIndex = 7;
             this.HideHistogramButton.Text = "Hide Histogram";
             this.HideHistogramButton.UseVisualStyleBackColor = true;
@@ -273,52 +293,59 @@
             this.InputFileGroup.Controls.Add(this.Or2Label);
             this.InputFileGroup.Controls.Add(this.InFilePathBox);
             this.InputFileGroup.Controls.Add(this.InputFileLabel);
-            this.InputFileGroup.Location = new System.Drawing.Point(833, 12);
+            this.InputFileGroup.Location = new System.Drawing.Point(625, 10);
+            this.InputFileGroup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.InputFileGroup.Name = "InputFileGroup";
-            this.InputFileGroup.Size = new System.Drawing.Size(516, 160);
+            this.InputFileGroup.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.InputFileGroup.Size = new System.Drawing.Size(387, 130);
             this.InputFileGroup.TabIndex = 8;
             this.InputFileGroup.TabStop = false;
             this.InputFileGroup.Text = "Select input and output file for filters";
             // 
             // OutFileNameIniBox
             // 
-            this.OutFileNameIniBox.Location = new System.Drawing.Point(137, 113);
+            this.OutFileNameIniBox.Location = new System.Drawing.Point(103, 92);
+            this.OutFileNameIniBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.OutFileNameIniBox.Name = "OutFileNameIniBox";
-            this.OutFileNameIniBox.Size = new System.Drawing.Size(196, 22);
+            this.OutFileNameIniBox.Size = new System.Drawing.Size(148, 20);
             this.OutFileNameIniBox.TabIndex = 21;
             // 
             // OutIniFileLabel
             // 
             this.OutIniFileLabel.AutoSize = true;
             this.OutIniFileLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.OutIniFileLabel.Location = new System.Drawing.Point(6, 116);
+            this.OutIniFileLabel.Location = new System.Drawing.Point(4, 94);
+            this.OutIniFileLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.OutIniFileLabel.Name = "OutIniFileLabel";
-            this.OutIniFileLabel.Size = new System.Drawing.Size(124, 20);
+            this.OutIniFileLabel.Size = new System.Drawing.Size(105, 17);
             this.OutIniFileLabel.TabIndex = 20;
             this.OutIniFileLabel.Text = "Output (.ini) file";
             // 
             // OutFileNameClBox
             // 
-            this.OutFileNameClBox.Location = new System.Drawing.Point(137, 73);
+            this.OutFileNameClBox.Location = new System.Drawing.Point(103, 59);
+            this.OutFileNameClBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.OutFileNameClBox.Name = "OutFileNameClBox";
-            this.OutFileNameClBox.Size = new System.Drawing.Size(196, 22);
+            this.OutFileNameClBox.Size = new System.Drawing.Size(148, 20);
             this.OutFileNameClBox.TabIndex = 19;
             // 
             // OutClFileLabel
             // 
             this.OutClFileLabel.AutoSize = true;
             this.OutClFileLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.OutClFileLabel.Location = new System.Drawing.Point(6, 75);
+            this.OutClFileLabel.Location = new System.Drawing.Point(4, 61);
+            this.OutClFileLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.OutClFileLabel.Name = "OutClFileLabel";
-            this.OutClFileLabel.Size = new System.Drawing.Size(120, 20);
+            this.OutClFileLabel.Size = new System.Drawing.Size(101, 17);
             this.OutClFileLabel.TabIndex = 18;
             this.OutClFileLabel.Text = "Output (.cl) file";
             // 
             // BrowseFilteredFileButton
             // 
-            this.BrowseFilteredFileButton.Location = new System.Drawing.Point(389, 32);
+            this.BrowseFilteredFileButton.Location = new System.Drawing.Point(292, 26);
+            this.BrowseFilteredFileButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.BrowseFilteredFileButton.Name = "BrowseFilteredFileButton";
-            this.BrowseFilteredFileButton.Size = new System.Drawing.Size(108, 30);
+            this.BrowseFilteredFileButton.Size = new System.Drawing.Size(81, 24);
             this.BrowseFilteredFileButton.TabIndex = 17;
             this.BrowseFilteredFileButton.Text = "Browse...";
             this.BrowseFilteredFileButton.UseVisualStyleBackColor = true;
@@ -328,34 +355,38 @@
             // 
             this.Or2Label.AutoSize = true;
             this.Or2Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.Or2Label.Location = new System.Drawing.Point(339, 34);
+            this.Or2Label.Location = new System.Drawing.Point(254, 28);
+            this.Or2Label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.Or2Label.Name = "Or2Label";
-            this.Or2Label.Size = new System.Drawing.Size(28, 20);
+            this.Or2Label.Size = new System.Drawing.Size(24, 17);
             this.Or2Label.TabIndex = 16;
             this.Or2Label.Text = "Or";
             // 
             // InFilePathBox
             // 
-            this.InFilePathBox.Location = new System.Drawing.Point(137, 32);
+            this.InFilePathBox.Location = new System.Drawing.Point(103, 26);
+            this.InFilePathBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.InFilePathBox.Name = "InFilePathBox";
-            this.InFilePathBox.Size = new System.Drawing.Size(196, 22);
+            this.InFilePathBox.Size = new System.Drawing.Size(148, 20);
             this.InFilePathBox.TabIndex = 15;
             // 
             // InputFileLabel
             // 
             this.InputFileLabel.AutoSize = true;
             this.InputFileLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.InputFileLabel.Location = new System.Drawing.Point(6, 30);
+            this.InputFileLabel.Location = new System.Drawing.Point(4, 24);
+            this.InputFileLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.InputFileLabel.Name = "InputFileLabel";
-            this.InputFileLabel.Size = new System.Drawing.Size(109, 20);
+            this.InputFileLabel.Size = new System.Drawing.Size(93, 17);
             this.InputFileLabel.TabIndex = 14;
             this.InputFileLabel.Text = "Input file path";
             // 
             // ViewClusters
             // 
-            this.ViewClusters.Location = new System.Drawing.Point(6, 87);
+            this.ViewClusters.Location = new System.Drawing.Point(4, 71);
+            this.ViewClusters.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ViewClusters.Name = "ViewClusters";
-            this.ViewClusters.Size = new System.Drawing.Size(529, 40);
+            this.ViewClusters.Size = new System.Drawing.Size(397, 32);
             this.ViewClusters.TabIndex = 9;
             this.ViewClusters.Text = "Load Clusters";
             this.ViewClusters.UseVisualStyleBackColor = true;
@@ -370,18 +401,21 @@
             this.ViewGroup.Controls.Add(this.PreviousButton);
             this.ViewGroup.Controls.Add(this.ViewClusters);
             this.ViewGroup.Controls.Add(this.NextButton);
-            this.ViewGroup.Location = new System.Drawing.Point(12, 12);
+            this.ViewGroup.Location = new System.Drawing.Point(9, 10);
+            this.ViewGroup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.ViewGroup.Name = "ViewGroup";
-            this.ViewGroup.Size = new System.Drawing.Size(541, 202);
+            this.ViewGroup.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ViewGroup.Size = new System.Drawing.Size(406, 164);
             this.ViewGroup.TabIndex = 10;
             this.ViewGroup.TabStop = false;
             this.ViewGroup.Text = "Select file to view";
             // 
             // BrowseViewButton
             // 
-            this.BrowseViewButton.Location = new System.Drawing.Point(366, 50);
+            this.BrowseViewButton.Location = new System.Drawing.Point(274, 41);
+            this.BrowseViewButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.BrowseViewButton.Name = "BrowseViewButton";
-            this.BrowseViewButton.Size = new System.Drawing.Size(108, 25);
+            this.BrowseViewButton.Size = new System.Drawing.Size(81, 20);
             this.BrowseViewButton.TabIndex = 13;
             this.BrowseViewButton.Text = "Browse...";
             this.BrowseViewButton.UseVisualStyleBackColor = true;
@@ -391,34 +425,84 @@
             // 
             this.OrLabel.AutoSize = true;
             this.OrLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.OrLabel.Location = new System.Drawing.Point(315, 52);
+            this.OrLabel.Location = new System.Drawing.Point(236, 42);
+            this.OrLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.OrLabel.Name = "OrLabel";
-            this.OrLabel.Size = new System.Drawing.Size(28, 20);
+            this.OrLabel.Size = new System.Drawing.Size(24, 17);
             this.OrLabel.TabIndex = 12;
             this.OrLabel.Text = "Or";
             // 
             // InViewFilePathBox
             // 
-            this.InViewFilePathBox.Location = new System.Drawing.Point(90, 50);
+            this.InViewFilePathBox.Location = new System.Drawing.Point(68, 41);
+            this.InViewFilePathBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.InViewFilePathBox.Name = "InViewFilePathBox";
-            this.InViewFilePathBox.Size = new System.Drawing.Size(208, 22);
+            this.InViewFilePathBox.Size = new System.Drawing.Size(157, 20);
             this.InViewFilePathBox.TabIndex = 11;
             // 
             // FilePathLabel
             // 
             this.FilePathLabel.AutoSize = true;
             this.FilePathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.FilePathLabel.Location = new System.Drawing.Point(6, 50);
+            this.FilePathLabel.Location = new System.Drawing.Point(4, 41);
+            this.FilePathLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.FilePathLabel.Name = "FilePathLabel";
-            this.FilePathLabel.Size = new System.Drawing.Size(78, 20);
+            this.FilePathLabel.Size = new System.Drawing.Size(66, 17);
             this.FilePathLabel.TabIndex = 10;
             this.FilePathLabel.Text = "File path:";
             // 
-            // Form1
+            // linearityLabel
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.linearityLabel.AutoSize = true;
+            this.linearityLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.linearityLabel.Location = new System.Drawing.Point(4, 108);
+            this.linearityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.linearityLabel.Name = "linearityLabel";
+            this.linearityLabel.Size = new System.Drawing.Size(96, 17);
+            this.linearityLabel.TabIndex = 12;
+            this.linearityLabel.Text = "Linearity(%)";
+            // 
+            // labelFromLinearity
+            // 
+            this.labelFromLinearity.AutoSize = true;
+            this.labelFromLinearity.Location = new System.Drawing.Point(121, 108);
+            this.labelFromLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelFromLinearity.Name = "labelFromLinearity";
+            this.labelFromLinearity.Size = new System.Drawing.Size(33, 13);
+            this.labelFromLinearity.TabIndex = 13;
+            this.labelFromLinearity.Text = "From:";
+            // 
+            // labelToLinearity
+            // 
+            this.labelToLinearity.AutoSize = true;
+            this.labelToLinearity.Location = new System.Drawing.Point(236, 108);
+            this.labelToLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelToLinearity.Name = "labelToLinearity";
+            this.labelToLinearity.Size = new System.Drawing.Size(23, 13);
+            this.labelToLinearity.TabIndex = 14;
+            this.labelToLinearity.Text = "To:";
+            // 
+            // FromLinearityTextBox
+            // 
+            this.FromLinearityTextBox.Location = new System.Drawing.Point(158, 101);
+            this.FromLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.FromLinearityTextBox.Name = "FromLinearityTextBox";
+            this.FromLinearityTextBox.Size = new System.Drawing.Size(57, 20);
+            this.FromLinearityTextBox.TabIndex = 15;
+            // 
+            // ToLinearityTextBox
+            // 
+            this.ToLinearityTextBox.Location = new System.Drawing.Point(274, 101);
+            this.ToLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.ToLinearityTextBox.Name = "ToLinearityTextBox";
+            this.ToLinearityTextBox.Size = new System.Drawing.Size(57, 20);
+            this.ToLinearityTextBox.TabIndex = 16;
+            // 
+            // ClusterUI
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1902, 1033);
+            this.ClientSize = new System.Drawing.Size(1426, 839);
             this.Controls.Add(this.ViewGroup);
             this.Controls.Add(this.InputFileGroup);
             this.Controls.Add(this.HideHistogramButton);
@@ -427,8 +511,7 @@
             this.Controls.Add(this.PictureBox);
             this.Controls.Add(this.showHistogram);
             this.Controls.Add(this.ClusterHistogram);
-            this.Margin = new System.Windows.Forms.Padding(4);
-            this.Name = "Form1";
+            this.Name = "ClusterUI";
             this.Text = "ClusterViewer";
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).EndInit();
@@ -452,8 +535,8 @@
         private System.Windows.Forms.PictureBox PictureBox;
         private System.Windows.Forms.Button FilterButton;
         private System.Windows.Forms.GroupBox FilterGroup;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label ToEnergyLabel;
+        private System.Windows.Forms.Label pixCountLabel;
+        private System.Windows.Forms.Label energyLabel;
         private System.Windows.Forms.TextBox ToPixCountFilterBox;
         private System.Windows.Forms.Label labelToPixCount;
         private System.Windows.Forms.Label labelFromPixCount;
@@ -479,6 +562,11 @@
         private System.Windows.Forms.Label FilePathLabel;
         private System.Windows.Forms.Label OutIniFileLabel;
         private System.Windows.Forms.TextBox OutFileNameIniBox;
+        private System.Windows.Forms.Label linearityLabel;
+        private System.Windows.Forms.TextBox ToLinearityTextBox;
+        private System.Windows.Forms.TextBox FromLinearityTextBox;
+        private System.Windows.Forms.Label labelToLinearity;
+        private System.Windows.Forms.Label labelFromLinearity;
     }
 }
 
