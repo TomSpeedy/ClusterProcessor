@@ -183,22 +183,35 @@ namespace ClusterUI
        
         public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
         {
+            PixelFile.DiscardBufferedData();
             PixelFile.BaseStream.Seek((long)byteOfStart, SeekOrigin.Begin);
-            PixelPoint[] points = new PixelPoint[pixelCount];
+            var points = new List<PixelPoint>();
             for (int i = 0; i < pixelCount; i++)
             {
                 var tokens = PixelFile.ReadLine().Split();
                 if (tokens[0] == "#")
-                    tokens = PixelFile.ReadLine().Split();
+                {
+                    if (i == 0)
+                        tokens = PixelFile.ReadLine().Split();
+                    else
+                        throw new InvalidOperationException();
+
+                }
+                    
                 ushort.TryParse(tokens[0], out ushort x);
                 ushort.TryParse(tokens[1], out ushort y);
                 double.TryParse(tokens[2].Replace('.', ','), out double ToA);
                 double.TryParse(tokens[3].Replace('.', ','), out double ToT);
-                points[i] = new PixelPoint(x, y, ToA, ToT);
+                if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1) //we didnt read the same pixel twice, If we did, then just ignore it
+                {
+
+                    points.Add(new PixelPoint(x, y, ToA, ToT));
+
+                }
             }
             double area = 0;
-            if (points.Length <= 1)
-                area = points.Length;
+            if (points.Count <= 1)
+                area = points.Count;
             else
             {
                 var hull = new ConvexHull(points);
@@ -206,7 +219,7 @@ namespace ClusterUI
                 //CalculateWidth(hull);
             }
             
-            double percentage = 100 * pixelCount / area;
+            double percentage = 100 * pixelCount / (double)area;
             if (percentage >= LowerBound && percentage <= UpperBound)
                 return true;
             return false;
@@ -243,19 +256,25 @@ namespace ClusterUI
             if (HullPoints.Count <= 2)
                 return HullPoints.Count;
             double area = 0;
+            int j = HullPoints.Count - 1;
             for (int i = 0; i < HullPoints.Count; i++)
             {
-
-                area += (HullPoints[i % HullPoints.Count].xCoord * HullPoints[(i + 1) % HullPoints.Count].yCoord -
-                    HullPoints[i % HullPoints.Count].yCoord * HullPoints[(i + 1) % HullPoints.Count].xCoord);
+                area += (HullPoints[j].xCoord + HullPoints[i].xCoord) * (HullPoints[j].yCoord - HullPoints[i].yCoord);
+                j = i;
+                //area += (HullPoints[i % HullPoints.Count].xCoord + HullPoints[(i + 1) % HullPoints.Count].yCoord *
+                  //  HullPoints[i % HullPoints.Count].yCoord * HullPoints[(i + 1) % HullPoints.Count].xCoord);
             }
             return Math.Abs(area / 2);
         }
-        public ConvexHull(PixelPoint[] Points)
+        public ConvexHull(IList <PixelPoint> Points)
         {
 
-            if (Points.Length <= 3)
+            if (Points.Count <= 3)
+            {
                 HullPoints = Points.ToList();
+                return;
+            }
+                
             MinPoint = GetMinPoint(Points);
             var pixComp = new PixelPointComparer(MinPoint);
             var sortedPoints = Points.ToList();
@@ -267,6 +286,7 @@ namespace ClusterUI
             HullPoints.Add(sortedPoints[0]);
             for (int i = 1; i < sortedPoints.Count; i++)
             {
+                if (HullPoints.Count == 1) { }
                 CheckHull(sortedPoints[i]);
             }
 
@@ -305,10 +325,10 @@ namespace ClusterUI
                 return Direction.right;
 
         }
-        private PixelPoint GetMinPoint(PixelPoint[] points)
+        private PixelPoint GetMinPoint(IList<PixelPoint> points)
         {
             PixelPoint min = points[0];
-            for (int i = 0; i < points.Length; i++)
+            for (int i = 0; i < points.Count; i++)
             {
                 if (points[i].yCoord < min.yCoord)
                 {

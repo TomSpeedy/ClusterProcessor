@@ -31,8 +31,8 @@ namespace ClusterUI //TODO : Hull for less points than 3
             if (cluster != null)
             { 
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                var hull = new ConvexHull(cluster.Points);
-                DrawLineInt((Bitmap)this.PictureBox.Image, hull);
+                //var hull = new ConvexHull(cluster.Points);
+                //DrawLineInt((Bitmap)this.PictureBox.Image, hull);
             }
         }
         public void PrevButtonClicked(object sender, EventArgs e)
@@ -43,8 +43,8 @@ namespace ClusterUI //TODO : Hull for less points than 3
             if (cluster != null)
             {
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                var hull = new ConvexHull(cluster.Points);
-                DrawLineInt((Bitmap)this.PictureBox.Image, hull);
+                //var hull = new ConvexHull(cluster.Points);
+                //DrawLineInt((Bitmap)this.PictureBox.Image, hull);
             }
         }
         public void BrowseViewButtonClicked(object sender, EventArgs e)
@@ -106,26 +106,37 @@ namespace ClusterUI //TODO : Hull for less points than 3
            var workingDirName = Cluster.GetPrefixPath(InFilePathBox.Text);
            Cluster.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
            var filteredOut = new StreamWriter(workingDirName + OutFileNameClBox.Text);
-           var tempFile = new StreamWriter(tempFileName);
+           //var tempFile = new StreamWriter(tempFileName);
            CreateNewIniFile(new StreamReader(InFilePathBox.Text), new StreamWriter(workingDirName + OutFileNameIniBox.Text), clFile, OutFileNameClBox.Text);
             
            var pixelCountFilter = new PixelCountFilter(new StreamReader(pxFile), 
                int.TryParse(FromPixCountFilterBox.Text, out int resultLowerP) ? resultLowerP : 0,
                int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000); 
-           pixelCountFilter.Process(new StreamReader(clFile), tempFile);
-           tempFile.Close();
-           tempFile.Dispose();
+           //pixelCountFilter.Process(new StreamReader(clFile), tempFile);
+           //tempFile.Close();
+           //tempFile.Dispose();
 
            var energyFilter = new EnergyFilter(new StreamReader(pxFile), new StreamReader(workingDirName + "a.txt"),
                new StreamReader(workingDirName + "b.txt"), new StreamReader(workingDirName + "c.txt"), new StreamReader(workingDirName + "t.txt"),
                double.TryParse(FromEnergyFilterBox.Text, out double resultLowerE) ? resultLowerE : 0,
                double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : 1000000);
-           var tempFileR = new StreamReader(tempFileName);
+
+           var linearityFilter = new LinearityFilter(new StreamReader(pxFile),
+                int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
+                int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100);
+            //linearityFilter.Process(new StreamReader(clFile), filteredOut);
+
+
+            var multiFilter = new MultiFilter(new ClusterFilter[3] { pixelCountFilter, energyFilter, linearityFilter });
+            multiFilter.Process(new StreamReader(clFile), filteredOut);
+          
+            /*var tempFileR = new StreamReader(tempFileName);
            energyFilter.Process(tempFileR, filteredOut);
            tempFileR.Close();
            tempFileR.Dispose();
-           File.Delete(tempFileName);
+           File.Delete(tempFileName);*/
            filteredOut.Close();
+            MessageBox.Show("Done");
 
        }
        public void BrowseFilterFileButtonClicked(object sender, EventArgs e)
