@@ -38,6 +38,11 @@
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.FilterButton = new System.Windows.Forms.Button();
             this.FilterGroup = new System.Windows.Forms.GroupBox();
+            this.ToLinearityTextBox = new System.Windows.Forms.TextBox();
+            this.FromLinearityTextBox = new System.Windows.Forms.TextBox();
+            this.labelToLinearity = new System.Windows.Forms.Label();
+            this.labelFromLinearity = new System.Windows.Forms.Label();
+            this.linearityLabel = new System.Windows.Forms.Label();
             this.pixCountLabel = new System.Windows.Forms.Label();
             this.energyLabel = new System.Windows.Forms.Label();
             this.ToPixCountFilterBox = new System.Windows.Forms.TextBox();
@@ -65,11 +70,7 @@
             this.OrLabel = new System.Windows.Forms.Label();
             this.InViewFilePathBox = new System.Windows.Forms.TextBox();
             this.FilePathLabel = new System.Windows.Forms.Label();
-            this.linearityLabel = new System.Windows.Forms.Label();
-            this.labelFromLinearity = new System.Windows.Forms.Label();
-            this.labelToLinearity = new System.Windows.Forms.Label();
-            this.FromLinearityTextBox = new System.Windows.Forms.TextBox();
-            this.ToLinearityTextBox = new System.Windows.Forms.TextBox();
+            this.skeletonizeButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
@@ -135,7 +136,7 @@
             // FilterButton
             // 
             this.FilterButton.Location = new System.Drawing.Point(632, 300);
-            this.FilterButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FilterButton.Margin = new System.Windows.Forms.Padding(2);
             this.FilterButton.Name = "FilterButton";
             this.FilterButton.Size = new System.Drawing.Size(104, 42);
             this.FilterButton.TabIndex = 5;
@@ -162,13 +163,60 @@
             this.FilterGroup.Controls.Add(this.ToEnergyFilterBox);
             this.FilterGroup.Controls.Add(this.FromEnergyFilterBox);
             this.FilterGroup.Location = new System.Drawing.Point(631, 145);
-            this.FilterGroup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FilterGroup.Margin = new System.Windows.Forms.Padding(2);
             this.FilterGroup.Name = "FilterGroup";
-            this.FilterGroup.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FilterGroup.Padding = new System.Windows.Forms.Padding(2);
             this.FilterGroup.Size = new System.Drawing.Size(387, 151);
             this.FilterGroup.TabIndex = 6;
             this.FilterGroup.TabStop = false;
             this.FilterGroup.Text = "Select filters";
+            // 
+            // ToLinearityTextBox
+            // 
+            this.ToLinearityTextBox.Location = new System.Drawing.Point(274, 101);
+            this.ToLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.ToLinearityTextBox.Name = "ToLinearityTextBox";
+            this.ToLinearityTextBox.Size = new System.Drawing.Size(57, 20);
+            this.ToLinearityTextBox.TabIndex = 16;
+            // 
+            // FromLinearityTextBox
+            // 
+            this.FromLinearityTextBox.Location = new System.Drawing.Point(158, 101);
+            this.FromLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.FromLinearityTextBox.Name = "FromLinearityTextBox";
+            this.FromLinearityTextBox.Size = new System.Drawing.Size(57, 20);
+            this.FromLinearityTextBox.TabIndex = 15;
+            // 
+            // labelToLinearity
+            // 
+            this.labelToLinearity.AutoSize = true;
+            this.labelToLinearity.Location = new System.Drawing.Point(236, 108);
+            this.labelToLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelToLinearity.Name = "labelToLinearity";
+            this.labelToLinearity.Size = new System.Drawing.Size(23, 13);
+            this.labelToLinearity.TabIndex = 14;
+            this.labelToLinearity.Text = "To:";
+            // 
+            // labelFromLinearity
+            // 
+            this.labelFromLinearity.AutoSize = true;
+            this.labelFromLinearity.Location = new System.Drawing.Point(121, 108);
+            this.labelFromLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelFromLinearity.Name = "labelFromLinearity";
+            this.labelFromLinearity.Size = new System.Drawing.Size(33, 13);
+            this.labelFromLinearity.TabIndex = 13;
+            this.labelFromLinearity.Text = "From:";
+            // 
+            // linearityLabel
+            // 
+            this.linearityLabel.AutoSize = true;
+            this.linearityLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.linearityLabel.Location = new System.Drawing.Point(4, 108);
+            this.linearityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.linearityLabel.Name = "linearityLabel";
+            this.linearityLabel.Size = new System.Drawing.Size(96, 17);
+            this.linearityLabel.TabIndex = 12;
+            this.linearityLabel.Text = "Linearity(%)";
             // 
             // pixCountLabel
             // 
@@ -195,7 +243,7 @@
             // ToPixCountFilterBox
             // 
             this.ToPixCountFilterBox.Location = new System.Drawing.Point(274, 68);
-            this.ToPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ToPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToPixCountFilterBox.Name = "ToPixCountFilterBox";
             this.ToPixCountFilterBox.Size = new System.Drawing.Size(57, 20);
             this.ToPixCountFilterBox.TabIndex = 8;
@@ -223,7 +271,7 @@
             // FromPixCountFilterBox
             // 
             this.FromPixCountFilterBox.Location = new System.Drawing.Point(158, 68);
-            this.FromPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FromPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.FromPixCountFilterBox.Name = "FromPixCountFilterBox";
             this.FromPixCountFilterBox.Size = new System.Drawing.Size(57, 20);
             this.FromPixCountFilterBox.TabIndex = 5;
@@ -260,7 +308,7 @@
             // ToEnergyFilterBox
             // 
             this.ToEnergyFilterBox.Location = new System.Drawing.Point(274, 33);
-            this.ToEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ToEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToEnergyFilterBox.Name = "ToEnergyFilterBox";
             this.ToEnergyFilterBox.Size = new System.Drawing.Size(57, 20);
             this.ToEnergyFilterBox.TabIndex = 1;
@@ -268,7 +316,7 @@
             // FromEnergyFilterBox
             // 
             this.FromEnergyFilterBox.Location = new System.Drawing.Point(158, 32);
-            this.FromEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FromEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.FromEnergyFilterBox.Name = "FromEnergyFilterBox";
             this.FromEnergyFilterBox.Size = new System.Drawing.Size(57, 20);
             this.FromEnergyFilterBox.TabIndex = 0;
@@ -276,7 +324,7 @@
             // HideHistogramButton
             // 
             this.HideHistogramButton.Location = new System.Drawing.Point(818, 366);
-            this.HideHistogramButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.HideHistogramButton.Margin = new System.Windows.Forms.Padding(2);
             this.HideHistogramButton.Name = "HideHistogramButton";
             this.HideHistogramButton.Size = new System.Drawing.Size(154, 25);
             this.HideHistogramButton.TabIndex = 7;
@@ -294,9 +342,9 @@
             this.InputFileGroup.Controls.Add(this.InFilePathBox);
             this.InputFileGroup.Controls.Add(this.InputFileLabel);
             this.InputFileGroup.Location = new System.Drawing.Point(625, 10);
-            this.InputFileGroup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.InputFileGroup.Margin = new System.Windows.Forms.Padding(2);
             this.InputFileGroup.Name = "InputFileGroup";
-            this.InputFileGroup.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.InputFileGroup.Padding = new System.Windows.Forms.Padding(2);
             this.InputFileGroup.Size = new System.Drawing.Size(387, 130);
             this.InputFileGroup.TabIndex = 8;
             this.InputFileGroup.TabStop = false;
@@ -305,7 +353,7 @@
             // OutFileNameIniBox
             // 
             this.OutFileNameIniBox.Location = new System.Drawing.Point(103, 92);
-            this.OutFileNameIniBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.OutFileNameIniBox.Margin = new System.Windows.Forms.Padding(2);
             this.OutFileNameIniBox.Name = "OutFileNameIniBox";
             this.OutFileNameIniBox.Size = new System.Drawing.Size(148, 20);
             this.OutFileNameIniBox.TabIndex = 21;
@@ -324,7 +372,7 @@
             // OutFileNameClBox
             // 
             this.OutFileNameClBox.Location = new System.Drawing.Point(103, 59);
-            this.OutFileNameClBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.OutFileNameClBox.Margin = new System.Windows.Forms.Padding(2);
             this.OutFileNameClBox.Name = "OutFileNameClBox";
             this.OutFileNameClBox.Size = new System.Drawing.Size(148, 20);
             this.OutFileNameClBox.TabIndex = 19;
@@ -343,7 +391,7 @@
             // BrowseFilteredFileButton
             // 
             this.BrowseFilteredFileButton.Location = new System.Drawing.Point(292, 26);
-            this.BrowseFilteredFileButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.BrowseFilteredFileButton.Margin = new System.Windows.Forms.Padding(2);
             this.BrowseFilteredFileButton.Name = "BrowseFilteredFileButton";
             this.BrowseFilteredFileButton.Size = new System.Drawing.Size(81, 24);
             this.BrowseFilteredFileButton.TabIndex = 17;
@@ -365,7 +413,7 @@
             // InFilePathBox
             // 
             this.InFilePathBox.Location = new System.Drawing.Point(103, 26);
-            this.InFilePathBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.InFilePathBox.Margin = new System.Windows.Forms.Padding(2);
             this.InFilePathBox.Name = "InFilePathBox";
             this.InFilePathBox.Size = new System.Drawing.Size(148, 20);
             this.InFilePathBox.TabIndex = 15;
@@ -384,7 +432,7 @@
             // ViewClusters
             // 
             this.ViewClusters.Location = new System.Drawing.Point(4, 71);
-            this.ViewClusters.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ViewClusters.Margin = new System.Windows.Forms.Padding(2);
             this.ViewClusters.Name = "ViewClusters";
             this.ViewClusters.Size = new System.Drawing.Size(397, 32);
             this.ViewClusters.TabIndex = 9;
@@ -402,9 +450,9 @@
             this.ViewGroup.Controls.Add(this.ViewClusters);
             this.ViewGroup.Controls.Add(this.NextButton);
             this.ViewGroup.Location = new System.Drawing.Point(9, 10);
-            this.ViewGroup.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ViewGroup.Margin = new System.Windows.Forms.Padding(2);
             this.ViewGroup.Name = "ViewGroup";
-            this.ViewGroup.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ViewGroup.Padding = new System.Windows.Forms.Padding(2);
             this.ViewGroup.Size = new System.Drawing.Size(406, 164);
             this.ViewGroup.TabIndex = 10;
             this.ViewGroup.TabStop = false;
@@ -413,7 +461,7 @@
             // BrowseViewButton
             // 
             this.BrowseViewButton.Location = new System.Drawing.Point(274, 41);
-            this.BrowseViewButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.BrowseViewButton.Margin = new System.Windows.Forms.Padding(2);
             this.BrowseViewButton.Name = "BrowseViewButton";
             this.BrowseViewButton.Size = new System.Drawing.Size(81, 20);
             this.BrowseViewButton.TabIndex = 13;
@@ -435,7 +483,7 @@
             // InViewFilePathBox
             // 
             this.InViewFilePathBox.Location = new System.Drawing.Point(68, 41);
-            this.InViewFilePathBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.InViewFilePathBox.Margin = new System.Windows.Forms.Padding(2);
             this.InViewFilePathBox.Name = "InViewFilePathBox";
             this.InViewFilePathBox.Size = new System.Drawing.Size(157, 20);
             this.InViewFilePathBox.TabIndex = 11;
@@ -451,58 +499,22 @@
             this.FilePathLabel.TabIndex = 10;
             this.FilePathLabel.Text = "File path:";
             // 
-            // linearityLabel
+            // skeletonizeButton
             // 
-            this.linearityLabel.AutoSize = true;
-            this.linearityLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.linearityLabel.Location = new System.Drawing.Point(4, 108);
-            this.linearityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.linearityLabel.Name = "linearityLabel";
-            this.linearityLabel.Size = new System.Drawing.Size(96, 17);
-            this.linearityLabel.TabIndex = 12;
-            this.linearityLabel.Text = "Linearity(%)";
-            // 
-            // labelFromLinearity
-            // 
-            this.labelFromLinearity.AutoSize = true;
-            this.labelFromLinearity.Location = new System.Drawing.Point(121, 108);
-            this.labelFromLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.labelFromLinearity.Name = "labelFromLinearity";
-            this.labelFromLinearity.Size = new System.Drawing.Size(33, 13);
-            this.labelFromLinearity.TabIndex = 13;
-            this.labelFromLinearity.Text = "From:";
-            // 
-            // labelToLinearity
-            // 
-            this.labelToLinearity.AutoSize = true;
-            this.labelToLinearity.Location = new System.Drawing.Point(236, 108);
-            this.labelToLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.labelToLinearity.Name = "labelToLinearity";
-            this.labelToLinearity.Size = new System.Drawing.Size(23, 13);
-            this.labelToLinearity.TabIndex = 14;
-            this.labelToLinearity.Text = "To:";
-            // 
-            // FromLinearityTextBox
-            // 
-            this.FromLinearityTextBox.Location = new System.Drawing.Point(158, 101);
-            this.FromLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.FromLinearityTextBox.Name = "FromLinearityTextBox";
-            this.FromLinearityTextBox.Size = new System.Drawing.Size(57, 20);
-            this.FromLinearityTextBox.TabIndex = 15;
-            // 
-            // ToLinearityTextBox
-            // 
-            this.ToLinearityTextBox.Location = new System.Drawing.Point(274, 101);
-            this.ToLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.ToLinearityTextBox.Name = "ToLinearityTextBox";
-            this.ToLinearityTextBox.Size = new System.Drawing.Size(57, 20);
-            this.ToLinearityTextBox.TabIndex = 16;
+            this.skeletonizeButton.Location = new System.Drawing.Point(499, 47);
+            this.skeletonizeButton.Name = "skeletonizeButton";
+            this.skeletonizeButton.Size = new System.Drawing.Size(75, 23);
+            this.skeletonizeButton.TabIndex = 11;
+            this.skeletonizeButton.Text = "Skeletonize";
+            this.skeletonizeButton.UseVisualStyleBackColor = true;
+            this.skeletonizeButton.Click += new System.EventHandler(this.SkeletonizeButtonClicked);
             // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 839);
+            this.Controls.Add(this.skeletonizeButton);
             this.Controls.Add(this.ViewGroup);
             this.Controls.Add(this.InputFileGroup);
             this.Controls.Add(this.HideHistogramButton);
@@ -567,6 +579,7 @@
         private System.Windows.Forms.TextBox FromLinearityTextBox;
         private System.Windows.Forms.Label labelToLinearity;
         private System.Windows.Forms.Label labelFromLinearity;
+        private System.Windows.Forms.Button skeletonizeButton;
     }
 }
 

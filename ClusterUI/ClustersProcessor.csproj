@@ -57,6 +57,7 @@
     <Compile Include="Filters.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Skeletonizer.cs" />
     <EmbeddedResource Include="ClusterUI.resx">
       <DependentUpon>ClusterUI.cs</DependentUpon>
     </EmbeddedResource>

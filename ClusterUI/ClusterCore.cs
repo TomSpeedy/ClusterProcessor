@@ -105,7 +105,7 @@ namespace ClusterUI
     public struct PixelPoint
     {
 
-        public PixelPoint(ushort xCoord, ushort yCoord, double ToA, double ToT)
+        public PixelPoint(ushort xCoord, ushort yCoord, double ToA = 0, double ToT = 0)
         {
             this.xCoord = xCoord;
             this.yCoord = yCoord;
@@ -117,5 +117,14 @@ namespace ClusterUI
         public ushort yCoord { get; }
         public double ToA { get; }
         public double ToT { get; }
+        public override int GetHashCode()
+        {
+            return (xCoord << 8) + yCoord;
+        }
+        public override bool Equals(object obj)
+        {
+            var other = (PixelPoint)obj;
+            return this.xCoord == other.xCoord && this.yCoord == other.yCoord;
+        }
     }
 }

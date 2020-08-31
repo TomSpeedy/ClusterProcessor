@@ -261,8 +261,6 @@ namespace ClusterUI
             {
                 area += (HullPoints[j].xCoord + HullPoints[i].xCoord) * (HullPoints[j].yCoord - HullPoints[i].yCoord);
                 j = i;
-                //area += (HullPoints[i % HullPoints.Count].xCoord + HullPoints[(i + 1) % HullPoints.Count].yCoord *
-                  //  HullPoints[i % HullPoints.Count].yCoord * HullPoints[(i + 1) % HullPoints.Count].xCoord);
             }
             return Math.Abs(area / 2);
         }
