@@ -16,12 +16,7 @@ namespace ClusterUI
     class ThinSkeletonizer : ISkeletonizer
     {
         HashSet<PixelPoint> pointsHash { get; set; }
-
-       // HashSet<PixelPoint> pointsHashMod { get; set; }
-
         List<PixelPoint> neighboursTemp { get; set; }
-
-       
 
         readonly (int x,  int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
         public ThinSkeletonizer(IList<PixelPoint> points)

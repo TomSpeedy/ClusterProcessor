@@ -12,7 +12,10 @@ using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Drawing.Text;
 
-namespace ClusterUI //TODO : Hull for less points than 3
+namespace ClusterUI 
+    //TODO : Hull for less points than 3
+    //TODO : Histogram based on pixEnergy
+    //TODO : Histogram pix recalculation on Current change - possible negative effects when using Current as implement. detail
 {
     public partial class ClusterUI : Form
     {
@@ -22,7 +25,8 @@ namespace ClusterUI //TODO : Hull for less points than 3
         //public PictureBox PictureBox = new PictureBox();
         string pxFile;
         string clFile;
-        HistogramPoint[] HistogramPoints;
+        HistogramPoint[] HistogramPoints { get; set; }
+        HistogramPoint[] HistogramPixPoints { get; set; }
         Cluster Current { get; set; }
         public void NextButtonClicked(object sender, EventArgs e)
         {
@@ -30,6 +34,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
                 clusterNumber++;
             Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), true, clusterNumber);
             Current = cluster;
+            HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
             {
                 
@@ -43,6 +48,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
             if (clusterNumber >= 1)
                 clusterNumber--;
             Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), true, clusterNumber);
+            HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
             {
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
@@ -66,6 +72,8 @@ namespace ClusterUI //TODO : Hull for less points than 3
 
 
             HistogramPoints = (new Histogram(new StreamReader(clFile), new StreamReader(pxFile), cl => (double)cl.PixelCount)).Points;
+            HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
+
             PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
 
             if (cluster != null)
@@ -76,27 +84,26 @@ namespace ClusterUI //TODO : Hull for less points than 3
             Current = cluster;
 
         }
+        public void HideHistogramClicked(object sender, EventArgs e)
+        {
+            ClusterHistogram.Visible = false;
+        }
+
         public void ShowHistogramClicked(object sender, EventArgs e)
         {
             if (HistogramPoints == null)
                 return;
             ClusterHistogram.Visible = true;
             ClusterHistogram.Series.Clear();
-            // Set palette
             ClusterHistogram.Palette = ChartColorPalette.BrightPastel;
-            // Set title
             if (ClusterHistogram.Titles.Count == 0)
             {
-                ClusterHistogram.Titles.Add("Cluster Histogram");
+                ClusterHistogram.Titles.Add("Cluster Collection Histogram");
                 var chartArea = new ChartArea();
                 ClusterHistogram.ChartAreas.Add(new ChartArea());
                 ClusterHistogram.ChartAreas[0].AxisX.Title = "Pixel Count";
                 ClusterHistogram.ChartAreas[0].AxisY.Title = "Cluster Count";
             }
-            //ClusterHistogram.ChartAreas[0].Position.Height = 50;
-
-
-
             Series series = ClusterHistogram.Series.Add("Number of clusters with given pixel count");
             for (int i = 0; i < HistogramPoints.Length; i++)
             {
@@ -104,6 +111,33 @@ namespace ClusterUI //TODO : Hull for less points than 3
 
             }
             ClusterHistogram.ChartAreas[0].AxisX.RoundAxisValues();
+        }
+        public void ShowPixHistogramClicked(object sender, EventArgs e)
+        {
+            if (HistogramPixPoints == null)
+                return;
+            ClusterPixHistogram.Visible = true;
+            ClusterPixHistogram.Series.Clear();
+            ClusterPixHistogram.Palette = ChartColorPalette.BrightPastel;
+            if (ClusterPixHistogram.Titles.Count == 0)
+            {
+                ClusterPixHistogram.Titles.Add("Cluster Collection Histogram");
+            }
+            var chartArea = new ChartArea();
+            ClusterPixHistogram.ChartAreas.Clear();
+            ClusterPixHistogram.ChartAreas.Add(new ChartArea());
+            ClusterPixHistogram.ChartAreas[0].AxisX.Title = "ToT";
+            ClusterPixHistogram.ChartAreas[0].AxisY.Title = "Pixel Count";
+
+
+
+            Series series = ClusterPixHistogram.Series.Add("Number of pixels with given ToT");
+            for (int i = 0; i < HistogramPixPoints.Length; i++)
+            {
+                series.Points.AddXY(HistogramPixPoints[i].X, HistogramPixPoints[i].Y);
+
+            }
+            ClusterPixHistogram.ChartAreas[0].AxisX.RoundAxisValues();
         }
         public void ProcessFilterClicked(object sender, EventArgs e)
         {
@@ -181,19 +215,6 @@ namespace ClusterUI //TODO : Hull for less points than 3
             PictureBox.Image = GetClusterImage(point => point.ToT, Current);
 
         }
-        private List<PixelPoint> getH()
-        {
-            var result = new List<PixelPoint>();
-
-            for (int i = 0; i < 5; i++)
-            {
-                for (int j = 0; j < 50; j++)
-                {
-                    result.Add(new PixelPoint((ushort)(100 + j), (ushort)(50 + i), 0, 10000000));
-                }
-            }
-            return result;
-        }
         public void DrawLineInt(Bitmap bmp, ConvexHull hull)
         {
 
@@ -225,17 +246,18 @@ namespace ClusterUI //TODO : Hull for less points than 3
         public double X { get; set; }
         public int Y { get; set; }
     }
-    public delegate double ClusterAttribute<Cluster>(Cluster cluster);
+    public delegate double Attribute<T>(T attributeOwner);
+   
     class Histogram
     {
         const int bucketCount = 100;
         double MinValue { get; set; }
         double MaxValue { get; set; }
         public HistogramPoint[] Points = new HistogramPoint[bucketCount];
-        public Histogram (StreamReader clFile, StreamReader pxFile, ClusterAttribute<Cluster> attributeGetter)
+        public Histogram (StreamReader clFile, StreamReader pxFile, Attribute<Cluster> attributeGetter)
         {
             double[] buckets = new double[bucketCount];
-            (MinValue, MaxValue) = FindRange(clFile, pxFile, attributeGetter);
+            (MinValue, MaxValue) = FindCollectionRange(clFile, pxFile, attributeGetter);
             clFile.BaseStream.Position = 0;
             clFile.DiscardBufferedData();
             InitPoints();
@@ -250,6 +272,23 @@ namespace ClusterUI //TODO : Hull for less points than 3
             }   
             
         }
+        public Histogram(Cluster cluster, Attribute<PixelPoint> attributeGetter)
+        {
+            double[] buckets = new double[bucketCount];
+            (MinValue, MaxValue) = FindPixelRange(cluster, attributeGetter);
+            InitPoints();
+            for (int i = 0; i < cluster.Points.Length; i++)
+            {
+                
+                double attribute = attributeGetter(cluster.Points[i]);
+                if (attribute == MaxValue)
+                    Points[bucketCount - 1].Y++;
+                else
+                    Points[(int)Math.Floor(bucketCount * ((attribute - MinValue) / (MaxValue - MinValue)))].Y++;
+                
+            }
+
+        }
         private void InitPoints()
         {
             for (int i = 0; i < bucketCount; i++)
@@ -258,7 +297,7 @@ namespace ClusterUI //TODO : Hull for less points than 3
                 Points[i].Y = 0;
             }
         }
-        private (double min,double max) FindRange(StreamReader clFile, StreamReader pxFile, ClusterAttribute<Cluster> attributeGetter)
+        private (double min,double max) FindCollectionRange(StreamReader clFile, StreamReader pxFile, Attribute<Cluster> attributeGetter)
         {
             double max = double.MinValue;
             double min = double.MaxValue;
@@ -273,6 +312,20 @@ namespace ClusterUI //TODO : Hull for less points than 3
             }
             return (min, max);
             
+        }
+        private (double min, double max) FindPixelRange(Cluster cluster, Attribute<PixelPoint> attributeGetter)
+        {
+            double max = double.MinValue;
+            double min = double.MaxValue;
+            for (int i = 0; i < cluster.Points.Length; i++)
+            {
+                var attributeValue = attributeGetter(cluster.Points[i]);
+                if (attributeValue < min)
+                    min = attributeValue;
+                if (attributeValue > max)
+                    max = attributeValue;
+            }
+            return (min, max);
         }
 
 

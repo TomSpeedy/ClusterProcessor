@@ -28,9 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ClusterHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.showHistogram = new System.Windows.Forms.Button();
             this.PreviousButton = new System.Windows.Forms.Button();
@@ -71,28 +74,32 @@
             this.InViewFilePathBox = new System.Windows.Forms.TextBox();
             this.FilePathLabel = new System.Windows.Forms.Label();
             this.skeletonizeButton = new System.Windows.Forms.Button();
+            this.showPixHistogramButton = new System.Windows.Forms.Button();
+            this.hidePixHistogramButton = new System.Windows.Forms.Button();
+            this.ClusterPixHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
             this.InputFileGroup.SuspendLayout();
             this.ViewGroup.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).BeginInit();
             this.SuspendLayout();
             // 
             // ClusterHistogram
             // 
-            chartArea1.Name = "ChartArea1";
-            this.ClusterHistogram.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.ClusterHistogram.Legends.Add(legend1);
+            chartArea3.Name = "ChartArea1";
+            this.ClusterHistogram.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.ClusterHistogram.Legends.Add(legend3);
             this.ClusterHistogram.Location = new System.Drawing.Point(631, 406);
             this.ClusterHistogram.Name = "ClusterHistogram";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.ClusterHistogram.Series.Add(series1);
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            this.ClusterHistogram.Series.Add(series3);
             this.ClusterHistogram.Size = new System.Drawing.Size(786, 273);
             this.ClusterHistogram.TabIndex = 0;
-            this.ClusterHistogram.Text = "Histogram";
+            this.ClusterHistogram.Text = "Collection Histogram";
             // 
             // showHistogram
             // 
@@ -100,7 +107,7 @@
             this.showHistogram.Name = "showHistogram";
             this.showHistogram.Size = new System.Drawing.Size(168, 25);
             this.showHistogram.TabIndex = 1;
-            this.showHistogram.Text = "Show Histogram";
+            this.showHistogram.Text = "Show Collection Histogram";
             this.showHistogram.UseVisualStyleBackColor = true;
             this.showHistogram.Click += new System.EventHandler(this.ShowHistogramClicked);
             // 
@@ -127,7 +134,7 @@
             // PictureBox
             // 
             this.PictureBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.PictureBox.Location = new System.Drawing.Point(10, 179);
+            this.PictureBox.Location = new System.Drawing.Point(9, 177);
             this.PictureBox.Name = "PictureBox";
             this.PictureBox.Size = new System.Drawing.Size(601, 651);
             this.PictureBox.TabIndex = 4;
@@ -214,9 +221,9 @@
             this.linearityLabel.Location = new System.Drawing.Point(4, 108);
             this.linearityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.linearityLabel.Name = "linearityLabel";
-            this.linearityLabel.Size = new System.Drawing.Size(96, 17);
+            this.linearityLabel.Size = new System.Drawing.Size(102, 17);
             this.linearityLabel.TabIndex = 12;
-            this.linearityLabel.Text = "Linearity(%)";
+            this.linearityLabel.Text = "Convexity(%)";
             // 
             // pixCountLabel
             // 
@@ -328,8 +335,9 @@
             this.HideHistogramButton.Name = "HideHistogramButton";
             this.HideHistogramButton.Size = new System.Drawing.Size(154, 25);
             this.HideHistogramButton.TabIndex = 7;
-            this.HideHistogramButton.Text = "Hide Histogram";
+            this.HideHistogramButton.Text = "Hide Collection Histogram";
             this.HideHistogramButton.UseVisualStyleBackColor = true;
+            this.HideHistogramButton.Click += new System.EventHandler(this.HideHistogramClicked);
             // 
             // InputFileGroup
             // 
@@ -501,19 +509,58 @@
             // 
             // skeletonizeButton
             // 
-            this.skeletonizeButton.Location = new System.Drawing.Point(499, 47);
+            this.skeletonizeButton.Location = new System.Drawing.Point(433, 138);
             this.skeletonizeButton.Name = "skeletonizeButton";
-            this.skeletonizeButton.Size = new System.Drawing.Size(75, 23);
+            this.skeletonizeButton.Size = new System.Drawing.Size(102, 28);
             this.skeletonizeButton.TabIndex = 11;
             this.skeletonizeButton.Text = "Skeletonize";
             this.skeletonizeButton.UseVisualStyleBackColor = true;
             this.skeletonizeButton.Click += new System.EventHandler(this.SkeletonizeButtonClicked);
             // 
+            // showPixHistogramButton
+            // 
+            this.showPixHistogramButton.Location = new System.Drawing.Point(638, 697);
+            this.showPixHistogramButton.Name = "showPixHistogramButton";
+            this.showPixHistogramButton.Size = new System.Drawing.Size(168, 25);
+            this.showPixHistogramButton.TabIndex = 13;
+            this.showPixHistogramButton.Text = "Show Pixel Histogram";
+            this.showPixHistogramButton.UseVisualStyleBackColor = true;
+            this.showPixHistogramButton.Click += new System.EventHandler(this.ShowPixHistogramClicked);
+            // 
+            // hidePixHistogramButton
+            // 
+            this.hidePixHistogramButton.Location = new System.Drawing.Point(818, 697);
+            this.hidePixHistogramButton.Name = "hidePixHistogramButton";
+            this.hidePixHistogramButton.Size = new System.Drawing.Size(168, 25);
+            this.hidePixHistogramButton.TabIndex = 14;
+            this.hidePixHistogramButton.Text = "Hide Pixel Histogram";
+            this.hidePixHistogramButton.UseVisualStyleBackColor = true;
+            // 
+            // ClusterPixHistogram
+            // 
+            chartArea4.Name = "ChartArea1";
+            this.ClusterPixHistogram.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.ClusterPixHistogram.Legends.Add(legend4);
+            this.ClusterPixHistogram.Location = new System.Drawing.Point(632, 728);
+            this.ClusterPixHistogram.Name = "ClusterPixHistogram";
+            this.ClusterPixHistogram.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            series4.ChartArea = "ChartArea1";
+            series4.Legend = "Legend1";
+            series4.Name = "Series1";
+            this.ClusterPixHistogram.Series.Add(series4);
+            this.ClusterPixHistogram.Size = new System.Drawing.Size(786, 230);
+            this.ClusterPixHistogram.TabIndex = 15;
+            this.ClusterPixHistogram.Text = "Pixel Histogram";
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1426, 839);
+            this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.ClusterPixHistogram);
+            this.Controls.Add(this.hidePixHistogramButton);
+            this.Controls.Add(this.showPixHistogramButton);
             this.Controls.Add(this.skeletonizeButton);
             this.Controls.Add(this.ViewGroup);
             this.Controls.Add(this.InputFileGroup);
@@ -534,6 +581,7 @@
             this.InputFileGroup.PerformLayout();
             this.ViewGroup.ResumeLayout(false);
             this.ViewGroup.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -580,6 +628,9 @@
         private System.Windows.Forms.Label labelToLinearity;
         private System.Windows.Forms.Label labelFromLinearity;
         private System.Windows.Forms.Button skeletonizeButton;
+        private System.Windows.Forms.Button showPixHistogramButton;
+        private System.Windows.Forms.Button hidePixHistogramButton;
+        private System.Windows.Forms.DataVisualization.Charting.Chart ClusterPixHistogram;
     }
 }
 
