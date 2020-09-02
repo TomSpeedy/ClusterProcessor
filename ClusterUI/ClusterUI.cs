@@ -11,6 +11,7 @@ using System.Windows.Forms.DataVisualization.Charting;
 using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Drawing.Text;
+using ChartDirector;
 
 namespace ClusterUI 
     //TODO : Hull for less points than 3
@@ -71,7 +72,7 @@ namespace ClusterUI
             Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), true, clusterNumber);
 
 
-            HistogramPoints = (new Histogram(new StreamReader(clFile), new StreamReader(pxFile), cl => (double)cl.PixelCount)).Points;
+            HistogramPoints = new Histogram(new StreamReader(clFile), new StreamReader(pxFile), cl => (double)cl.PixelCount).Points;
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
 
             PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -83,6 +84,18 @@ namespace ClusterUI
             }
             Current = cluster;
 
+        }
+        public void View3DClicked(object sender, EventArgs e)
+        {
+            if (Current == null)
+                return;
+            IZCalculator zCalculator = new ZCalculator();
+            Point3D[] points3D = zCalculator.TransformPoints(Current);
+
+            //WinChartViewer viewer3D = new WinChartViewer();
+
+            ScatterChart chart = new ScatterChart();
+            chart.CreateChart(winChartViewer, points3D);
         }
         public void HideHistogramClicked(object sender, EventArgs e)
         {

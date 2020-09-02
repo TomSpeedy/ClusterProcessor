@@ -77,12 +77,16 @@
             this.showPixHistogramButton = new System.Windows.Forms.Button();
             this.hidePixHistogramButton = new System.Windows.Forms.Button();
             this.ClusterPixHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.winChartViewer = new ChartDirector.WinChartViewer();
+            this.View3DButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
             this.InputFileGroup.SuspendLayout();
             this.ViewGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).BeginInit();
             this.SuspendLayout();
             // 
             // ClusterHistogram
@@ -553,11 +557,31 @@
             this.ClusterPixHistogram.TabIndex = 15;
             this.ClusterPixHistogram.Text = "Pixel Histogram";
             // 
+            // winChartViewer
+            // 
+            this.winChartViewer.Location = new System.Drawing.Point(1023, 69);
+            this.winChartViewer.Name = "winChartViewer";
+            this.winChartViewer.Size = new System.Drawing.Size(395, 320);
+            this.winChartViewer.TabIndex = 16;
+            this.winChartViewer.TabStop = false;
+            // 
+            // View3DButton
+            // 
+            this.View3DButton.Location = new System.Drawing.Point(1023, 5);
+            this.View3DButton.Name = "View3DButton";
+            this.View3DButton.Size = new System.Drawing.Size(98, 58);
+            this.View3DButton.TabIndex = 17;
+            this.View3DButton.Text = "View 3D";
+            this.View3DButton.UseVisualStyleBackColor = true;
+            this.View3DButton.Click += new System.EventHandler(this.View3DClicked);
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.View3DButton);
+            this.Controls.Add(this.winChartViewer);
             this.Controls.Add(this.ClusterPixHistogram);
             this.Controls.Add(this.hidePixHistogramButton);
             this.Controls.Add(this.showPixHistogramButton);
@@ -582,6 +606,7 @@
             this.ViewGroup.ResumeLayout(false);
             this.ViewGroup.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -631,6 +656,9 @@
         private System.Windows.Forms.Button showPixHistogramButton;
         private System.Windows.Forms.Button hidePixHistogramButton;
         private System.Windows.Forms.DataVisualization.Charting.Chart ClusterPixHistogram;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private ChartDirector.WinChartViewer winChartViewer;
+        private System.Windows.Forms.Button View3DButton;
     }
 }
 

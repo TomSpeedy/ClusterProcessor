@@ -33,6 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ChartDirector.Net.Desktop.Controls, Version=6.4.0.0, Culture=neutral, PublicKeyToken=2db5fc05de12e204, processorArchitecture=MSIL">
+      <HintPath>..\packages\ChartDirector.Net.Desktop.Controls.6.4.0\lib\net40\ChartDirector.Net.Desktop.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="netchartdir, Version=6.4.0.0, Culture=neutral, PublicKeyToken=2db5fc05de12e204, processorArchitecture=MSIL">
+      <HintPath>..\packages\ChartDirector.Net.6.4.0\lib\net40\netchartdir.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
@@ -55,9 +61,16 @@
       <DependentUpon>ClusterUI.cs</DependentUpon>
     </Compile>
     <Compile Include="Filters.cs" />
+    <Compile Include="3DImage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="3DImage.Designer.cs">
+      <DependentUpon>3DImage.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Skeletonizer.cs" />
+    <Compile Include="Transform3D.cs" />
     <EmbeddedResource Include="ClusterUI.resx">
       <DependentUpon>ClusterUI.cs</DependentUpon>
     </EmbeddedResource>
@@ -70,6 +83,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
