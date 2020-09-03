@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ClusterHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.showHistogram = new System.Windows.Forms.Button();
             this.PreviousButton = new System.Windows.Forms.Button();
@@ -80,6 +80,7 @@
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.winChartViewer = new ChartDirector.WinChartViewer();
             this.View3DButton = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
@@ -87,27 +88,29 @@
             this.ViewGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // ClusterHistogram
             // 
-            chartArea3.Name = "ChartArea1";
-            this.ClusterHistogram.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.ClusterHistogram.Legends.Add(legend3);
-            this.ClusterHistogram.Location = new System.Drawing.Point(631, 406);
+            chartArea1.Name = "ChartArea1";
+            this.ClusterHistogram.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.ClusterHistogram.Legends.Add(legend1);
+            this.ClusterHistogram.Location = new System.Drawing.Point(551, 438);
             this.ClusterHistogram.Name = "ClusterHistogram";
-            series3.ChartArea = "ChartArea1";
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.ClusterHistogram.Series.Add(series3);
-            this.ClusterHistogram.Size = new System.Drawing.Size(786, 273);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.ClusterHistogram.Series.Add(series1);
+            this.ClusterHistogram.Size = new System.Drawing.Size(786, 253);
             this.ClusterHistogram.TabIndex = 0;
             this.ClusterHistogram.Text = "Collection Histogram";
+            this.ClusterHistogram.Visible = false;
             // 
             // showHistogram
             // 
-            this.showHistogram.Location = new System.Drawing.Point(631, 366);
+            this.showHistogram.Location = new System.Drawing.Point(551, 407);
             this.showHistogram.Name = "showHistogram";
             this.showHistogram.Size = new System.Drawing.Size(168, 25);
             this.showHistogram.TabIndex = 1;
@@ -138,15 +141,15 @@
             // PictureBox
             // 
             this.PictureBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.PictureBox.Location = new System.Drawing.Point(9, 177);
+            this.PictureBox.Location = new System.Drawing.Point(9, 179);
             this.PictureBox.Name = "PictureBox";
-            this.PictureBox.Size = new System.Drawing.Size(601, 651);
+            this.PictureBox.Size = new System.Drawing.Size(526, 543);
             this.PictureBox.TabIndex = 4;
             this.PictureBox.TabStop = false;
             // 
             // FilterButton
             // 
-            this.FilterButton.Location = new System.Drawing.Point(632, 300);
+            this.FilterButton.Location = new System.Drawing.Point(327, 319);
             this.FilterButton.Margin = new System.Windows.Forms.Padding(2);
             this.FilterButton.Name = "FilterButton";
             this.FilterButton.Size = new System.Drawing.Size(104, 42);
@@ -173,11 +176,11 @@
             this.FilterGroup.Controls.Add(this.labelFromEnergyBox);
             this.FilterGroup.Controls.Add(this.ToEnergyFilterBox);
             this.FilterGroup.Controls.Add(this.FromEnergyFilterBox);
-            this.FilterGroup.Location = new System.Drawing.Point(631, 145);
+            this.FilterGroup.Location = new System.Drawing.Point(11, 175);
             this.FilterGroup.Margin = new System.Windows.Forms.Padding(2);
             this.FilterGroup.Name = "FilterGroup";
             this.FilterGroup.Padding = new System.Windows.Forms.Padding(2);
-            this.FilterGroup.Size = new System.Drawing.Size(387, 151);
+            this.FilterGroup.Size = new System.Drawing.Size(387, 140);
             this.FilterGroup.TabIndex = 6;
             this.FilterGroup.TabStop = false;
             this.FilterGroup.Text = "Select filters";
@@ -187,7 +190,7 @@
             this.ToLinearityTextBox.Location = new System.Drawing.Point(274, 101);
             this.ToLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToLinearityTextBox.Name = "ToLinearityTextBox";
-            this.ToLinearityTextBox.Size = new System.Drawing.Size(57, 20);
+            this.ToLinearityTextBox.Size = new System.Drawing.Size(57, 21);
             this.ToLinearityTextBox.TabIndex = 16;
             // 
             // FromLinearityTextBox
@@ -195,7 +198,7 @@
             this.FromLinearityTextBox.Location = new System.Drawing.Point(158, 101);
             this.FromLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.FromLinearityTextBox.Name = "FromLinearityTextBox";
-            this.FromLinearityTextBox.Size = new System.Drawing.Size(57, 20);
+            this.FromLinearityTextBox.Size = new System.Drawing.Size(57, 21);
             this.FromLinearityTextBox.TabIndex = 15;
             // 
             // labelToLinearity
@@ -204,7 +207,7 @@
             this.labelToLinearity.Location = new System.Drawing.Point(236, 108);
             this.labelToLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelToLinearity.Name = "labelToLinearity";
-            this.labelToLinearity.Size = new System.Drawing.Size(23, 13);
+            this.labelToLinearity.Size = new System.Drawing.Size(24, 15);
             this.labelToLinearity.TabIndex = 14;
             this.labelToLinearity.Text = "To:";
             // 
@@ -214,7 +217,7 @@
             this.labelFromLinearity.Location = new System.Drawing.Point(121, 108);
             this.labelFromLinearity.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelFromLinearity.Name = "labelFromLinearity";
-            this.labelFromLinearity.Size = new System.Drawing.Size(33, 13);
+            this.labelFromLinearity.Size = new System.Drawing.Size(39, 15);
             this.labelFromLinearity.TabIndex = 13;
             this.labelFromLinearity.Text = "From:";
             // 
@@ -256,7 +259,7 @@
             this.ToPixCountFilterBox.Location = new System.Drawing.Point(274, 68);
             this.ToPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToPixCountFilterBox.Name = "ToPixCountFilterBox";
-            this.ToPixCountFilterBox.Size = new System.Drawing.Size(57, 20);
+            this.ToPixCountFilterBox.Size = new System.Drawing.Size(57, 21);
             this.ToPixCountFilterBox.TabIndex = 8;
             // 
             // labelToPixCount
@@ -265,7 +268,7 @@
             this.labelToPixCount.Location = new System.Drawing.Point(236, 71);
             this.labelToPixCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelToPixCount.Name = "labelToPixCount";
-            this.labelToPixCount.Size = new System.Drawing.Size(23, 13);
+            this.labelToPixCount.Size = new System.Drawing.Size(24, 15);
             this.labelToPixCount.TabIndex = 7;
             this.labelToPixCount.Text = "To:";
             // 
@@ -275,7 +278,7 @@
             this.labelFromPixCount.Location = new System.Drawing.Point(121, 71);
             this.labelFromPixCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelFromPixCount.Name = "labelFromPixCount";
-            this.labelFromPixCount.Size = new System.Drawing.Size(33, 13);
+            this.labelFromPixCount.Size = new System.Drawing.Size(39, 15);
             this.labelFromPixCount.TabIndex = 6;
             this.labelFromPixCount.Text = "From:";
             // 
@@ -284,7 +287,7 @@
             this.FromPixCountFilterBox.Location = new System.Drawing.Point(158, 68);
             this.FromPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.FromPixCountFilterBox.Name = "FromPixCountFilterBox";
-            this.FromPixCountFilterBox.Size = new System.Drawing.Size(57, 20);
+            this.FromPixCountFilterBox.Size = new System.Drawing.Size(57, 21);
             this.FromPixCountFilterBox.TabIndex = 5;
             // 
             // labelToEnergyBox
@@ -293,7 +296,7 @@
             this.labelToEnergyBox.Location = new System.Drawing.Point(236, 36);
             this.labelToEnergyBox.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelToEnergyBox.Name = "labelToEnergyBox";
-            this.labelToEnergyBox.Size = new System.Drawing.Size(23, 13);
+            this.labelToEnergyBox.Size = new System.Drawing.Size(24, 15);
             this.labelToEnergyBox.TabIndex = 4;
             this.labelToEnergyBox.Text = "To:";
             // 
@@ -303,7 +306,7 @@
             this.label1.Location = new System.Drawing.Point(173, 38);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(0, 13);
+            this.label1.Size = new System.Drawing.Size(0, 15);
             this.label1.TabIndex = 3;
             // 
             // labelFromEnergyBox
@@ -312,7 +315,7 @@
             this.labelFromEnergyBox.Location = new System.Drawing.Point(121, 35);
             this.labelFromEnergyBox.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labelFromEnergyBox.Name = "labelFromEnergyBox";
-            this.labelFromEnergyBox.Size = new System.Drawing.Size(33, 13);
+            this.labelFromEnergyBox.Size = new System.Drawing.Size(39, 15);
             this.labelFromEnergyBox.TabIndex = 2;
             this.labelFromEnergyBox.Text = "From:";
             // 
@@ -321,7 +324,7 @@
             this.ToEnergyFilterBox.Location = new System.Drawing.Point(274, 33);
             this.ToEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToEnergyFilterBox.Name = "ToEnergyFilterBox";
-            this.ToEnergyFilterBox.Size = new System.Drawing.Size(57, 20);
+            this.ToEnergyFilterBox.Size = new System.Drawing.Size(57, 21);
             this.ToEnergyFilterBox.TabIndex = 1;
             // 
             // FromEnergyFilterBox
@@ -329,12 +332,12 @@
             this.FromEnergyFilterBox.Location = new System.Drawing.Point(158, 32);
             this.FromEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.FromEnergyFilterBox.Name = "FromEnergyFilterBox";
-            this.FromEnergyFilterBox.Size = new System.Drawing.Size(57, 20);
+            this.FromEnergyFilterBox.Size = new System.Drawing.Size(57, 21);
             this.FromEnergyFilterBox.TabIndex = 0;
             // 
             // HideHistogramButton
             // 
-            this.HideHistogramButton.Location = new System.Drawing.Point(818, 366);
+            this.HideHistogramButton.Location = new System.Drawing.Point(725, 407);
             this.HideHistogramButton.Margin = new System.Windows.Forms.Padding(2);
             this.HideHistogramButton.Name = "HideHistogramButton";
             this.HideHistogramButton.Size = new System.Drawing.Size(154, 25);
@@ -353,7 +356,7 @@
             this.InputFileGroup.Controls.Add(this.Or2Label);
             this.InputFileGroup.Controls.Add(this.InFilePathBox);
             this.InputFileGroup.Controls.Add(this.InputFileLabel);
-            this.InputFileGroup.Location = new System.Drawing.Point(625, 10);
+            this.InputFileGroup.Location = new System.Drawing.Point(11, 32);
             this.InputFileGroup.Margin = new System.Windows.Forms.Padding(2);
             this.InputFileGroup.Name = "InputFileGroup";
             this.InputFileGroup.Padding = new System.Windows.Forms.Padding(2);
@@ -367,7 +370,7 @@
             this.OutFileNameIniBox.Location = new System.Drawing.Point(103, 92);
             this.OutFileNameIniBox.Margin = new System.Windows.Forms.Padding(2);
             this.OutFileNameIniBox.Name = "OutFileNameIniBox";
-            this.OutFileNameIniBox.Size = new System.Drawing.Size(148, 20);
+            this.OutFileNameIniBox.Size = new System.Drawing.Size(148, 21);
             this.OutFileNameIniBox.TabIndex = 21;
             // 
             // OutIniFileLabel
@@ -386,7 +389,7 @@
             this.OutFileNameClBox.Location = new System.Drawing.Point(103, 59);
             this.OutFileNameClBox.Margin = new System.Windows.Forms.Padding(2);
             this.OutFileNameClBox.Name = "OutFileNameClBox";
-            this.OutFileNameClBox.Size = new System.Drawing.Size(148, 20);
+            this.OutFileNameClBox.Size = new System.Drawing.Size(148, 21);
             this.OutFileNameClBox.TabIndex = 19;
             // 
             // OutClFileLabel
@@ -427,14 +430,14 @@
             this.InFilePathBox.Location = new System.Drawing.Point(103, 26);
             this.InFilePathBox.Margin = new System.Windows.Forms.Padding(2);
             this.InFilePathBox.Name = "InFilePathBox";
-            this.InFilePathBox.Size = new System.Drawing.Size(148, 20);
+            this.InFilePathBox.Size = new System.Drawing.Size(148, 21);
             this.InFilePathBox.TabIndex = 15;
             // 
             // InputFileLabel
             // 
             this.InputFileLabel.AutoSize = true;
             this.InputFileLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.InputFileLabel.Location = new System.Drawing.Point(4, 24);
+            this.InputFileLabel.Location = new System.Drawing.Point(6, 26);
             this.InputFileLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.InputFileLabel.Name = "InputFileLabel";
             this.InputFileLabel.Size = new System.Drawing.Size(93, 17);
@@ -513,9 +516,9 @@
             // 
             // skeletonizeButton
             // 
-            this.skeletonizeButton.Location = new System.Drawing.Point(433, 138);
+            this.skeletonizeButton.Location = new System.Drawing.Point(420, 81);
             this.skeletonizeButton.Name = "skeletonizeButton";
-            this.skeletonizeButton.Size = new System.Drawing.Size(102, 28);
+            this.skeletonizeButton.Size = new System.Drawing.Size(115, 40);
             this.skeletonizeButton.TabIndex = 11;
             this.skeletonizeButton.Text = "Skeletonize";
             this.skeletonizeButton.UseVisualStyleBackColor = true;
@@ -523,7 +526,7 @@
             // 
             // showPixHistogramButton
             // 
-            this.showPixHistogramButton.Location = new System.Drawing.Point(638, 697);
+            this.showPixHistogramButton.Location = new System.Drawing.Point(551, 697);
             this.showPixHistogramButton.Name = "showPixHistogramButton";
             this.showPixHistogramButton.Size = new System.Drawing.Size(168, 25);
             this.showPixHistogramButton.TabIndex = 13;
@@ -533,7 +536,7 @@
             // 
             // hidePixHistogramButton
             // 
-            this.hidePixHistogramButton.Location = new System.Drawing.Point(818, 697);
+            this.hidePixHistogramButton.Location = new System.Drawing.Point(725, 697);
             this.hidePixHistogramButton.Name = "hidePixHistogramButton";
             this.hidePixHistogramButton.Size = new System.Drawing.Size(168, 25);
             this.hidePixHistogramButton.TabIndex = 14;
@@ -542,44 +545,58 @@
             // 
             // ClusterPixHistogram
             // 
-            chartArea4.Name = "ChartArea1";
-            this.ClusterPixHistogram.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.ClusterPixHistogram.Legends.Add(legend4);
-            this.ClusterPixHistogram.Location = new System.Drawing.Point(632, 728);
+            chartArea2.Name = "ChartArea1";
+            this.ClusterPixHistogram.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.ClusterPixHistogram.Legends.Add(legend2);
+            this.ClusterPixHistogram.Location = new System.Drawing.Point(551, 730);
             this.ClusterPixHistogram.Name = "ClusterPixHistogram";
             this.ClusterPixHistogram.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            series4.ChartArea = "ChartArea1";
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.ClusterPixHistogram.Series.Add(series4);
-            this.ClusterPixHistogram.Size = new System.Drawing.Size(786, 230);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.ClusterPixHistogram.Series.Add(series2);
+            this.ClusterPixHistogram.Size = new System.Drawing.Size(786, 220);
             this.ClusterPixHistogram.TabIndex = 15;
-            this.ClusterPixHistogram.Text = "Pixel Histogram";
+            this.ClusterPixHistogram.Visible = false;
             // 
             // winChartViewer
             // 
-            this.winChartViewer.Location = new System.Drawing.Point(1023, 69);
+            this.winChartViewer.Location = new System.Drawing.Point(551, 12);
             this.winChartViewer.Name = "winChartViewer";
-            this.winChartViewer.Size = new System.Drawing.Size(395, 320);
+            this.winChartViewer.Size = new System.Drawing.Size(415, 389);
             this.winChartViewer.TabIndex = 16;
             this.winChartViewer.TabStop = false;
             // 
             // View3DButton
             // 
-            this.View3DButton.Location = new System.Drawing.Point(1023, 5);
+            this.View3DButton.Location = new System.Drawing.Point(420, 127);
             this.View3DButton.Name = "View3DButton";
-            this.View3DButton.Size = new System.Drawing.Size(98, 58);
+            this.View3DButton.Size = new System.Drawing.Size(115, 41);
             this.View3DButton.TabIndex = 17;
             this.View3DButton.Text = "View 3D";
             this.View3DButton.UseVisualStyleBackColor = true;
             this.View3DButton.Click += new System.EventHandler(this.View3DClicked);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.InputFileGroup);
+            this.groupBox1.Controls.Add(this.FilterGroup);
+            this.groupBox1.Controls.Add(this.FilterButton);
+            this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.groupBox1.Location = new System.Drawing.Point(972, 12);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(447, 368);
+            this.groupBox1.TabIndex = 18;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Filterer";
             // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.View3DButton);
             this.Controls.Add(this.winChartViewer);
             this.Controls.Add(this.ClusterPixHistogram);
@@ -587,10 +604,7 @@
             this.Controls.Add(this.showPixHistogramButton);
             this.Controls.Add(this.skeletonizeButton);
             this.Controls.Add(this.ViewGroup);
-            this.Controls.Add(this.InputFileGroup);
             this.Controls.Add(this.HideHistogramButton);
-            this.Controls.Add(this.FilterButton);
-            this.Controls.Add(this.FilterGroup);
             this.Controls.Add(this.PictureBox);
             this.Controls.Add(this.showHistogram);
             this.Controls.Add(this.ClusterHistogram);
@@ -607,6 +621,7 @@
             this.ViewGroup.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).EndInit();
+            this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -659,6 +674,7 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private ChartDirector.WinChartViewer winChartViewer;
         private System.Windows.Forms.Button View3DButton;
+        private System.Windows.Forms.GroupBox groupBox1;
     }
 }
 

@@ -14,18 +14,17 @@ using System.Drawing.Text;
 using ChartDirector;
 
 namespace ClusterUI 
-    //TODO : Hull for less points than 3
-    //TODO : Histogram based on pixEnergy
+
     //TODO : Histogram pix recalculation on Current change - possible negative effects when using Current as implement. detail
+    // TODO : gather more interesting clusters
+
 {
     public partial class ClusterUI : Form
     {
-        //const string confFileName = "info.ini";
-        int clusterNumber = 1;
-        //const string filteredFile = "filtered.txt";
-        //public PictureBox PictureBox = new PictureBox();
-        string pxFile;
-        string clFile;
+        private int clusterNumber = 1;
+        private string pxFile;
+        private string clFile;
+        const string configPath = "../../../config/";
         HistogramPoint[] HistogramPoints { get; set; }
         HistogramPoint[] HistogramPixPoints { get; set; }
         Cluster Current { get; set; }
@@ -80,7 +79,6 @@ namespace ClusterUI
             if (cluster != null)
             {
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                //var hull = new ConvexHull(cluster.Points);
             }
             Current = cluster;
 
@@ -155,22 +153,17 @@ namespace ClusterUI
         public void ProcessFilterClicked(object sender, EventArgs e)
         {
 
-            string tempFileName = "temporaryFilteredOut" + String.Format("{0:y/M/d/h/m/s/fff}", DateTime.Now);
             var workingDirName = Cluster.GetPrefixPath(InFilePathBox.Text);
             Cluster.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
             var filteredOut = new StreamWriter(workingDirName + OutFileNameClBox.Text);
-            //var tempFile = new StreamWriter(tempFileName);
             CreateNewIniFile(new StreamReader(InFilePathBox.Text), new StreamWriter(workingDirName + OutFileNameIniBox.Text), clFile, OutFileNameClBox.Text);
 
             var pixelCountFilter = new PixelCountFilter(new StreamReader(pxFile),
                 int.TryParse(FromPixCountFilterBox.Text, out int resultLowerP) ? resultLowerP : 0,
                 int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000);
-            //pixelCountFilter.Process(new StreamReader(clFile), tempFile);
-            //tempFile.Close();
-            //tempFile.Dispose();
 
-            var energyFilter = new EnergyFilter(new StreamReader(pxFile), new StreamReader(workingDirName + "a.txt"),
-                new StreamReader(workingDirName + "b.txt"), new StreamReader(workingDirName + "c.txt"), new StreamReader(workingDirName + "t.txt"),
+            var energyFilter = new EnergyFilter(new StreamReader(pxFile), new StreamReader(configPath + "a.txt"),
+                new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"),
                 double.TryParse(FromEnergyFilterBox.Text, out double resultLowerE) ? resultLowerE : 0,
                 double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : 1000000);
 
@@ -310,6 +303,13 @@ namespace ClusterUI
                 Points[i].Y = 0;
             }
         }
+        /// <summary>
+        /// Determines range of x axis in collection histogram
+        /// </summary>
+        /// <param name="clFile"></param>
+        /// <param name="pxFile"></param>
+        /// <param name="attributeGetter"></param>
+        /// <returns></returns>
         private (double min,double max) FindCollectionRange(StreamReader clFile, StreamReader pxFile, Attribute<Cluster> attributeGetter)
         {
             double max = double.MinValue;

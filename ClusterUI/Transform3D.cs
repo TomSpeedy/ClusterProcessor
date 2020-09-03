@@ -38,7 +38,6 @@ namespace ClusterUI
             var relativeToA = point.ToA - Cluster.FirstToA;
             return (Configuration.Thick / Configuration.Ud) * (Configuration.Ud + Configuration.Ub) *
                 (1 - Math.Exp(2 * Configuration.Ud * Configuration.Mob * relativeToA / Math.Pow(Configuration.Thick, 2)));
-                //Configuration.Mob * Configuration.Ub / Configuration.Thick
         }
     }
     struct Configuration
@@ -58,7 +57,7 @@ namespace ClusterUI
     public class ScatterChart
     {
         //Name of demo module
-        public string getName() { return "3D Scatter Chart "; }
+        public string getName() { return "3D Trajectory"; }
 
         //Number of charts produced in this demo module
         public int getNoOfCharts() { return 1; }
@@ -74,14 +73,14 @@ namespace ClusterUI
             double[] zData = points3D.Select(point => (double)point.Z/10D).ToArray(); //r.getSeries2(100, 100, -10, 10);
 
             // Create a ThreeDScatterChart object of size 720 x 600 pixels
-            ThreeDScatterChart chart = new ThreeDScatterChart(720, 600);
+            ThreeDScatterChart chart = new ThreeDScatterChart(viewer.Width, viewer.Height);
 
             // Add a title to the chart using 20 points Times New Roman Italic font
-            chart.addTitle("3D Scatter Chart", "Times New Roman Italic", 20);
+            chart.addTitle("3D Trajectory", "Times New Roman Italic", 18);
 
             // Set the center of the plot region at (350, 280), and set width x depth x height to
             // 360 x 360 x 270 pixels
-            chart.setPlotRegion(300, 200, 256, 256, 256);
+            chart.setPlotRegion( (viewer.Width / 2), (viewer.Height / 2), 200, 200, 200);
 
             // Add a scatter group to the chart using 11 pixels glass sphere symbols, in which the
             // color depends on the z value of the symbol
