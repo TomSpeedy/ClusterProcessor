@@ -16,7 +16,7 @@ The application has its GUI - graphical user interface which provides a simple w
 
 *Start of the project*
 
-As I consider my primary programming language to be C#, I decided to use windows forms application would be ideal for the purpose of creating a simple GUI over a code in C#. Firstly, when I chose this topic I was excited but also a little bit worried. I hadn't heard about TimePix detectors before but Mgr. Lukas Meduna and RNDr. Frantisek Mraz, CSc gave me really good introduction to the principles of timepix detectors and their work. I decided to use Lukas' application for timepix data clustering and I implemented a simple cluster viewer which loaded given file in MM format and displayed a first cluster image. Image represented the visualization of Time over Threshold property for each pixel and it was possible to navigate through collection of these cluster by using buttons Next and Previous.
+As I consider my primary programming language to be C#, I decided to use windows forms application would be ideal for the purpose of creating a simple GUI over a code in C#. Firstly, when I chose this topic I was excited but also a little bit worried. I hadn't heard about TimePix detectors before but Mgr. Lukas Meduna and RNDr. Frantisek Mraz, CSc. gave me really good introduction to the principles of timepix detectors and their work. I decided to use Lukas' application for timepix data clustering and I implemented a simple cluster viewer which loaded given file in MM format and displayed a first cluster image. Image represented the visualization of Time over Threshold (can be changed by passing different delegate - attribute getter) property for each pixel and it was possible to navigate through collection of these cluster by using buttons Next and Previous.
 
 *Cluster image colour*
 
@@ -40,9 +40,20 @@ To get a better depiction of the collection of clusters which are loaded, I chos
 
 *Pixel Histogram*
 
-Pixel histogram is a histogram of pixels in a specific cluster (the one user is currently seeing). The calculation is done each time the Next or Previous buttons are clicked, to be ready when user decides to show this histogram. This separates the calculation of histogram points from drawing of the histogram itself. Histogram could be used as a property of a cluster that could be utilized during classification.
+Pixel histogram is a histogram of a pixels in a specific cluster (the one user is currently seeing). The calculation is done each time the Next or Previous buttons are clicked, to be ready when user decides to show this histogram. This separates the calculation of histogram points from drawing of the histogram itself Histogram could be used as a property of a cluster that could be utilized during classification.
+
+*Skeletonization*
+
+//TODO add link
+
+To minimize noise and extract possible trajectory of a particle I used skeletonization algorithm -Thinning of the digital patterns. 
+
+As this algorithm is done for each cluster and iterates over .px files, complexity (both time and space) could be an issue. When we look into the algorithm, we see that it mainly uses two operations on a pixel data structure. These are .Contains() and .Delete(). Using 'naive approach' - List/array we get O(n) complexity for both of these operations. (Which could be an issue for bigger clusters - even though they are rare, they are usually the interesting ones that we will skeletonize). So I chose HashSet where both .Contains() and also .Delete() are in O(1).
+
+The algorithm is for binary images so I only considered two states - pixel reached its threshold for nonzero amount of time or not. This way I got a binary image to which I applied the algorithm. Here I spent a lot of time debugging as the algorithm says that number of 01 occurrences in ordered set {P2..P9} should be 1 to remove the pixel. Apparently it also considers the pair (P9,P2) which makes sense after deeper look into the algorithm but could be misleading for people who doesn't 'see into' the algorithm.  
 
 *3D Visualization*
 
+//TODO add link
 
-
+First I needed to calculate z coordinate of the pixel that was hit. For that I used and article by Benedikt Bergmann, where I found the equation for z(t), where t is relative to the First ToA. The remaining parameters I got from Benedikt are specific for a each measurement(bias, depletion voltage, electric mobility and thickness of the detector). As I calculated the z coordinate of the particle, I found out that WinForms doesn't support 3D scatter plotting by default. I chose ChartViewer (3rd party library) as it has a free version and provides quite simple API for scatter plotting in 3D.
