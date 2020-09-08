@@ -28,7 +28,7 @@ I also decided It is a good idea not to load all clusters into memory as the siz
 
 *Filters - abstract class vs interview*
 
-For the filters I chose a different approach. Because of the fact that creating the Cluster object is 'time and space expensive' if done on huge collection of Clusters, I chose to sequentially read data for each cluster in .cl file (that is done in the method .Process()) and for each line in .cl file a method .MatchesFilter() is called (implemented differently for each specific filter). This way each filter is provided by reasonably fast iterating algorithm and only implement its own condition of accepting the cluster. (the reason why I preferred an abstract class over an interface)
+For the filters I chose a different approach. Because of the fact that creating the Cluster object is 'time and space expensive' if done on huge collection of Clusters, I chose to sequentially read data for each cluster in .cl file (that is done in the method .Process()) and for each line in .cl file a method .MatchesFilter() is called (implemented differently for each specific filter). This is implemented by ClusterInfoCollection : IEnumerable\<ClusterInfo\> which represents lazy enumerated collection. This way each filter is provided by reasonably fast iterating algorithm and only implement its own condition of accepting the cluster. (the reason why I preferred an abstract class over an interface)
 
 *Multifilter*
 
@@ -36,14 +36,13 @@ Then I found out that using more filters would cause more iterations over the co
 
 *Collection Histogram*
 
-To get a better depiction of the collection of clusters which are loaded, I chose to make Histogram displaying the value of property of the clusters. X axis is scaled relatively to the data (requires one iteration over the collection) and is divided into constant number of intervals (= 100). I decided that the calculation of the histogram will be done right when they are loaded as this provides some more time for calculation on background until user click to show histogram. This way I could find out the distribution of the given attribute in the collection of clusters. Setting the attribute to pixelCount I found out that most of the clusters are really small <10 pixels and bigger clusters are really rare. 
-
- //TODO Implementation with partial and full Cluster.LoadCluster() method
+To get a better depiction of the collection of clusters which are loaded, I chose to make Histogram displaying the value of property of the clusters. X axis is scaled relatively to the data (requires one iteration over the collection) and is divided into constant number of intervals (= 100). I decided that the calculation of the histogram will be done right when they are loaded as this provides some more time for calculation on background until user click to show histogram. Just like with Filters creating the cluster object would be expensive. At first I added a bool to LoadCluster() method to indicate whether we want to load only main cluster info from .cl file (fast) or also info from .px file (slow). But when I came up with an idea of separating the enumeration algorithm from processing algorithm I realised I could use the ClusterInfoCollection and foreach loop (same as with the filters). Thanks to using yield returns it wasn't difficult to implement GetEnumerator(). This way I could find out the distribution of the given attribute in the collection of clusters. Setting the attribute to pixelCount I found out that most of the clusters are really small <10 pixels and bigger clusters are really rare. 
 
 *Pixel Histogram*
 
-Pixel histogram is a histogram of a pixels in a specific cluster (the one user is currently seeing). The calculation is done each time the Next or Previous buttons are clicked, to be ready when user decides to show this histogram. Histogram could be used as a property of a cluster that could be utilized during classification.
+Pixel histogram is a histogram of pixels in a specific cluster (the one user is currently seeing). The calculation is done each time the Next or Previous buttons are clicked, to be ready when user decides to show this histogram. This separates the calculation of histogram points from drawing of the histogram itself. Histogram could be used as a property of a cluster that could be utilized during classification.
 
 *3D Visualization*
 
-//TODO
+
+
