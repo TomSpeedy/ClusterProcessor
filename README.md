@@ -16,11 +16,11 @@ The application has its GUI - graphical user interface which provides a simple w
 
 *Start of the project*
 
-As I consider my primary programming language to be C#, I decided to use windows forms application would be ideal for the purpose of creating a simple GUI over a code in C#. Firstly, when I chose this topic I was excited but also a little bit worried. I hadn't heard about TimePix detectors before but Lukas Meduna and Frantisek Mraz gave me really good introduction to the principles of timepix detectors and their work. I decided to use Lukas' application for timepix data clustering and I implemented a simple cluster viewer which loaded given file in xxx format and displayed a first cluster image. Image represented the visualization of Time over Threshold property for each pixel and it was possible to navigate through collection of these cluster by using buttons Next and Previous.
+As I consider my primary programming language to be C#, I decided to use windows forms application would be ideal for the purpose of creating a simple GUI over a code in C#. Firstly, when I chose this topic I was excited but also a little bit worried. I hadn't heard about TimePix detectors before but Mgr. Lukas Meduna and RNDr. Frantisek Mraz, CSc gave me really good introduction to the principles of timepix detectors and their work. I decided to use Lukas' application for timepix data clustering and I implemented a simple cluster viewer which loaded given file in MM format and displayed a first cluster image. Image represented the visualization of Time over Threshold property for each pixel and it was possible to navigate through collection of these cluster by using buttons Next and Previous.
 
 *Cluster image colour*
 
-The little problem I encountered here was deciding the approperiate mapping of ToT to colour of each pixel. At first I chose a linear scale mapping to spectrum from yellow to red and as I compared the images with logarithmic mapping I found out that logarithmic mapping displayed a better distinction between possible 'real' trajectory of particle and 'noise'. 
+The little problem I encountered here was deciding the appropriate mapping of ToT to colour of each pixel. At first I chose a linear scale mapping to spectrum from yellow to red and as I compared the images with logarithmic mapping I found out that logarithmic mapping displayed a better distinction between possible 'real' trajectory of particle and 'noise'. 
 
 *Cluster loading*
 
