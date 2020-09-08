@@ -23,21 +23,15 @@ namespace ClusterUI
     {
         public int ProcessedCount { get; protected set; } = 0;
         public int FilterSuccessCount { get; protected set; } = 0;
-        public abstract bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null );
+        public abstract bool MatchesFilter(ClusterInfo clInfo);
         public void Process(StreamReader inputCLFile, StreamWriter outputCLFile)
         {
-            while (inputCLFile.BaseStream.Position < inputCLFile.BaseStream.Length)
-            {
-                string[] tokens = inputCLFile.ReadLine().Split();
-                double FirstToA = double.Parse(tokens[0].Replace('.', ','));
-                uint pixCount = uint.Parse(tokens[1]);
-                ulong lineOfStart = ulong.Parse(tokens[2]);
-                ulong byteStart = ulong.Parse(tokens[3]);
-                ProcessedCount++;
-                if (MatchesFilter(FirstToA, pixCount, null, byteStart))
+            foreach (var clInfo in new ClusterInfoCollection(inputCLFile))
+            { 
+                if (MatchesFilter(clInfo))
                 {
                     FilterSuccessCount++;
-                    outputCLFile.WriteLine($"{FirstToA} {pixCount} {lineOfStart} {byteStart}");
+                    outputCLFile.WriteLine(clInfo);
 
                 }
             }
@@ -51,9 +45,9 @@ namespace ClusterUI
         {
             this.Filters = filters;
         }
-        public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
+        public override bool MatchesFilter(ClusterInfo clInfo)
         {
-            return Filters.All(filter => filter.MatchesFilter(FirstToA, pixelCount, lineOfStart, byteOfStart));
+            return Filters.All(filter => filter.MatchesFilter(clInfo));
         }
     }
     public class EnergyFilter : ClusterFilter
@@ -109,11 +103,11 @@ namespace ClusterUI
             double energy = (a * t + ToT + b + Math.Sqrt(D)) / (2 * a);
             return energy;
         }
-        public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
+        public override bool MatchesFilter(ClusterInfo clInfo)
         {
-            PixelFile.BaseStream.Seek((long)byteOfStart, SeekOrigin.Begin);
+            PixelFile.BaseStream.Seek((long)clInfo.ByteStart, SeekOrigin.Begin);
             double totalEnergy = 0D;
-            for (int i = 0; i < pixelCount; i++)
+            for (int i = 0; i < clInfo.PixCount; i++)
             {
                 var tokens = PixelFile.ReadLine().Split();
                 if (tokens[0] == "#")
@@ -154,10 +148,10 @@ namespace ClusterUI
             this.LowerBound = lowerBound;
             this.UpperBound = upperBound;
         }
-        public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
+        public override bool MatchesFilter(ClusterInfo clInfo)
         {
             
-            if ((pixelCount >= this.LowerBound) && (pixelCount <= this.UpperBound))
+            if ((clInfo.PixCount >= this.LowerBound) && (clInfo.PixCount <= this.UpperBound))
             {
                 return true;
             }
@@ -181,12 +175,12 @@ namespace ClusterUI
             this.UpperBound = upperBound;
         }
        
-        public override bool MatchesFilter(double FirstToA, uint pixelCount, long? lineOfStart = null, ulong? byteOfStart = null)
+        public override bool MatchesFilter(ClusterInfo clInfo)
         {
             PixelFile.DiscardBufferedData();
-            PixelFile.BaseStream.Seek((long)byteOfStart, SeekOrigin.Begin);
+            PixelFile.BaseStream.Seek((long)clInfo.ByteStart, SeekOrigin.Begin);
             var points = new List<PixelPoint>();
-            for (int i = 0; i < pixelCount; i++)
+            for (int i = 0; i < clInfo.PixCount; i++)
             {
                 var tokens = PixelFile.ReadLine().Split();
                 if (tokens[0] == "#")
@@ -219,7 +213,7 @@ namespace ClusterUI
                 //CalculateWidth(hull);
             }
             
-            double percentage = 100 * pixelCount / (double)area;
+            double percentage = 100 * clInfo.PixCount / (double)area;
             if (percentage >= LowerBound && percentage <= UpperBound)
                 return true;
             return false;

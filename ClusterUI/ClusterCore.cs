@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -74,7 +74,7 @@ namespace ClusterUI
             return (tokens);
 
         }
-        public static Cluster LoadFromText(StreamReader pixelReader, StreamReader clusterReader, bool isFullLoad, int clusterNumber = 1)
+        public static Cluster LoadFromText(StreamReader pixelReader, StreamReader clusterReader, int clusterNumber = 1)
         {
             Cluster cluster = new Cluster();
 
@@ -85,19 +85,17 @@ namespace ClusterUI
             cluster.PixelCount = uint.Parse(clusterInfo[1]);
             cluster.ByteStart = ulong.Parse(clusterInfo[3]);
 
-            
-                cluster.Points = new PixelPoint[cluster.PixelCount];
-            if (isFullLoad)
-            {
-                pixelReader.DiscardBufferedData();
-                pixelReader.BaseStream.Position = (long)cluster.ByteStart;
+            cluster.Points = new PixelPoint[cluster.PixelCount];
 
-                for (int i = 0; i < cluster.PixelCount; i++)
-                {
-                    string[] pixel = pixelReader.ReadLine().Split(' ');
-                    cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]), double.Parse(pixel[2].Replace('.', ',')), double.Parse(pixel[3].Replace('.', ',')));
-                }
+            pixelReader.DiscardBufferedData();
+            pixelReader.BaseStream.Position = (long)cluster.ByteStart;
+
+            for (int i = 0; i < cluster.PixelCount; i++)
+            {
+                string[] pixel = pixelReader.ReadLine().Split(' ');
+                cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]), double.Parse(pixel[2].Replace('.', ',')), double.Parse(pixel[3].Replace('.', ',')));
             }
+            
             return (cluster);
         }
         
@@ -126,5 +124,41 @@ namespace ClusterUI
             var other = (PixelPoint)obj;
             return this.xCoord == other.xCoord && this.yCoord == other.yCoord;
         }
+    }
+    public struct ClusterInfo
+    { 
+        public double FirstToA { get; set; }
+        public uint PixCount { get; set; }
+        public ulong ByteStart { get; set; }
+        public ulong LineStart { get; set; }
+        public override string ToString()
+        {
+            return $"{FirstToA} {PixCount} {LineStart} {ByteStart}";
+        }
+    }
+    class ClusterInfoCollection : IEnumerable<ClusterInfo>
+    {
+        private readonly StreamReader ClFile; 
+        public ClusterInfoCollection(StreamReader clFile)
+        {
+            this.ClFile = clFile;
+        }
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        public IEnumerator<ClusterInfo> GetEnumerator()
+        {
+            while (ClFile.BaseStream.Position < ClFile.BaseStream.Length)
+            {
+                string[] tokens = ClFile.ReadLine().Split();
+                var clInfo = new ClusterInfo()
+                {
+                    FirstToA = double.Parse(tokens[0].Replace('.', ',')),
+                    PixCount = uint.Parse(tokens[1]),
+                    LineStart = ulong.Parse(tokens[2]),
+                    ByteStart = ulong.Parse(tokens[3])
+                };
+                yield return clInfo;
+            }
+        }
+
     }
 }

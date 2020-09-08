@@ -32,7 +32,7 @@ namespace ClusterUI
         {
             if (clusterNumber < HistogramPoints.Sum(point => point.Y))
                 clusterNumber++;
-            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), true, clusterNumber);
+            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             Current = cluster;
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
@@ -47,7 +47,7 @@ namespace ClusterUI
         {
             if (clusterNumber >= 1)
                 clusterNumber--;
-            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), true, clusterNumber);
+            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
             {
@@ -68,10 +68,10 @@ namespace ClusterUI
         public void LoadClustersClicked(object sender, EventArgs e)
         {
             Cluster.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
-            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), true, clusterNumber);
+            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
 
 
-            HistogramPoints = new Histogram(new StreamReader(clFile), new StreamReader(pxFile), cl => (double)cl.PixelCount).Points;
+            HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points;
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
 
             PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -260,22 +260,24 @@ namespace ClusterUI
         double MinValue { get; set; }
         double MaxValue { get; set; }
         public HistogramPoint[] Points = new HistogramPoint[bucketCount];
-        public Histogram (StreamReader clFile, StreamReader pxFile, Attribute<Cluster> attributeGetter)
+        public Histogram (StreamReader clFile, Attribute<ClusterInfo> attributeGetter)
         {
             double[] buckets = new double[bucketCount];
-            (MinValue, MaxValue) = FindCollectionRange(clFile, pxFile, attributeGetter);
+            (MinValue, MaxValue) = FindCollectionRange(clFile, attributeGetter);
             clFile.BaseStream.Position = 0;
             clFile.DiscardBufferedData();
             InitPoints();
-            while (clFile.Peek() != -1)
+            foreach (var clInfo in new ClusterInfoCollection(clFile))
             {
-                var cluster = Cluster.LoadFromText(pxFile, clFile, false); 
-                double attribute =  attributeGetter(cluster);
+                double attribute = attributeGetter(clInfo);
                 if ((attribute == MaxValue) && (Math.Floor(attribute) == attribute))
                     Points[bucketCount - 1].Y++;
                 else
-                    Points[(int)Math.Floor(bucketCount * ((attribute - MinValue) / (MaxValue - MinValue)))].Y++;      
-            }   
+                    Points[(int)Math.Floor(bucketCount * ((attribute - MinValue) / (MaxValue - MinValue)))].Y++;
+            }
+
+                    
+            
             
         }
         public Histogram(Cluster cluster, Attribute<PixelPoint> attributeGetter)
@@ -310,14 +312,13 @@ namespace ClusterUI
         /// <param name="pxFile"></param>
         /// <param name="attributeGetter"></param>
         /// <returns></returns>
-        private (double min,double max) FindCollectionRange(StreamReader clFile, StreamReader pxFile, Attribute<Cluster> attributeGetter)
+        private (double min,double max) FindCollectionRange(StreamReader clFile, Attribute<ClusterInfo> attributeGetter)
         {
             double max = double.MinValue;
             double min = double.MaxValue;
-            while (clFile.Peek() != -1)
-            {
-                var cluster = Cluster.LoadFromText(pxFile, clFile, false ); 
-                var attribute = attributeGetter(cluster);
+            foreach (var clInfo in new ClusterInfoCollection(clFile))
+            { 
+                var attribute = attributeGetter(clInfo);
                 if (attribute > max)
                     max = attribute;
                 if (attribute < min)
