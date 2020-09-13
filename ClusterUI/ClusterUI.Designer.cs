@@ -81,6 +81,10 @@
             this.winChartViewer = new ChartDirector.WinChartViewer();
             this.View3DButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.RotateUpButton = new System.Windows.Forms.Button();
+            this.RotateDownButton = new System.Windows.Forms.Button();
+            this.RotateLeftButton = new System.Windows.Forms.Button();
+            this.RotateRightButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
@@ -591,11 +595,55 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Filterer";
             // 
+            // RotateUpButton
+            // 
+            this.RotateUpButton.Location = new System.Drawing.Point(992, 386);
+            this.RotateUpButton.Name = "RotateUpButton";
+            this.RotateUpButton.Size = new System.Drawing.Size(47, 23);
+            this.RotateUpButton.TabIndex = 19;
+            this.RotateUpButton.Text = "Up";
+            this.RotateUpButton.UseVisualStyleBackColor = true;
+            this.RotateUpButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            // 
+            // RotateDownButton
+            // 
+            this.RotateDownButton.Location = new System.Drawing.Point(992, 415);
+            this.RotateDownButton.Name = "RotateDownButton";
+            this.RotateDownButton.Size = new System.Drawing.Size(47, 23);
+            this.RotateDownButton.TabIndex = 20;
+            this.RotateDownButton.Text = "Down";
+            this.RotateDownButton.UseVisualStyleBackColor = true;
+            this.RotateDownButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            // 
+            // RotateLeftButton
+            // 
+            this.RotateLeftButton.Location = new System.Drawing.Point(947, 397);
+            this.RotateLeftButton.Name = "RotateLeftButton";
+            this.RotateLeftButton.Size = new System.Drawing.Size(39, 25);
+            this.RotateLeftButton.TabIndex = 21;
+            this.RotateLeftButton.Text = "Left";
+            this.RotateLeftButton.UseVisualStyleBackColor = true;
+            this.RotateLeftButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            // 
+            // RotateRightButton
+            // 
+            this.RotateRightButton.Location = new System.Drawing.Point(1046, 398);
+            this.RotateRightButton.Name = "RotateRightButton";
+            this.RotateRightButton.Size = new System.Drawing.Size(43, 23);
+            this.RotateRightButton.TabIndex = 22;
+            this.RotateRightButton.Text = "Right";
+            this.RotateRightButton.UseVisualStyleBackColor = true;
+            this.RotateRightButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.RotateRightButton);
+            this.Controls.Add(this.RotateLeftButton);
+            this.Controls.Add(this.RotateDownButton);
+            this.Controls.Add(this.RotateUpButton);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.View3DButton);
             this.Controls.Add(this.winChartViewer);
@@ -675,6 +723,10 @@
         private ChartDirector.WinChartViewer winChartViewer;
         private System.Windows.Forms.Button View3DButton;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button RotateUpButton;
+        private System.Windows.Forms.Button RotateDownButton;
+        private System.Windows.Forms.Button RotateLeftButton;
+        private System.Windows.Forms.Button RotateRightButton;
     }
 }
 

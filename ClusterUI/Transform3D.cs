@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Xml.Linq;
 using ChartDirector;
 
 namespace ClusterUI
 {
+    //TODO: Clean Redraw here and also in UI
     interface IZCalculator
     {
         Point3D[] TransformPoints(Cluster cluster);
@@ -56,52 +58,63 @@ namespace ClusterUI
     }
     public class ScatterChart
     {
+        private readonly ThreeDScatterChart chart;
+        private readonly double[] xData;
+        private readonly double[] zData;
+        private readonly double[] yData;
+        public int angleVert { get; set; }
+        public int angleHoriz { get; set; }
+        const string Title = "3D Trajectory";
         //Name of demo module
-        public string getName() { return "3D Trajectory"; }
+        public string getName() { return Title; }
 
         //Number of charts produced in this demo module
         public int getNoOfCharts() { return 1; }
 
         //Main code for creating chart.
         //Note: the argument chartIndex is unused because this demo only has 1 chart.
-        public void CreateChart(WinChartViewer viewer, Point3D[] points3D)
+        public ScatterChart(WinChartViewer viewer, Point3D[] points3D)
         {
-            // The XYZ data for the 3D scatter chart as 3 random data series
-            RanSeries r = new RanSeries(0);
-            double[] xData = points3D.Select(point => (double)point.X/10D).ToArray(); //r.getSeries2(100, 100, -10, 10);
-            double[] yData = points3D.Select(point => (double)point.Y/10D).ToArray(); //r.getSeries2(100, 0, 0, 20);
-            double[] zData = points3D.Select(point => (double)point.Z/10D).ToArray(); //r.getSeries2(100, 100, -10, 10);
+            xData = points3D.Select(point => (double)point.X / 10D).ToArray(); 
+            yData = points3D.Select(point => (double)point.Y / 10D).ToArray(); 
+            zData = points3D.Select(point => (double)point.Z / 10D).ToArray(); 
 
             // Create a ThreeDScatterChart object of size 720 x 600 pixels
-            ThreeDScatterChart chart = new ThreeDScatterChart(viewer.Width, viewer.Height);
+            var chart = new ThreeDScatterChart(viewer.Width, viewer.Height);
+            chart.setPlotRegion((viewer.Width / 2), (viewer.Height / 2), 200, 200, 200);
 
-            // Add a title to the chart using 20 points Times New Roman Italic font
-            chart.addTitle("3D Trajectory", "Times New Roman Italic", 18);
-
-            // Set the center of the plot region at (350, 280), and set width x depth x height to
-            // 360 x 360 x 270 pixels
-            chart.setPlotRegion( (viewer.Width / 2), (viewer.Height / 2), 200, 200, 200);
-
-            // Add a scatter group to the chart using 11 pixels glass sphere symbols, in which the
-            // color depends on the z value of the symbol
-            chart.addScatterGroup(xData, yData, zData, "Trajectory", ChartDirector.Chart.GlassSphere2Shape, 11,
-                ChartDirector.Chart.SameAsMainColor);
-
-            // Add a color axis (the legend) in which the left center is anchored at (645, 270). Set
-            // the length to 200 pixels and the labels on the right side.
-            //chart.setColorAxis(645, 270, Chart.Left, 200, Chart.Right);
-
-            // Set the x, y and z axis titles using 10 points Arial Bold font
-            chart.xAxis().setTitle("X-Axis", "Arial Bold", 10);
-            chart.yAxis().setTitle("Y-Axis", "Arial Bold", 10);
-            chart.zAxis().setTitle("Z-Axis", "Arial Bold", 10);
-
+            Initialize(chart);
             // Output the chart
             viewer.Chart = chart;
+            //Save chart
+            this.chart = chart;
+        }
+        public ThreeDScatterChart RotateChart(int angleVert, int angleHoriz)
+        {
+            var chart = new ThreeDScatterChart(this.chart.getWidth(), this.chart.getHeight());
+            chart.setPlotRegion((this.chart.getWidth() / 2), (this.chart.getHeight() / 2), 200, 200, 200);
+            //chart.setColorAxis(645, 270, Chart.Left, 200, Chart.Right);
 
-            //include tool tip for the chart
-            viewer.ImageMap = chart.getHTMLImageMap("clickable", "",
-                "title='(x={x|p}, y={y|p}, z={z|p}'");
+            Initialize(chart);
+            chart.setViewAngle(angleVert, angleHoriz);
+            //viewer.ImageMap = chart.getHTMLImageMap("clickable", "",
+            // "title='(x={x|p}, y={y|p}, z={z|p}'");
+            return chart;
+        }
+        private void Initialize(ThreeDScatterChart chart)
+        {
+            const string TitleFont = "Times New Roman Italic";
+            const string AxisLabelFont = "Arial Bold";
+            const int AxisFontSize = 10;
+            chart.addTitle(Title, TitleFont, 18);
+            // Add a scatter group to the chart using 11 pixels glass sphere symbols, in which the
+            // color depends on the z value of the symbol
+            chart.addScatterGroup(this.xData, this.yData, this.zData, "Trajectory", ChartDirector.Chart.GlassSphere2Shape, 11,
+                ChartDirector.Chart.SameAsMainColor);
+            // Set the x, y and z axis titles using 10 points Arial Bold font
+            chart.xAxis().setTitle("X-Axis", AxisLabelFont, AxisFontSize);
+            chart.yAxis().setTitle("Y-Axis", AxisLabelFont, AxisFontSize);
+            chart.zAxis().setTitle("Z-Axis", AxisLabelFont, AxisFontSize);
         }
     }
 

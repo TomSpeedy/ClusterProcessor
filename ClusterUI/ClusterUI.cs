@@ -28,6 +28,7 @@ namespace ClusterUI
         HistogramPoint[] HistogramPoints { get; set; }
         HistogramPoint[] HistogramPixPoints { get; set; }
         Cluster Current { get; set; }
+        ScatterChart ScatterChart { get; set; }
         public void NextButtonClicked(object sender, EventArgs e)
         {
             if (clusterNumber < HistogramPoints.Sum(point => point.Y))
@@ -92,14 +93,13 @@ namespace ClusterUI
 
             //WinChartViewer viewer3D = new WinChartViewer();
 
-            ScatterChart chart = new ScatterChart();
-            chart.CreateChart(winChartViewer, points3D);
+            ScatterChart chart = new ScatterChart(winChartViewer, points3D);
+            ScatterChart = chart;
         }
         public void HideHistogramClicked(object sender, EventArgs e)
         {
             ClusterHistogram.Visible = false;
         }
-
         public void ShowHistogramClicked(object sender, EventArgs e)
         {
             if (HistogramPoints == null)
@@ -149,6 +149,23 @@ namespace ClusterUI
 
             }
             ClusterPixHistogram.ChartAreas[0].AxisX.RoundAxisValues();
+        }
+        public void Rotate3DPlot(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            if (button == RotateUpButton)
+                ScatterChart.angleVert += 10;
+            else if (button == RotateDownButton)
+                ScatterChart.angleVert -= 10;
+            else if (button == RotateLeftButton)
+                ScatterChart.angleHoriz += 10;
+            else if (button == RotateRightButton)
+                ScatterChart.angleHoriz -= 10;
+            ScatterChart.angleVert %= 360;
+            ScatterChart.angleHoriz %= 360;
+            winChartViewer.Chart = ScatterChart.RotateChart(ScatterChart.angleVert, ScatterChart.angleHoriz);
+                
+
         }
         public void ProcessFilterClicked(object sender, EventArgs e)
         {
