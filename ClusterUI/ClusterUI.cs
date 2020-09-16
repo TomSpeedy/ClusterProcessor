@@ -72,7 +72,7 @@ namespace ClusterUI
             Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
 
 
-            HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points;
+            //HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points;
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
 
             PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -102,19 +102,21 @@ namespace ClusterUI
         }
         public void ShowHistogramClicked(object sender, EventArgs e)
         {
-            if (HistogramPoints == null)
-                return;
+            //if (HistogramPoints == null)
+               // return;
+            HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points;
             ClusterHistogram.Visible = true;
             ClusterHistogram.Series.Clear();
             ClusterHistogram.Palette = ChartColorPalette.BrightPastel;
             if (ClusterHistogram.Titles.Count == 0)
             {
                 ClusterHistogram.Titles.Add("Cluster Collection Histogram");
-                var chartArea = new ChartArea();
-                ClusterHistogram.ChartAreas.Add(new ChartArea());
-                ClusterHistogram.ChartAreas[0].AxisX.Title = "Pixel Count";
-                ClusterHistogram.ChartAreas[0].AxisY.Title = "Cluster Count";
             }
+            var chartArea = new ChartArea();
+            ClusterHistogram.ChartAreas.Clear();
+            ClusterHistogram.ChartAreas.Add(new ChartArea());
+            ClusterHistogram.ChartAreas[0].AxisX.Title = "Pixel Count";
+            ClusterHistogram.ChartAreas[0].AxisY.Title = "Cluster Count";
             Series series = ClusterHistogram.Series.Add("Number of clusters with given pixel count");
             for (int i = 0; i < HistogramPoints.Length; i++)
             {

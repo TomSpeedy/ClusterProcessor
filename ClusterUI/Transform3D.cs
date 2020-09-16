@@ -75,8 +75,8 @@ namespace ClusterUI
         //Note: the argument chartIndex is unused because this demo only has 1 chart.
         public ScatterChart(WinChartViewer viewer, Point3D[] points3D)
         {
-            xData = points3D.Select(point => (double)point.X / 10D).ToArray(); 
-            yData = points3D.Select(point => (double)point.Y / 10D).ToArray(); 
+            xData = points3D.Select(point => (double)point.X).ToArray(); 
+            yData = points3D.Select(point => (double)point.Y).ToArray(); 
             zData = points3D.Select(point => (double)point.Z / 10D).ToArray(); 
 
             // Create a ThreeDScatterChart object of size 720 x 600 pixels
