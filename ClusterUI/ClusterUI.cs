@@ -31,30 +31,28 @@ namespace ClusterUI
         ScatterChart ScatterChart { get; set; }
         public void NextButtonClicked(object sender, EventArgs e)
         {
-            if (clusterNumber < HistogramPoints.Sum(point => point.Y))
                 clusterNumber++;
             Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             Current = cluster;
-            HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
             {
-                
+                HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                //DrawLineInt((Bitmap)this.PictureBox.Image, hull);
             }
+            else
+                clusterNumber--;
 
         }
         public void PrevButtonClicked(object sender, EventArgs e)
         {
-            if (clusterNumber >= 1)
+            if (clusterNumber >= 2)
                 clusterNumber--;
             Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
             {
+                HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
-                //var hull = new ConvexHull(cluster.Points);
-                //DrawLineInt((Bitmap)this.PictureBox.Image, hull);
             }
             Current = cluster;
         }
@@ -70,9 +68,6 @@ namespace ClusterUI
         {
             Cluster.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
             Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
-
-
-            //HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points;
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
 
             PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
