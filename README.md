@@ -57,3 +57,10 @@ The algorithm is for binary images so I only considered two states - pixel reach
 //TODO add link
 
 First I needed to calculate z coordinate of the pixel that was hit. For that I used and article by Benedikt Bergmann, where I found the equation for z(t), where t is relative to the First ToA. The remaining parameters I got from Benedikt are specific for a each measurement(bias, depletion voltage, electric mobility and thickness of the detector). As I calculated the z coordinate of the particle, I found out that WinForms doesn't support 3D scatter plotting by default. I chose ChartViewer (3rd party library) as it has a free version and provides quite simple API for scatter plotting in 3D.
+
+ 18.9 - session with Mr. Mraz about the current state of the project and the way of extendind the work to a bachelor thesis
+
+​	     -asking Mr.Meduna and others for possible extensions of this work
+
+​         - sending the project to Mr.Bergmann for feedback
+

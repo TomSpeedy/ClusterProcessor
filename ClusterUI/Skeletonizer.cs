@@ -33,7 +33,6 @@ namespace ClusterUI
             var toDelete = new List<PixelPoint>();
             bool isFirstIteration = true;
             int deletedCount = 0;
-
             while ((deletedCount > 0) || isFirstIteration)
             {
                 isFirstIteration = false;

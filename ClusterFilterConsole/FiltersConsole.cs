@@ -7,10 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Diagnostics;
-using System.Windows.Forms;
-
-namespace ClusterUI
+namespace ClusterFilterConsole
 {
     public static class Extensions
     {
@@ -19,60 +16,21 @@ namespace ClusterUI
 
     }
 
-    public abstract class PixelFilter //works with loaded data, suitable only for filtering currently viewed files
-    {
-        public int ProcessedCount { get; protected set; } = 0;
-        public int FilterSuccessCount { get; protected set; } = 0;
-        public abstract bool MatchesFilter(PixelPoint pixel);
-        public List<PixelPoint> Process(IList<PixelPoint> pixels)
-        {
-            List<PixelPoint> result = new List<PixelPoint>();
-            foreach (PixelPoint pixel in pixels)
-            {
-                if (MatchesFilter(pixel))
-                {
-                    result.Add(pixel);
-                    FilterSuccessCount++;
-                }
-                ProcessedCount++;
-                    
-            }
-            return result;
-        }
-    }
-
-    public class EnergyHaloFilter : PixelFilter
-    {
-        readonly EnergyCalculator EnergyCalculator;
-        const double HaloLimit = 8;
-        public EnergyHaloFilter(StreamReader aFile, StreamReader bFile, StreamReader cFile, StreamReader tFile)
-        {
-            EnergyCalculator = new EnergyCalculator(aFile, bFile, cFile, tFile);
-
-        }
-        public override bool MatchesFilter(PixelPoint pixel)
-        {
-            return (EnergyCalculator.ToElectronVolts(pixel.ToT, pixel.xCoord, pixel.yCoord) >= HaloLimit);
-        }
-    }
-
-    public abstract class ClusterFilter //works with text files
+    public abstract class ClusterFilter
     {
         public int ProcessedCount { get; protected set; } = 0;
         public int FilterSuccessCount { get; protected set; } = 0;
         public abstract bool MatchesFilter(ClusterInfo clInfo);
         public void Process(StreamReader inputCLFile, StreamWriter outputCLFile)
         {
-            IClusterWriter clusterWriter = new MMClusterWriter(outputCLFile);
             foreach (var clInfo in new ClusterInfoCollection(inputCLFile))
-            { 
+            {
                 if (MatchesFilter(clInfo))
                 {
                     FilterSuccessCount++;
-                    clusterWriter.WriteClusterInfo(clInfo);
+                    outputCLFile.WriteLine(clInfo);
 
                 }
-                ProcessedCount++;
             }
         }
 
@@ -91,10 +49,12 @@ namespace ClusterUI
     }
     public class EnergyFilter : ClusterFilter
     {
-        
+
         private StreamReader PixelFile { get; set; }
-        private EnergyCalculator EnergyCalculator { get; set; }
-        
+        double[][] aConf = new double[256][];
+        double[][] bConf = new double[256][];
+        double[][] cConf = new double[256][];
+        double[][] tConf = new double[256][];
 
         private double LowerBound { get; }
         private double UpperBound { get; }
@@ -103,8 +63,42 @@ namespace ClusterUI
             this.PixelFile = pixelFile;
             this.LowerBound = lowerBound;
             this.UpperBound = upperBound;
-            this.EnergyCalculator = new EnergyCalculator(aFile, bFile, cFile, tFile);
+            LoadConfigFile(aFile, this.aConf);
+            LoadConfigFile(bFile, this.bConf);
+            LoadConfigFile(cFile, this.cConf);
+            LoadConfigFile(tFile, this.tConf);
+        }
+        private void LoadConfigFile(StreamReader configFile, double[][] configArray)
+        {
+            char[] delimiters = { ' ', '\t' };
+            string[] stringValues = configFile.ReadLine().Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+            configArray[0] = new double[256];
+            for (int j = 0; j < configArray[0].Length - 1; j++)
+            {
+                configArray[0][j] = double.Parse(stringValues[j].Replace('.', ','));
+            }
+            configArray[0][255] = configArray[0][254];
+            for (int i = 1; i < configArray.Length; i++)
+            {
+                stringValues = configFile.ReadLine().Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                configArray[i] = new double[256];
+                for (int j = 0; j < configArray[i].Length; j++)
+                {
+                    configArray[i][j] = double.Parse(stringValues[j].Replace('.', ','));
+                }
 
+            }
+        }
+        public double ToElectronVolts(double ToT, ushort x, ushort y)
+        {
+
+            double a = aConf[x][y];
+            double b = bConf[x][y];
+            double c = cConf[x][y];
+            double t = tConf[x][y];
+            double D = Math.Pow((-a * t - ToT - b), 2) - 4 * a * (-b * t - c + ToT * t);
+            double energy = (a * t + ToT + b + Math.Sqrt(D)) / (2 * a);
+            return energy;
         }
         public override bool MatchesFilter(ClusterInfo clInfo)
         {
@@ -119,16 +113,16 @@ namespace ClusterUI
 
                 if (tokens.Length == 5)
                 {
-                    
+
                     ushort.TryParse(tokens[0], out ushort x);
                     ushort.TryParse(tokens[1], out ushort y);
                     double.TryParse(tokens[2].Replace('.', ','), out double ToA);
                     double.TryParse(tokens[3].Replace('.', ','), out double ToT);
                     double Energy = 0;
-                    if ((x <= 255) && (x >= 0) && (y >= 0) &&(y <= 255))
-                        Energy = EnergyCalculator.ToElectronVolts(ToT, x, y);
+                    if ((x <= 255) && (x >= 0) && (y >= 0) && (y <= 255))
+                        Energy = ToElectronVolts(ToT, x, y);
                     totalEnergy += Energy;
-                   
+
                 }
             }
             if ((totalEnergy >= LowerBound) && (totalEnergy <= UpperBound))
@@ -153,19 +147,19 @@ namespace ClusterUI
         }
         public override bool MatchesFilter(ClusterInfo clInfo)
         {
-            
+
             if ((clInfo.PixCount >= this.LowerBound) && (clInfo.PixCount <= this.UpperBound))
             {
                 return true;
             }
             return false;
         }
-        
+
 
 
 
     }
-    public class ConvexityFilter:ClusterFilter
+    public class ConvexityFilter : ClusterFilter
     {
         private StreamReader PixelFile { get; }
         private double LowerBound { get; }
@@ -177,7 +171,7 @@ namespace ClusterUI
             this.LowerBound = lowerBound;
             this.UpperBound = upperBound;
         }
-       
+
         public override bool MatchesFilter(ClusterInfo clInfo)
         {
             PixelFile.DiscardBufferedData();
@@ -194,7 +188,7 @@ namespace ClusterUI
                         throw new InvalidOperationException();
 
                 }
-                    
+
                 ushort.TryParse(tokens[0], out ushort x);
                 ushort.TryParse(tokens[1], out ushort y);
                 double.TryParse(tokens[2].Replace('.', ','), out double ToA);
@@ -215,7 +209,7 @@ namespace ClusterUI
                 area = hull.CalculateArea();
                 //CalculateWidth(hull);
             }
-            
+
             double percentage = 100 * clInfo.PixCount / (double)area;
             if (percentage >= LowerBound && percentage <= UpperBound)
                 return true;
@@ -226,7 +220,7 @@ namespace ClusterUI
             double max = 0;
             for (int i = 0; i < hull.HullPoints.Count; i++)
             {
-                for(int j = i + 1; j < hull.HullPoints.Count; j++)
+                for (int j = i + 1; j < hull.HullPoints.Count; j++)
                 {
                     var dist = GetDistance(hull.HullPoints[i], hull.HullPoints[j]);
                     if (dist > max)
@@ -241,7 +235,7 @@ namespace ClusterUI
         {
             return Math.Sqrt((first.xCoord - second.xCoord).Sqr() + (first.yCoord - second.yCoord).Sqr());
         }
-            
+
 
     }
     public class SuccessFilter : ClusterFilter
@@ -265,7 +259,7 @@ namespace ClusterUI
             }
             return Math.Abs(area / 2);
         }
-        public ConvexHull(IList <PixelPoint> Points)
+        public ConvexHull(IList<PixelPoint> Points)
         {
 
             if (Points.Count <= 3)
@@ -273,7 +267,7 @@ namespace ClusterUI
                 HullPoints = Points.ToList();
                 return;
             }
-                
+
             MinPoint = GetMinPoint(Points);
             var pixComp = new PixelPointComparer(MinPoint);
             var sortedPoints = Points.ToList();
@@ -365,6 +359,7 @@ namespace ClusterUI
                 return 1;
         }
     }
-    
+
 
 }
+

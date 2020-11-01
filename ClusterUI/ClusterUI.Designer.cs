@@ -85,6 +85,7 @@
             this.RotateDownButton = new System.Windows.Forms.Button();
             this.RotateLeftButton = new System.Windows.Forms.Button();
             this.RotateRightButton = new System.Windows.Forms.Button();
+            this.NowViewingLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
@@ -546,6 +547,7 @@
             this.hidePixHistogramButton.TabIndex = 14;
             this.hidePixHistogramButton.Text = "Hide Pixel Histogram";
             this.hidePixHistogramButton.UseVisualStyleBackColor = true;
+            this.hidePixHistogramButton.Click += new System.EventHandler(this.HidePixHistogramClicked);
             // 
             // ClusterPixHistogram
             // 
@@ -635,11 +637,23 @@
             this.RotateRightButton.UseVisualStyleBackColor = true;
             this.RotateRightButton.Click += new System.EventHandler(this.Rotate3DPlot);
             // 
+            // NowViewingLabel
+            // 
+            this.NowViewingLabel.AutoSize = true;
+            this.NowViewingLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.NowViewingLabel.Location = new System.Drawing.Point(26, 748);
+            this.NowViewingLabel.MaximumSize = new System.Drawing.Size(500, 300);
+            this.NowViewingLabel.Name = "NowViewingLabel";
+            this.NowViewingLabel.Size = new System.Drawing.Size(124, 44);
+            this.NowViewingLabel.TabIndex = 23;
+            this.NowViewingLabel.Text = "Now Viewing: \r\n<empty>";
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.NowViewingLabel);
             this.Controls.Add(this.RotateRightButton);
             this.Controls.Add(this.RotateLeftButton);
             this.Controls.Add(this.RotateDownButton);
@@ -671,6 +685,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -727,6 +742,7 @@
         private System.Windows.Forms.Button RotateDownButton;
         private System.Windows.Forms.Button RotateLeftButton;
         private System.Windows.Forms.Button RotateRightButton;
+        private System.Windows.Forms.Label NowViewingLabel;
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,8 +39,8 @@ namespace ClusterUI
         public double CalculateZ(PixelPoint point)
         {
             var relativeToA = point.ToA - Cluster.FirstToA;
-            return (Configuration.Thick / Configuration.Ud) * (Configuration.Ud + Configuration.Ub) *
-                (1 - Math.Exp(2 * Configuration.Ud * Configuration.Mob * relativeToA / Math.Pow(Configuration.Thick, 2)));
+            return (Configuration.Thick / (2 * Configuration.Ud)) * (Configuration.Ud + Configuration.Ub) *
+                (1 - Math.Exp((-2) * Configuration.Ud * Configuration.Mob * relativeToA / Math.Pow(Configuration.Thick, 2)));
         }
     }
     struct Configuration
@@ -82,7 +83,8 @@ namespace ClusterUI
             // Create a ThreeDScatterChart object of size 720 x 600 pixels
             var chart = new ThreeDScatterChart(viewer.Width, viewer.Height);
             chart.setPlotRegion((viewer.Width / 2), (viewer.Height / 2), 200, 200, 200);
-
+            chart.setColorAxis(370, 190, ChartDirector.Chart.Left, 300, ChartDirector.Chart.Right);
+            
             Initialize(chart);
             // Output the chart
             viewer.Chart = chart;
@@ -93,12 +95,11 @@ namespace ClusterUI
         {
             var chart = new ThreeDScatterChart(this.chart.getWidth(), this.chart.getHeight());
             chart.setPlotRegion((this.chart.getWidth() / 2), (this.chart.getHeight() / 2), 200, 200, 200);
-            //chart.setColorAxis(645, 270, Chart.Left, 200, Chart.Right);
+            
 
             Initialize(chart);
             chart.setViewAngle(angleVert, angleHoriz);
             //viewer.ImageMap = chart.getHTMLImageMap("clickable", "",
-            // "title='(x={x|p}, y={y|p}, z={z|p}'");
             return chart;
         }
         private void Initialize(ThreeDScatterChart chart)

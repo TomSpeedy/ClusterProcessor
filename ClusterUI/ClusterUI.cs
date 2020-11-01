@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.IO;
@@ -15,24 +16,35 @@ using ChartDirector;
 
 namespace ClusterUI 
 
-    //TODO : Histogram pix recalculation on Current change - possible negative effects when using Current as implement. detail
     // TODO : gather more interesting clusters
+    //TODO : Implement IClusterReader - MMClusterReader
+    //TODO : fix Hide button,
+    //TODO: make console app for filtering - separate project
 
 {
     public partial class ClusterUI : Form
     {
+        const string configPath = "../../../config/";
         private int clusterNumber = 1;
         private string pxFile;
-        private string clFile;
-        const string configPath = "../../../config/";
-        HistogramPoint[] HistogramPoints { get; set; }
-        HistogramPoint[] HistogramPixPoints { get; set; }
-        Cluster Current { get; set; }
-        ScatterChart ScatterChart { get; set; }
+        private string clFile;    
+        private HistogramPoint[] HistogramPoints { get; set; }
+        private HistogramPoint[] HistogramPixPoints { get; set; }
+        private Cluster Current { get; set; }
+        private ScatterChart ScatterChart { get; set; }
+        private IClusterReader ClusterReader { get; set; }
+        public ClusterUI()
+        {
+            InitializeComponent();
+            ClusterHistogram.Visible = false;
+            ClusterPixHistogram.Visible = false;
+            ClusterReader = new MMClusterReader();
+        }
+        #region Event Handlers
         public void NextButtonClicked(object sender, EventArgs e)
         {
                 clusterNumber++;
-            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
+            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             Current = cluster;
             if (cluster != null)
             {
@@ -47,7 +59,7 @@ namespace ClusterUI
         {
             if (clusterNumber >= 2)
                 clusterNumber--;
-            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
+            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
             {
@@ -66,8 +78,8 @@ namespace ClusterUI
         }
         public void LoadClustersClicked(object sender, EventArgs e)
         {
-            Cluster.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
-            Cluster cluster = Cluster.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
+            ClusterReader.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
+            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
 
             PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
@@ -78,6 +90,9 @@ namespace ClusterUI
             }
             Current = cluster;
 
+            NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1); 
+            //add info about clfile and px file and clusterIndex
+
         }
         public void View3DClicked(object sender, EventArgs e)
         {
@@ -85,15 +100,16 @@ namespace ClusterUI
                 return;
             IZCalculator zCalculator = new ZCalculator();
             Point3D[] points3D = zCalculator.TransformPoints(Current);
-
-            //WinChartViewer viewer3D = new WinChartViewer();
-
             ScatterChart chart = new ScatterChart(winChartViewer, points3D);
             ScatterChart = chart;
         }
         public void HideHistogramClicked(object sender, EventArgs e)
         {
             ClusterHistogram.Visible = false;
+        }
+        public void HidePixHistogramClicked(object sender, EventArgs e)
+        {
+            ClusterPixHistogram.Visible = false;
         }
         public void ShowHistogramClicked(object sender, EventArgs e)
         {
@@ -166,9 +182,57 @@ namespace ClusterUI
         }
         public void ProcessFilterClicked(object sender, EventArgs e)
         {
+            Thread filteringThread = new Thread(() => ProcessFilter());
+            filteringThread.Start();
+            
 
-            var workingDirName = Cluster.GetPrefixPath(InFilePathBox.Text);
-            Cluster.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
+        }
+        public void BrowseFilterFileButtonClicked(object sender, EventArgs e)
+        {
+            var fileDialog = new OpenFileDialog();
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                InFilePathBox.Text = fileDialog.FileName;
+            }
+        }
+        public void SkeletonizeButtonClicked(object sender, EventArgs e)
+        {
+            PixelFilter haloFilter = new EnergyHaloFilter(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
+            ISkeletonizer skeletonizer = new ThinSkeletonizer(Current.Points);
+            Current.Points = haloFilter.Process(skeletonizer.Skeletonize()).ToArray();
+
+            PictureBox.Image = GetClusterImage(point => point.ToT, Current);
+
+        }
+
+        #endregion
+        
+        public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
+        {
+            var pixels = new Bitmap(256, 256);
+            for (int i = 0; i < 256; i++)
+                for (int j = 0; j < 256; j++)
+                    pixels.SetPixel(i, j, Color.FromArgb(255, 0, 0, 0));
+            foreach (var pixel in cluster.Points)
+            {
+                pixels.SetPixel(pixel.xCoord, pixel.yCoord, cluster.ToColor(Math.Max(Math.Min(6 * Math.Log(attributeGetter(pixel), 1.16) / 256, 1), 0)));
+            }
+            return pixels;
+        }
+        private void CreateNewIniFile(StreamReader example, StreamWriter output, string oldClFileName, string newClFileName)
+        {
+            while (example.Peek() != -1)
+            {
+                output.WriteLine(example.ReadLine().Replace(oldClFileName.Substring(PathParser.GetPrefixPath(oldClFileName).Length),
+                    newClFileName));
+            }
+            output.Close();
+        }
+
+        private void ProcessFilter()
+        {
+            var workingDirName = PathParser.GetPrefixPath(InFilePathBox.Text);
+            ClusterReader.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
             var filteredOut = new StreamWriter(workingDirName + OutFileNameClBox.Text);
             CreateNewIniFile(new StreamReader(InFilePathBox.Text), new StreamWriter(workingDirName + OutFileNameIniBox.Text), clFile, OutFileNameClBox.Text);
 
@@ -181,59 +245,29 @@ namespace ClusterUI
                 double.TryParse(FromEnergyFilterBox.Text, out double resultLowerE) ? resultLowerE : 0,
                 double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : 1000000);
 
-            var linearityFilter = new LinearityFilter(new StreamReader(pxFile),
+            var convexityFilter = new ConvexityFilter(new StreamReader(pxFile),
                  int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
                  int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100);
 
-
-            var multiFilter = new MultiFilter(new ClusterFilter[3] { pixelCountFilter, energyFilter, linearityFilter });
+            List <ClusterFilter> usedFiletrs = new List<ClusterFilter>();
+            if (double.TryParse(FromLinearityTextBox.Text, out double valDouble) || double.TryParse(ToLinearityTextBox.Text, out valDouble))
+            {
+                usedFiletrs.Add(convexityFilter);  
+            }
+            if (double.TryParse(FromEnergyFilterBox.Text, out  valDouble) || double.TryParse(ToEnergyFilterBox.Text, out valDouble))
+            {
+                usedFiletrs.Add(energyFilter);
+            }
+            if (int.TryParse(FromPixCountFilterBox.Text, out int valInt) || int.TryParse(ToPixCountFilterBox.Text, out valInt))
+            {
+                usedFiletrs.Add(pixelCountFilter);
+            }
+            usedFiletrs.Add(new SuccessFilter());
+            var multiFilter = new MultiFilter(usedFiletrs);
             multiFilter.Process(new StreamReader(clFile), filteredOut);
 
             filteredOut.Close();
             MessageBox.Show("Done");
-
-        }
-        public void BrowseFilterFileButtonClicked(object sender, EventArgs e)
-        {
-            var fileDialog = new OpenFileDialog();
-            if (fileDialog.ShowDialog() == DialogResult.OK)
-            {
-                InFilePathBox.Text = fileDialog.FileName;
-            }
-        }
-        public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
-        {
-            var pixels = new Bitmap(256, 256);
-            for (int i = 0; i < 256; i++)
-                for (int j = 0; j < 256; j++)
-                    pixels.SetPixel(i, j, Color.FromArgb(255, 0, 0, 0));
-            foreach (var pixel in cluster.Points)
-            {
-                pixels.SetPixel(pixel.xCoord, pixel.yCoord, cluster.ToColor(Math.Max(Math.Min(4 * Math.Log(attributeGetter(pixel), 1.13) / 256, 1), 0)));
-            }
-            return pixels;
-        }
-        private void CreateNewIniFile(StreamReader example, StreamWriter output, string oldClFileName, string newClFileName)
-        {
-            while (example.Peek() != -1)
-            {
-                output.WriteLine(example.ReadLine().Replace(oldClFileName.Substring(Cluster.GetPrefixPath(oldClFileName).Length),
-                    newClFileName));
-            }
-            output.Close();
-        }
-        public ClusterUI()
-        {
-            InitializeComponent();
-            ClusterHistogram.Visible = false;
-        }
-        public void SkeletonizeButtonClicked(object sender, EventArgs e)
-        {
-            ISkeletonizer skeletonizer = new ThinSkeletonizer(Current.Points);
-            Current.Points = skeletonizer.Skeletonize();
-            
-            PictureBox.Image = GetClusterImage(point => point.ToT, Current);
-
         }
         public void DrawLineInt(Bitmap bmp, ConvexHull hull)
         {
@@ -261,11 +295,13 @@ namespace ClusterUI
 
         }
     }
+
     struct HistogramPoint
     {
         public double X { get; set; }
         public int Y { get; set; }
     }
+
     public delegate double Attribute<T>(T attributeOwner);
    
     class Histogram
