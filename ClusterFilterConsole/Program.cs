@@ -30,12 +30,11 @@ namespace ClusterFilterConsole
                 return;
             }
             if (processedArgs.InputFile == null)
-                return; //wrong syntax
+                return; //wrong syntax was used
 
             string outIniPath = processedArgs.InputFile + "_fitered_" + DateTime.Now.ToString().Replace(':', '-' ) + ".ini";
             string outClPath = processedArgs.InputFile + "_fitered_" + DateTime.Now.ToString().Replace(':', '-') + ".cl";
             string outClName = outClPath.Substring(outClPath.LastIndexOf('/') + 1);
-            Console.WriteLine(processedArgs.InputFile);
             var workingDirName = processedArgs.InputFile.Substring(0, processedArgs.InputFile.LastIndexOf('/') + 1);
             ClusterReader.GetTextFileNames(new StreamReader(processedArgs.InputFile), processedArgs.InputFile, out string pxFile, out string clFile);
             var filteredOut = new StreamWriter(outClPath);
@@ -64,6 +63,7 @@ namespace ClusterFilterConsole
                 Convert.ToInt32(processedArgs.FilterParams[convexityOption].to)));
             }
             var multiFilter = new MultiFilter(usedFilters);
+            Console.WriteLine("Processing...");
             multiFilter.Process(new StreamReader(workingDirName + clFile), filteredOut);
 
             filteredOut.Close();

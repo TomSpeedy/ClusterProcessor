@@ -61,8 +61,6 @@
             this.InputFileGroup = new System.Windows.Forms.GroupBox();
             this.OutFileNameIniBox = new System.Windows.Forms.TextBox();
             this.OutIniFileLabel = new System.Windows.Forms.Label();
-            this.OutFileNameClBox = new System.Windows.Forms.TextBox();
-            this.OutClFileLabel = new System.Windows.Forms.Label();
             this.BrowseFilteredFileButton = new System.Windows.Forms.Button();
             this.Or2Label = new System.Windows.Forms.Label();
             this.InFilePathBox = new System.Windows.Forms.TextBox();
@@ -355,8 +353,6 @@
             // 
             this.InputFileGroup.Controls.Add(this.OutFileNameIniBox);
             this.InputFileGroup.Controls.Add(this.OutIniFileLabel);
-            this.InputFileGroup.Controls.Add(this.OutFileNameClBox);
-            this.InputFileGroup.Controls.Add(this.OutClFileLabel);
             this.InputFileGroup.Controls.Add(this.BrowseFilteredFileButton);
             this.InputFileGroup.Controls.Add(this.Or2Label);
             this.InputFileGroup.Controls.Add(this.InFilePathBox);
@@ -372,7 +368,7 @@
             // 
             // OutFileNameIniBox
             // 
-            this.OutFileNameIniBox.Location = new System.Drawing.Point(103, 92);
+            this.OutFileNameIniBox.Location = new System.Drawing.Point(112, 69);
             this.OutFileNameIniBox.Margin = new System.Windows.Forms.Padding(2);
             this.OutFileNameIniBox.Name = "OutFileNameIniBox";
             this.OutFileNameIniBox.Size = new System.Drawing.Size(148, 21);
@@ -382,31 +378,12 @@
             // 
             this.OutIniFileLabel.AutoSize = true;
             this.OutIniFileLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.OutIniFileLabel.Location = new System.Drawing.Point(4, 94);
+            this.OutIniFileLabel.Location = new System.Drawing.Point(4, 73);
             this.OutIniFileLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.OutIniFileLabel.Name = "OutIniFileLabel";
             this.OutIniFileLabel.Size = new System.Drawing.Size(105, 17);
             this.OutIniFileLabel.TabIndex = 20;
             this.OutIniFileLabel.Text = "Output (.ini) file";
-            // 
-            // OutFileNameClBox
-            // 
-            this.OutFileNameClBox.Location = new System.Drawing.Point(103, 59);
-            this.OutFileNameClBox.Margin = new System.Windows.Forms.Padding(2);
-            this.OutFileNameClBox.Name = "OutFileNameClBox";
-            this.OutFileNameClBox.Size = new System.Drawing.Size(148, 21);
-            this.OutFileNameClBox.TabIndex = 19;
-            // 
-            // OutClFileLabel
-            // 
-            this.OutClFileLabel.AutoSize = true;
-            this.OutClFileLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.OutClFileLabel.Location = new System.Drawing.Point(4, 61);
-            this.OutClFileLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.OutClFileLabel.Name = "OutClFileLabel";
-            this.OutClFileLabel.Size = new System.Drawing.Size(101, 17);
-            this.OutClFileLabel.TabIndex = 18;
-            this.OutClFileLabel.Text = "Output (.cl) file";
             // 
             // BrowseFilteredFileButton
             // 
@@ -423,7 +400,7 @@
             // 
             this.Or2Label.AutoSize = true;
             this.Or2Label.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.Or2Label.Location = new System.Drawing.Point(254, 28);
+            this.Or2Label.Location = new System.Drawing.Point(264, 28);
             this.Or2Label.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.Or2Label.Name = "Or2Label";
             this.Or2Label.Size = new System.Drawing.Size(24, 17);
@@ -432,7 +409,7 @@
             // 
             // InFilePathBox
             // 
-            this.InFilePathBox.Location = new System.Drawing.Point(103, 26);
+            this.InFilePathBox.Location = new System.Drawing.Point(112, 26);
             this.InFilePathBox.Margin = new System.Windows.Forms.Padding(2);
             this.InFilePathBox.Name = "InFilePathBox";
             this.InFilePathBox.Size = new System.Drawing.Size(148, 21);
@@ -711,8 +688,6 @@
         private System.Windows.Forms.TextBox FromEnergyFilterBox;
         private System.Windows.Forms.Button HideHistogramButton;
         private System.Windows.Forms.GroupBox InputFileGroup;
-        private System.Windows.Forms.TextBox OutFileNameClBox;
-        private System.Windows.Forms.Label OutClFileLabel;
         private System.Windows.Forms.Button BrowseFilteredFileButton;
         private System.Windows.Forms.Label Or2Label;
         private System.Windows.Forms.TextBox InFilePathBox;
