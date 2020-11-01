@@ -24,7 +24,14 @@ namespace ClusterFilterConsole
             var cmdLineParser = new CmdLineParser(args);
             var processedArgs = cmdLineParser.ProcessCmdArgs();
 
-            //check input
+            if (processedArgs.PrintHelp)
+            {
+                PrintHelp();
+                return;
+            }
+            if (processedArgs.InputFile == null)
+                return; //wrong syntax
+
             string outIniPath = processedArgs.InputFile + "_fitered_" + DateTime.Now.ToString().Replace(':', '-' ) + ".ini";
             string outClPath = processedArgs.InputFile + "_fitered_" + DateTime.Now.ToString().Replace(':', '-') + ".cl";
             string outClName = outClPath.Substring(outClPath.LastIndexOf('/') + 1);
@@ -56,31 +63,6 @@ namespace ClusterFilterConsole
                 Convert.ToInt32(processedArgs.FilterParams[convexityOption].from),
                 Convert.ToInt32(processedArgs.FilterParams[convexityOption].to)));
             }
-                var pixelCountFilter = processedArgs.FilterParams.ContainsKey(pixelCountOption) ?
-                new PixelCountFilter(new StreamReader(workingDirName + pxFile),
-                Convert.ToInt32(processedArgs.FilterParams[pixelCountOption].from),
-                Convert.ToInt32(processedArgs.FilterParams[pixelCountOption].to))
-                
-                : new PixelCountFilter(new StreamReader(workingDirName + pxFile), 0, int.MaxValue);
-
-            var energyFilter = processedArgs.FilterParams.ContainsKey(totalEnergyOption) ?
-                new EnergyFilter(new StreamReader(workingDirName + pxFile), new StreamReader(configPath + "a.txt"),
-                new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"),
-                Convert.ToInt32(processedArgs.FilterParams[totalEnergyOption].from),
-                Convert.ToInt32(processedArgs.FilterParams[totalEnergyOption].to))
-                
-                : new EnergyFilter(new StreamReader(workingDirName + pxFile), new StreamReader(configPath + "a.txt"),
-                new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"),
-                0 , double.MaxValue);
-
-            var linearityFilter = processedArgs.FilterParams.ContainsKey(convexityOption) ?
-                new ConvexityFilter(new StreamReader(workingDirName + pxFile),
-                Convert.ToInt32(processedArgs.FilterParams[convexityOption].from),
-                Convert.ToInt32(processedArgs.FilterParams[convexityOption].to))
-
-                : new ConvexityFilter(new StreamReader(workingDirName + pxFile), 0, 100);
-
-
             var multiFilter = new MultiFilter(usedFilters);
             multiFilter.Process(new StreamReader(workingDirName + clFile), filteredOut);
 
@@ -94,6 +76,11 @@ namespace ClusterFilterConsole
                     newClFileName));
             }
             output.Close();
+        }
+        private static void PrintHelp()
+        {
+            Console.WriteLine("Printing help:");
+            Console.WriteLine("Arguments: <path to inputfile> <option>{-te --totalEnergy -pc --pixelcount -cv --convexity} <from value> <to value> <option> <from value> <to value>...");
         }
     }
     

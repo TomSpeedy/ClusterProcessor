@@ -58,7 +58,7 @@ namespace ClusterFilterConsole
             }
             catch 
             {
-                Console.WriteLine("Incorrect syntax, please use option --help");
+                Console.WriteLine("Incorrect syntax, use option --help for displaying help");
                 return new ProcessedCmdArgs(inputFile: null, printHelp: false);
             }
 
