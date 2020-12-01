@@ -213,13 +213,19 @@ namespace ClusterUI
         
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
         {
-            var pixels = new Bitmap(256, 256);
-            for (int i = 0; i < 256; i++)
-                for (int j = 0; j < 256; j++)
-                    pixels.SetPixel(i, j, Color.FromArgb(255, 0, 0, 0));
+            const int bitmapSize = 256;
+            var centerCalc = new EnergyCenterFinder(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
+            var center = centerCalc.CalcCenterPoint(cluster.Points);
+            var pixels = new Bitmap(bitmapSize, bitmapSize);
+            for (int i = 0; i < bitmapSize; i++)
+                for (int j = 0; j < bitmapSize; j++)
+                    pixels.SetPixel(i, j, Color.Black);//    FromArgb(255, 0, 0, 0));
             foreach (var pixel in cluster.Points)
             {
                 pixels.SetPixel(pixel.xCoord, pixel.yCoord, cluster.ToColor(Math.Max(Math.Min(6 * Math.Log(attributeGetter(pixel), 1.16) / 256, 1), 0)));
+                if (pixel.Equals(center))
+                    pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Blue);
+
             }
             return pixels;
         }
@@ -234,7 +240,7 @@ namespace ClusterUI
         }
 
         private void ProcessFilter()
-        {
+        { 
             try
             {
                 var workingDirName = PathParser.GetPrefixPath(InFilePathBox.Text);
@@ -254,7 +260,7 @@ namespace ClusterUI
 
                 var convexityFilter = new ConvexityFilter(new StreamReader(pxFile),
                      int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
-                     int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100);
+                     int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100, ConvexitySkeletFilterCheckBox.Checked);
 
                 List<ClusterFilter> usedFiletrs = new List<ClusterFilter>();
                 if (double.TryParse(FromLinearityTextBox.Text, out double valDouble) || double.TryParse(ToLinearityTextBox.Text, out valDouble))

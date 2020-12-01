@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CenterFinder.cs" />
     <Compile Include="ClusterCore.cs" />
     <Compile Include="ClusterReader.cs" />
     <Compile Include="ClusterUI.cs">

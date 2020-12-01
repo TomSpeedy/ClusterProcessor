@@ -170,8 +170,9 @@ namespace ClusterUI
         private StreamReader PixelFile { get; }
         private double LowerBound { get; }
         private double UpperBound { get; }
+        bool useSkelet { get; }
 
-        public ConvexityFilter(StreamReader pixelFile, int lowerBound, int upperBound)
+        public ConvexityFilter(StreamReader pixelFile, int lowerBound, int upperBound, bool useSkelet = false)
         {
             this.PixelFile = pixelFile;
             this.LowerBound = lowerBound;
@@ -211,13 +212,22 @@ namespace ClusterUI
                 area = points.Count;
             else
             {
-                var hull = new ConvexHull(points);
-                area = hull.CalculateArea();
+                if(useSkelet)
+                {
+                    ISkeletonizer skeletonizer = new ThinSkeletonizer(points);
+                    var hull = new ConvexHull(skeletonizer.Skeletonize());
+                    area = hull.CalculateArea();
+                }
+                else
+                {
+                    var hull = new ConvexHull(points);
+                    area = hull.CalculateArea();
+                }
                 //CalculateWidth(hull);
             }
             
-            double percentage = 100 * clInfo.PixCount / (double)area;
-            if (percentage >= LowerBound && percentage <= UpperBound)
+            double convexityPercentage = 100 * clInfo.PixCount / (double)area;
+            if (convexityPercentage >= LowerBound && convexityPercentage <= UpperBound)
                 return true;
             return false;
         }

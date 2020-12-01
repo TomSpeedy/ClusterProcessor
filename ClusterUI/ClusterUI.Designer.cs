@@ -84,6 +84,7 @@
             this.RotateLeftButton = new System.Windows.Forms.Button();
             this.RotateRightButton = new System.Windows.Forms.Button();
             this.NowViewingLabel = new System.Windows.Forms.Label();
+            this.ConvexitySkeletFilterCheckBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
@@ -163,6 +164,7 @@
             // 
             // FilterGroup
             // 
+            this.FilterGroup.Controls.Add(this.ConvexitySkeletFilterCheckBox);
             this.FilterGroup.Controls.Add(this.ToLinearityTextBox);
             this.FilterGroup.Controls.Add(this.FromLinearityTextBox);
             this.FilterGroup.Controls.Add(this.labelToLinearity);
@@ -179,11 +181,11 @@
             this.FilterGroup.Controls.Add(this.labelFromEnergyBox);
             this.FilterGroup.Controls.Add(this.ToEnergyFilterBox);
             this.FilterGroup.Controls.Add(this.FromEnergyFilterBox);
-            this.FilterGroup.Location = new System.Drawing.Point(11, 175);
+            this.FilterGroup.Location = new System.Drawing.Point(11, 143);
             this.FilterGroup.Margin = new System.Windows.Forms.Padding(2);
             this.FilterGroup.Name = "FilterGroup";
             this.FilterGroup.Padding = new System.Windows.Forms.Padding(2);
-            this.FilterGroup.Size = new System.Drawing.Size(387, 140);
+            this.FilterGroup.Size = new System.Drawing.Size(387, 172);
             this.FilterGroup.TabIndex = 6;
             this.FilterGroup.TabStop = false;
             this.FilterGroup.Text = "Select filters";
@@ -361,7 +363,7 @@
             this.InputFileGroup.Margin = new System.Windows.Forms.Padding(2);
             this.InputFileGroup.Name = "InputFileGroup";
             this.InputFileGroup.Padding = new System.Windows.Forms.Padding(2);
-            this.InputFileGroup.Size = new System.Drawing.Size(387, 130);
+            this.InputFileGroup.Size = new System.Drawing.Size(387, 107);
             this.InputFileGroup.TabIndex = 8;
             this.InputFileGroup.TabStop = false;
             this.InputFileGroup.Text = "Select input and output file for filters";
@@ -625,6 +627,16 @@
             this.NowViewingLabel.TabIndex = 23;
             this.NowViewingLabel.Text = "Now Viewing: \r\n<empty>";
             // 
+            // ConvexitySkeletFilterCheckBox
+            // 
+            this.ConvexitySkeletFilterCheckBox.AutoSize = true;
+            this.ConvexitySkeletFilterCheckBox.Location = new System.Drawing.Point(39, 128);
+            this.ConvexitySkeletFilterCheckBox.Name = "ConvexitySkeletFilterCheckBox";
+            this.ConvexitySkeletFilterCheckBox.Size = new System.Drawing.Size(172, 19);
+            this.ConvexitySkeletFilterCheckBox.TabIndex = 17;
+            this.ConvexitySkeletFilterCheckBox.Text = "Use skeletonized convexity";
+            this.ConvexitySkeletFilterCheckBox.UseVisualStyleBackColor = true;
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -718,6 +730,7 @@
         private System.Windows.Forms.Button RotateLeftButton;
         private System.Windows.Forms.Button RotateRightButton;
         private System.Windows.Forms.Label NowViewingLabel;
+        private System.Windows.Forms.CheckBox ConvexitySkeletFilterCheckBox;
     }
 }
 
