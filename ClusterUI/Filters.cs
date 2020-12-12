@@ -24,8 +24,10 @@ namespace ClusterUI
         public int ProcessedCount { get; protected set; } = 0;
         public int FilterSuccessCount { get; protected set; } = 0;
         public abstract bool MatchesFilter(PixelPoint pixel);
+        protected HashSet<PixelPoint> HashedPoints { get; private set; }
         public List<PixelPoint> Process(IList<PixelPoint> pixels)
         {
+            HashedPoints = pixels.ToHashSet();
             List<PixelPoint> result = new List<PixelPoint>();
             foreach (PixelPoint pixel in pixels)
             {
@@ -43,16 +45,47 @@ namespace ClusterUI
 
     public class EnergyHaloFilter : PixelFilter
     {
-        readonly EnergyCalculator EnergyCalculator;
+        EnergyCalculator EnergyCalculator { get; }
         const double HaloLimit = 8;
-        public EnergyHaloFilter(StreamReader aFile, StreamReader bFile, StreamReader cFile, StreamReader tFile)
+        public EnergyHaloFilter(EnergyCalculator energyCalculator)
         {
-            EnergyCalculator = new EnergyCalculator(aFile, bFile, cFile, tFile);
+            EnergyCalculator = energyCalculator;
 
         }
         public override bool MatchesFilter(PixelPoint pixel)
         {
             return (EnergyCalculator.ToElectronVolts(pixel.ToT, pixel.xCoord, pixel.yCoord) >= HaloLimit);
+        }
+    }
+    public class NeighbourCountFilter : PixelFilter
+    {
+        readonly (int x, int y)[] neighbourDiagDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
+        readonly (int x, int y)[] neighbourNonDiagDiff = { (0, -1), (1, 0), (0, 1),  (-1, 0) };
+        private bool WithDiagonalNeighbours { get; }
+        Predicate<int> Condition { get; }
+        public NeighbourCountFilter(Predicate<int> condition, bool withDiagonalNeigbours = true)
+        {
+            Condition = condition;
+            WithDiagonalNeighbours = withDiagonalNeigbours;
+        }
+
+        public override bool MatchesFilter(PixelPoint point)
+        {
+            return Condition(GetNeighbourCount(point));
+        }
+        private int GetNeighbourCount(PixelPoint point)
+        {
+            var neighbourCount = 0;
+            var neighbourDiff = neighbourDiagDiff;
+            if (!WithDiagonalNeighbours)
+                neighbourDiff = neighbourNonDiagDiff;
+            for (int i = 0; i < neighbourDiff.Length; i++)
+            {
+                var neighbour = new PixelPoint((ushort)(point.xCoord + neighbourDiff[i].x), (ushort)(point.yCoord + neighbourDiff[i].y));
+                if (HashedPoints.Contains(neighbour))
+                    neighbourCount++;
+            }
+            return neighbourCount;
         }
     }
 
@@ -214,8 +247,8 @@ namespace ClusterUI
             {
                 if(useSkelet)
                 {
-                    ISkeletonizer skeletonizer = new ThinSkeletonizer(points);
-                    var hull = new ConvexHull(skeletonizer.Skeletonize());
+                    ISkeletonizer skeletonizer = new ThinSkeletonizer();
+                    var hull = new ConvexHull(skeletonizer.Skeletonize(points));
                     area = hull.CalculateArea();
                 }
                 else
@@ -257,6 +290,42 @@ namespace ClusterUI
     public class SuccessFilter : ClusterFilter
     {
         public override bool MatchesFilter(ClusterInfo clInfo) => true;
+    }
+    public class VertexCountFilter : ClusterFilter
+    {
+        private VertexFinder VertexFinder { get; }
+        private StreamReader PixelFile { get; set; }
+        private int MinVertexCount { get; }
+        public VertexCountFilter(StreamReader pixelFile, int minVertexCount)
+        {
+            VertexFinder = new VertexFinder();
+            PixelFile = pixelFile;
+            MinVertexCount = minVertexCount;
+        }
+        public override bool MatchesFilter(ClusterInfo clusterInfo)
+        {
+            PixelFile.DiscardBufferedData();
+            PixelFile.BaseStream.Seek((long)clusterInfo.ByteStart, SeekOrigin.Begin);
+            var points = new List<PixelPoint>();
+            for (int i = 0; i < clusterInfo.PixCount; i++)
+            {
+                var tokens = PixelFile.ReadLine().Split();
+                if (tokens[0] == "#")
+                {
+                    if (i == 0)
+                        tokens = PixelFile.ReadLine().Split();
+                    else
+                        throw new InvalidOperationException();
+
+                }
+                ushort.TryParse(tokens[0], out ushort x);
+                ushort.TryParse(tokens[1], out ushort y);
+                double.TryParse(tokens[2].Replace('.', ','), out double ToA);
+                double.TryParse(tokens[3].Replace('.', ','), out double ToT);
+                points.Add(new PixelPoint(x, y, ToA, ToT));
+            }
+            return VertexFinder.FindVertices(points).Count >= MinVertexCount;
+        }
     }
     public class ConvexHull
     {

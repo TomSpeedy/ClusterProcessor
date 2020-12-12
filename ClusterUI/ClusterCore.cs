@@ -47,7 +47,11 @@ namespace ClusterUI
         public ushort xCoord { get; }
         public ushort yCoord { get; }
         public double ToA { get; }
-        public double ToT { get; }
+        public double ToT { get; private set; }
+        public void SetToT(double newToT)
+        {
+            ToT = newToT;
+        }
         public override int GetHashCode()
         {
             return (xCoord << 8) + yCoord;
@@ -56,6 +60,10 @@ namespace ClusterUI
         {
             var other = (PixelPoint)obj;
             return this.xCoord == other.xCoord && this.yCoord == other.yCoord;
+        }
+        public ushort GetDistance(PixelPoint other)
+        {
+            return (ushort)Math.Max(Math.Abs((this.xCoord - other.xCoord)), Math.Abs((this.yCoord - other.yCoord))); 
         }
     }
     public struct ClusterInfo
@@ -68,6 +76,7 @@ namespace ClusterUI
         {
             return $"{FirstToA} {PixCount} {LineStart} {ByteStart}";
         }
+
     }
     class ClusterInfoCollection : IEnumerable<ClusterInfo>
     {

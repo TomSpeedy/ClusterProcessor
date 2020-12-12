@@ -37,6 +37,7 @@ namespace ClusterUI
             ClusterHistogram.Visible = false;
             ClusterPixHistogram.Visible = false;
             ClusterReader = new MMClusterReader();
+
         }
         #region Event Handlers
         public void NextButtonClicked(object sender, EventArgs e)
@@ -100,10 +101,11 @@ namespace ClusterUI
         }
         public void View3DClicked(object sender, EventArgs e)
         {
+            AnalysisPCA anal = new AnalysisPCA();
             if (Current == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();
-            Point3D[] points3D = zCalculator.TransformPoints(Current);
+            Point3D[] points3D = anal.To3DPoints(anal.Transform(Current.Points));//zCalculator.TransformPoints(Current);
             ScatterChart chart = new ScatterChart(winChartViewer, points3D);
             ScatterChart = chart;
         }
@@ -201,9 +203,10 @@ namespace ClusterUI
         }
         public void SkeletonizeButtonClicked(object sender, EventArgs e)
         {
-            PixelFilter haloFilter = new EnergyHaloFilter(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
-            ISkeletonizer skeletonizer = new ThinSkeletonizer(Current.Points);
-            Current.Points = haloFilter.Process(skeletonizer.Skeletonize()).ToArray();
+            EnergyCalculator energyCalculator = new EnergyCalculator(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
+            PixelFilter haloFilter = new EnergyHaloFilter(energyCalculator);
+            ISkeletonizer skeletonizer = new ThinSkeletonizer();
+            Current.Points = haloFilter.Process(skeletonizer.Skeletonize(Current.Points)).ToArray();
 
             PictureBox.Image = GetClusterImage(point => point.ToT, Current);
 
@@ -219,11 +222,11 @@ namespace ClusterUI
             var pixels = new Bitmap(bitmapSize, bitmapSize);
             for (int i = 0; i < bitmapSize; i++)
                 for (int j = 0; j < bitmapSize; j++)
-                    pixels.SetPixel(i, j, Color.Black);//    FromArgb(255, 0, 0, 0));
+                    pixels.SetPixel(i, j, Color.Black);
             foreach (var pixel in cluster.Points)
             {
                 pixels.SetPixel(pixel.xCoord, pixel.yCoord, cluster.ToColor(Math.Max(Math.Min(6 * Math.Log(attributeGetter(pixel), 1.16) / 256, 1), 0)));
-                if (pixel.Equals(center))
+                if (pixel.GetDistance(center) <= 2)
                     pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Blue);
 
             }
@@ -243,6 +246,8 @@ namespace ClusterUI
         { 
             try
             {
+                const int minVertexCount = 3;
+
                 var workingDirName = PathParser.GetPrefixPath(InFilePathBox.Text);
                 ClusterReader.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
                 var outClPath = clFile + "_filtered_" + DateTime.Now.ToString().Replace(':', '-') + ".cl";
@@ -262,19 +267,23 @@ namespace ClusterUI
                      int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
                      int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100, ConvexitySkeletFilterCheckBox.Checked);
 
+                var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile), minVertexCount);
+
                 List<ClusterFilter> usedFiletrs = new List<ClusterFilter>();
-                if (double.TryParse(FromLinearityTextBox.Text, out double valDouble) || double.TryParse(ToLinearityTextBox.Text, out valDouble))
-                {
-                    usedFiletrs.Add(convexityFilter);
-                }
-                if (double.TryParse(FromEnergyFilterBox.Text, out valDouble) || double.TryParse(ToEnergyFilterBox.Text, out valDouble))
-                {
-                    usedFiletrs.Add(energyFilter);
-                }
                 if (int.TryParse(FromPixCountFilterBox.Text, out int valInt) || int.TryParse(ToPixCountFilterBox.Text, out valInt))
                 {
                     usedFiletrs.Add(pixelCountFilter);
                 }
+                if (double.TryParse(FromEnergyFilterBox.Text, out double valDouble) || double.TryParse(ToEnergyFilterBox.Text, out valDouble))
+                {
+                    usedFiletrs.Add(energyFilter);
+                }
+                usedFiletrs.Add(vertexCountFilter);
+                if (double.TryParse(FromLinearityTextBox.Text, out  valDouble) || double.TryParse(ToLinearityTextBox.Text, out valDouble))
+                {
+                    usedFiletrs.Add(convexityFilter);
+                }
+                              
                 usedFiletrs.Add(new SuccessFilter());
                 var multiFilter = new MultiFilter(usedFiletrs);
                 multiFilter.Process(new StreamReader(clFile), filteredOut);

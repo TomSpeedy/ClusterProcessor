@@ -14,9 +14,9 @@ namespace ClusterClassifier
             SqueezeFunction = squeezeFunction;
         }
        
-        public Dictionary<Edges , double[][]> GradientEdges;
-        public Dictionary<INNLayer, double[]> GradientBiases;
-        private Dictionary<INNLayer, double[]> GradientValues;
+        public Dictionary<Edges , double[][]> GradientEdges = new Dictionary<Edges, double[][]>();
+        public Dictionary<INNLayer, double[]> GradientBiases = new Dictionary<INNLayer, double[]>();
+        private Dictionary<INNLayer, double[]> GradientValues = new Dictionary<INNLayer, double[]>();
         public void CalculateGradient(MLP network, double[] expectedResult)
         {
             ICostFunction costFunction = new SquareDiffCostFunction(expectedResult);

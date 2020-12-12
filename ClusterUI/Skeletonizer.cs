@@ -10,26 +10,24 @@ namespace ClusterUI
 {
     interface ISkeletonizer
     {
-        PixelPoint[] Skeletonize();
+        PixelPoint[] Skeletonize(IList<PixelPoint> points);
 
     }
     class ThinSkeletonizer : ISkeletonizer
     {
         HashSet<PixelPoint> pointsHash { get; set; }
         List<PixelPoint> neighboursTemp { get; set; }
+        //EnergyCalculator EnergyCalculator { get; }
 
         readonly (int x,  int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
-        public ThinSkeletonizer(IList<PixelPoint> points)
+
+        public PixelPoint[] Skeletonize(IList<PixelPoint> points)
         {
-            pointsHash = new HashSet<PixelPoint>();
+            //prepare collections of points
+            pointsHash = points.ToHashSet();
             neighboursTemp = new List<PixelPoint>();
-            for (int i = 0; i < points.Count; i++)
-            {
-                pointsHash.Add(points[i]);
-            }
-        }
-        public PixelPoint[] Skeletonize()
-        {
+
+
             var toDelete = new List<PixelPoint>();
             bool isFirstIteration = true;
             int deletedCount = 0;
@@ -44,15 +42,24 @@ namespace ClusterUI
                         GetNeighbours(current); //returns value to neighboursTemp (to reuse the same list)
                         if (neighboursTemp.Count >= 2 && neighboursTemp.Count <= 6 && (GetZeroOneCount(current) == 1)
                             && (!NeighbourExists(current, 2) || !NeighbourExists(current, 4) || (!NeighbourExists(current, 0) && !NeighbourExists(current, 6))))
-
                         {
                             toDelete.Add(current);
                         }
-                        neighboursTemp.Clear();
-
+                  
                 }
                 for (int i = 0; i < toDelete.Count; i++)
                 {
+                    // TODO correction needed, split ToA of deleted pixel among its neighbours
+
+                    pointsHash.TryGetValue(toDelete[i], out PixelPoint actualVal);
+                    GetNeighbours(toDelete[i]);
+                    for (int j = 0; j < neighboursTemp.Count; j++)
+                    {
+                        pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
+                        actualNeighbour.SetToT(actualNeighbour.ToT + (actualVal.ToT / neighboursTemp.Count));
+                    }
+                    //----
+
                     pointsHash.Remove(toDelete[i]);
                 }
                 deletedCount += toDelete.Count;
@@ -67,12 +74,21 @@ namespace ClusterUI
 
                         {
                             toDelete.Add(current);
-                        }
-                        neighboursTemp.Clear();
+                        }                       
 
                 }
                 for (int i = 0; i < toDelete.Count; i++)
                 {
+                    // TODO correction needed
+
+                    pointsHash.TryGetValue(toDelete[i], out PixelPoint actualVal);
+                    GetNeighbours(toDelete[i]);
+                    for (int j = 0; j < neighboursTemp.Count; j++)
+                    {
+                        pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
+                        actualNeighbour.SetToT(actualNeighbour.ToT + (actualVal.ToT / neighboursTemp.Count));
+                    }
+                    //----
                     pointsHash.Remove(toDelete[i]);
                 }
                 deletedCount += toDelete.Count;
@@ -82,7 +98,7 @@ namespace ClusterUI
         }
         private void GetNeighbours(PixelPoint point)
         {
-           
+            neighboursTemp.Clear();
             for (int i = 0; i < neighbourDiff.Length; i++)
             {
                 var neighbour = new PixelPoint((ushort)(point.xCoord + neighbourDiff[i].x), (ushort)(point.yCoord + neighbourDiff[i].y));

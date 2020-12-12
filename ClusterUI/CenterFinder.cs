@@ -10,10 +10,13 @@ namespace ClusterUI
     class EnergyCenterFinder
     {
         private EnergyCalculator EnergyCalc;
+        private NeighbourCountFilter NeighbourFilter;
+        const int MinNeighbourCount = 3;
         const int Epsilon = 3;
         public EnergyCenterFinder(StreamReader aFile, StreamReader bFile, StreamReader cFile, StreamReader tFile) 
         {
             EnergyCalc = new EnergyCalculator(aFile, bFile, cFile, tFile);
+            NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount >= MinNeighbourCount, withDiagonalNeigbours: false); //we only count non diagonals neighbours
         }
         private double CalcSurroundEnergy(PixelPoint point, HashSet<PixelPoint> points)
         {
@@ -37,15 +40,19 @@ namespace ClusterUI
             var hashedPoints = points.ToHashSet();
             double maxEnergy = 0;
             PixelPoint maxEnergyPoint = new PixelPoint();
-            for (int i = 0; i < points.Count; i++) {
-                var currentPointSurrEnergy = CalcSurroundEnergy(points[i], hashedPoints);
+            IList<PixelPoint> possibleMidPoints = NeighbourFilter.Process(points); //
+            if (possibleMidPoints.Count == 0)
+                possibleMidPoints = points;
+            for (int i = 0; i < possibleMidPoints.Count; i++) {
+                var currentPointSurrEnergy = CalcSurroundEnergy(possibleMidPoints[i], hashedPoints);
                 if (currentPointSurrEnergy > maxEnergy)
                 {
                     maxEnergy = currentPointSurrEnergy;
-                    maxEnergyPoint = points[i];
+                    maxEnergyPoint = possibleMidPoints[i];
                 }
             }
             return maxEnergyPoint;
         }
     }
+    
 }

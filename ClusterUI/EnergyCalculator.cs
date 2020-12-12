@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ClusterUI
 {
-    class EnergyCalculator
+    public class EnergyCalculator
     {
         const int confSize = 256;
         double[][] aConf = new double[confSize][];
@@ -32,6 +32,15 @@ namespace ClusterUI
             double D = Math.Pow((-a * t - ToT - b), 2) - 4 * a * (-b * t - c + ToT * t);
             double energy = (a * t + ToT + b + Math.Sqrt(D)) / (2 * a);
             return energy;
+        }
+
+        public double ToEnergy(double Energy, ushort x, ushort y)
+        {
+            double a = aConf[x][y];
+            double b = bConf[x][y];
+            double c = cConf[x][y];
+            double t = tConf[x][y];
+            throw new NotImplementedException();
         }
         private void LoadConfigFile(StreamReader configFile, double[][] configArray)
         {
