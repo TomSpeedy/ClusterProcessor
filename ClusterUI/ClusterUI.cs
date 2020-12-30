@@ -13,6 +13,7 @@ using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Drawing.Text;
 using ChartDirector;
+using ClusterCalculator;
 
 namespace ClusterUI 
 
@@ -105,9 +106,9 @@ namespace ClusterUI
             if (Current == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();
-            Point3D[] points3D = anal.To3DPoints(anal.Transform(Current.Points));//zCalculator.TransformPoints(Current);
-            ScatterChart chart = new ScatterChart(winChartViewer, points3D);
-            ScatterChart = chart;
+            //Point3D[] points3D = anal.To3DPoints(anal.Transform(Current.Points));//zCalculator.TransformPoints(Current);
+            //ScatterChart chart = new ScatterChart(winChartViewer, points3D);
+            //ScatterChart = chart;
         }
         public void HideHistogramClicked(object sender, EventArgs e)
         {
@@ -213,12 +214,27 @@ namespace ClusterUI
         }
 
         #endregion
-        
+        public void ViewBranchButtonClicked(object sender, EventArgs e)
+        {
+            var centerCalc = new EnergyCenterFinder(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
+            var center = centerCalc.CalcCenterPoint(Current.Points);
+            var branchAnalyzer = new BranchAnalyzer(centerCalc);
+            var analyzedCluster = branchAnalyzer.Analyze(Current);
+            Current.Points = analyzedCluster.MainBranches[0].Points.ToArray();
+            PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
+        }
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
         {
             const int bitmapSize = 256;
             var centerCalc = new EnergyCenterFinder(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
             var center = centerCalc.CalcCenterPoint(cluster.Points);
+
+            var vertexFinder = new VertexFinder();
+
+            var possibleCentersFinder = new NeighbourCountFilter(neighBourCount => neighBourCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
+            var vertices = vertexFinder.FindVertices(cluster.Points);
+            var centers = possibleCentersFinder.Process(cluster.Points);
+
             var pixels = new Bitmap(bitmapSize, bitmapSize);
             for (int i = 0; i < bitmapSize; i++)
                 for (int j = 0; j < bitmapSize; j++)
@@ -226,8 +242,14 @@ namespace ClusterUI
             foreach (var pixel in cluster.Points)
             {
                 pixels.SetPixel(pixel.xCoord, pixel.yCoord, cluster.ToColor(Math.Max(Math.Min(6 * Math.Log(attributeGetter(pixel), 1.16) / 256, 1), 0)));
-                if (pixel.GetDistance(center) <= 2)
+
+                if (pixel.GetDistance(center) <= 1)
                     pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Blue);
+                else if (vertices.Contains(pixel))
+                    pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Purple);
+                else if (centers.Contains(pixel))
+                    pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Green);
+
 
             }
             return pixels;

@@ -8,14 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-namespace ClusterUI
+namespace ClusterCalculator
 {
     public class Cluster
     {
 
-        public double FirstToA { get; private set; }
-        public uint PixelCount { get; private set; }
-        public ulong ByteStart { get; private set; }
+        public double FirstToA { get; protected set; }
+        public uint PixelCount { get; protected set; }
+        public ulong ByteStart { get; protected set; }
         public PixelPoint[] Points { get; set; }
         public Cluster(double FirstToA, uint PixelCount, ulong ByteStart) {
             this.FirstToA = FirstToA;
@@ -78,7 +78,7 @@ namespace ClusterUI
         }
 
     }
-    class ClusterInfoCollection : IEnumerable<ClusterInfo>
+    public class ClusterInfoCollection : IEnumerable<ClusterInfo>
     {
         private readonly StreamReader ClFile; 
         public ClusterInfoCollection(StreamReader clFile)

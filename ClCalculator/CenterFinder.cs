@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClusterUI
+namespace ClusterCalculator
 {
-    class EnergyCenterFinder
+    public class EnergyCenterFinder
     {
         private EnergyCalculator EnergyCalc;
         private NeighbourCountFilter NeighbourFilter;
@@ -16,7 +17,7 @@ namespace ClusterUI
         public EnergyCenterFinder(StreamReader aFile, StreamReader bFile, StreamReader cFile, StreamReader tFile) 
         {
             EnergyCalc = new EnergyCalculator(aFile, bFile, cFile, tFile);
-            NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount >= MinNeighbourCount, withDiagonalNeigbours: false); //we only count non diagonals neighbours
+            NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount >= MinNeighbourCount, NeighbourCountOption.WithYpsilonNeighbours); //we only count non diagonals neighbours
         }
         private double CalcSurroundEnergy(PixelPoint point, HashSet<PixelPoint> points)
         {

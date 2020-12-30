@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClusterUI
+namespace ClusterCalculator
 {
-    class VertexFinder
+    public class VertexFinder
     {
         private ISkeletonizer Skeletonizer { get; }
         const int VertexNeighbourCount = 1;
@@ -14,7 +14,7 @@ namespace ClusterUI
         public VertexFinder()
         {
             Skeletonizer = new ThinSkeletonizer();
-            NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount == VertexNeighbourCount, withDiagonalNeigbours: true); //we also count diagonal neighbours
+            NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount == VertexNeighbourCount, NeighbourCountOption.WithAllDiagonalNeighbours); //we also count diagonal neighbours
         }
 
         public List<PixelPoint> FindVertices(IList<PixelPoint> pixelPoints)

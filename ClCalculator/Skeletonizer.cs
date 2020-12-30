@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms.DataVisualization.Charting;
+using System.Collections;
 
-namespace ClusterUI
+namespace ClusterCalculator
 {
-    interface ISkeletonizer
+    public interface ISkeletonizer
     {
         PixelPoint[] Skeletonize(IList<PixelPoint> points);
 
     }
-    class ThinSkeletonizer : ISkeletonizer
+    public class ThinSkeletonizer : ISkeletonizer
     {
         HashSet<PixelPoint> pointsHash { get; set; }
         List<PixelPoint> neighboursTemp { get; set; }

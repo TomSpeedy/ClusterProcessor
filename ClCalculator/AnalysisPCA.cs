@@ -9,13 +9,15 @@ using Accord.Math.Comparers;
 using Accord.Statistics;
 using Accord.Math;
 using Accord.Math.Decompositions;
-using System.Windows.Forms.DataVisualization.Charting;
+//using System.Windows.Forms.DataVisualization.Charting;
 using Accord.Controls;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("ClustersProcessor")]
 
 
-namespace ClusterUI
+namespace ClusterCalculator
 {
-    class AnalysisPCA
+    public class AnalysisPCA
     {
         const int inputDimension = 2;
         private double[,] ToDoublePoints(IList<PixelPoint> points)
@@ -51,10 +53,9 @@ namespace ClusterUI
             // Step 6. Deriving the new data set
             double[,] finalData =  Matrix.Dot(dataAdjust, featureVector);
             return finalData;
-            //double[,] 
             
         }
-        public Point3D[] To3DPoints(double[,] finalData)
+        /*public Point3D[] To3DPoints(double[,] finalData)
         {
             Point3D[] array3D = new Point3D[finalData.Rows()];
             for (int i = 0; i < finalData.Rows(); i++)
@@ -62,6 +63,6 @@ namespace ClusterUI
                 array3D[i] = new Point3D((float)finalData[i, 0], (float)finalData[i, 1], 0); 
             }
             return array3D;
-        }
+        }*/
     }
 }

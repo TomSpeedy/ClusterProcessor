@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 using System.Windows.Forms;
-
+using ClusterCalculator;
 namespace ClusterUI
 {
     public static class Extensions
@@ -19,75 +19,6 @@ namespace ClusterUI
 
     }
 
-    public abstract class PixelFilter //works with loaded data, suitable only for filtering currently viewed files
-    {
-        public int ProcessedCount { get; protected set; } = 0;
-        public int FilterSuccessCount { get; protected set; } = 0;
-        public abstract bool MatchesFilter(PixelPoint pixel);
-        protected HashSet<PixelPoint> HashedPoints { get; private set; }
-        public List<PixelPoint> Process(IList<PixelPoint> pixels)
-        {
-            HashedPoints = pixels.ToHashSet();
-            List<PixelPoint> result = new List<PixelPoint>();
-            foreach (PixelPoint pixel in pixels)
-            {
-                if (MatchesFilter(pixel))
-                {
-                    result.Add(pixel);
-                    FilterSuccessCount++;
-                }
-                ProcessedCount++;
-                    
-            }
-            return result;
-        }
-    }
-
-    public class EnergyHaloFilter : PixelFilter
-    {
-        EnergyCalculator EnergyCalculator { get; }
-        const double HaloLimit = 8;
-        public EnergyHaloFilter(EnergyCalculator energyCalculator)
-        {
-            EnergyCalculator = energyCalculator;
-
-        }
-        public override bool MatchesFilter(PixelPoint pixel)
-        {
-            return (EnergyCalculator.ToElectronVolts(pixel.ToT, pixel.xCoord, pixel.yCoord) >= HaloLimit);
-        }
-    }
-    public class NeighbourCountFilter : PixelFilter
-    {
-        readonly (int x, int y)[] neighbourDiagDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
-        readonly (int x, int y)[] neighbourNonDiagDiff = { (0, -1), (1, 0), (0, 1),  (-1, 0) };
-        private bool WithDiagonalNeighbours { get; }
-        Predicate<int> Condition { get; }
-        public NeighbourCountFilter(Predicate<int> condition, bool withDiagonalNeigbours = true)
-        {
-            Condition = condition;
-            WithDiagonalNeighbours = withDiagonalNeigbours;
-        }
-
-        public override bool MatchesFilter(PixelPoint point)
-        {
-            return Condition(GetNeighbourCount(point));
-        }
-        private int GetNeighbourCount(PixelPoint point)
-        {
-            var neighbourCount = 0;
-            var neighbourDiff = neighbourDiagDiff;
-            if (!WithDiagonalNeighbours)
-                neighbourDiff = neighbourNonDiagDiff;
-            for (int i = 0; i < neighbourDiff.Length; i++)
-            {
-                var neighbour = new PixelPoint((ushort)(point.xCoord + neighbourDiff[i].x), (ushort)(point.yCoord + neighbourDiff[i].y));
-                if (HashedPoints.Contains(neighbour))
-                    neighbourCount++;
-            }
-            return neighbourCount;
-        }
-    }
 
     public abstract class ClusterFilter //works with text files
     {

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Xml.Linq;
 using ChartDirector;
-
+using ClusterCalculator;
 namespace ClusterUI
 {
     //TODO: Clean Redraw here and also in UI

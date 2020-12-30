@@ -41,6 +41,7 @@
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.FilterButton = new System.Windows.Forms.Button();
             this.FilterGroup = new System.Windows.Forms.GroupBox();
+            this.ConvexitySkeletFilterCheckBox = new System.Windows.Forms.CheckBox();
             this.ToLinearityTextBox = new System.Windows.Forms.TextBox();
             this.FromLinearityTextBox = new System.Windows.Forms.TextBox();
             this.labelToLinearity = new System.Windows.Forms.Label();
@@ -84,7 +85,7 @@
             this.RotateLeftButton = new System.Windows.Forms.Button();
             this.RotateRightButton = new System.Windows.Forms.Button();
             this.NowViewingLabel = new System.Windows.Forms.Label();
-            this.ConvexitySkeletFilterCheckBox = new System.Windows.Forms.CheckBox();
+            this.ShowMainBranchButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.FilterGroup.SuspendLayout();
@@ -189,6 +190,16 @@
             this.FilterGroup.TabIndex = 6;
             this.FilterGroup.TabStop = false;
             this.FilterGroup.Text = "Select filters";
+            // 
+            // ConvexitySkeletFilterCheckBox
+            // 
+            this.ConvexitySkeletFilterCheckBox.AutoSize = true;
+            this.ConvexitySkeletFilterCheckBox.Location = new System.Drawing.Point(39, 128);
+            this.ConvexitySkeletFilterCheckBox.Name = "ConvexitySkeletFilterCheckBox";
+            this.ConvexitySkeletFilterCheckBox.Size = new System.Drawing.Size(172, 19);
+            this.ConvexitySkeletFilterCheckBox.TabIndex = 17;
+            this.ConvexitySkeletFilterCheckBox.Text = "Use skeletonized convexity";
+            this.ConvexitySkeletFilterCheckBox.UseVisualStyleBackColor = true;
             // 
             // ToLinearityTextBox
             // 
@@ -627,21 +638,22 @@
             this.NowViewingLabel.TabIndex = 23;
             this.NowViewingLabel.Text = "Now Viewing: \r\n<empty>";
             // 
-            // ConvexitySkeletFilterCheckBox
+            // ShowMainBranchButton
             // 
-            this.ConvexitySkeletFilterCheckBox.AutoSize = true;
-            this.ConvexitySkeletFilterCheckBox.Location = new System.Drawing.Point(39, 128);
-            this.ConvexitySkeletFilterCheckBox.Name = "ConvexitySkeletFilterCheckBox";
-            this.ConvexitySkeletFilterCheckBox.Size = new System.Drawing.Size(172, 19);
-            this.ConvexitySkeletFilterCheckBox.TabIndex = 17;
-            this.ConvexitySkeletFilterCheckBox.Text = "Use skeletonized convexity";
-            this.ConvexitySkeletFilterCheckBox.UseVisualStyleBackColor = true;
+            this.ShowMainBranchButton.Location = new System.Drawing.Point(420, 730);
+            this.ShowMainBranchButton.Name = "ShowMainBranchButton";
+            this.ShowMainBranchButton.Size = new System.Drawing.Size(115, 47);
+            this.ShowMainBranchButton.TabIndex = 24;
+            this.ShowMainBranchButton.Text = "Show Main Branch";
+            this.ShowMainBranchButton.UseVisualStyleBackColor = true;
+            this.ShowMainBranchButton.Click += new System.EventHandler(this.ViewBranchButtonClicked);
             // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.ShowMainBranchButton);
             this.Controls.Add(this.NowViewingLabel);
             this.Controls.Add(this.RotateRightButton);
             this.Controls.Add(this.RotateLeftButton);
@@ -731,6 +743,7 @@
         private System.Windows.Forms.Button RotateRightButton;
         private System.Windows.Forms.Label NowViewingLabel;
         private System.Windows.Forms.CheckBox ConvexitySkeletFilterCheckBox;
+        private System.Windows.Forms.Button ShowMainBranchButton;
     }
 }
 

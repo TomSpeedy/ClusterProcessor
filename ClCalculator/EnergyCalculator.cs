@@ -6,7 +6,7 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace ClusterUI
+namespace ClusterCalculator
 {
     public class EnergyCalculator
     {
