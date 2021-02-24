@@ -33,7 +33,7 @@ namespace ClusterCalculator
         }
                
     }
-    public struct PixelPoint
+    public struct PixelPoint : IEquatable<PixelPoint>
     {
 
         public PixelPoint(ushort xCoord, ushort yCoord, double ToA = 0, double ToT = 0)
@@ -56,16 +56,28 @@ namespace ClusterCalculator
         {
             return (xCoord << 8) + yCoord;
         }
+        public bool Equals(PixelPoint other)
+        {
+            return this.xCoord == other.xCoord && this.yCoord == other.yCoord;
+        }
         public override bool Equals(object obj)
         {
-            var other = (PixelPoint)obj;
-            return this.xCoord == other.xCoord && this.yCoord == other.yCoord;
+            if (obj.GetType() == typeof(PixelPoint))
+            {
+                var other = (PixelPoint)obj;
+                return Equals(other);
+            }
+            return false;
         }
         public ushort GetDistance(PixelPoint other)
         {
             return (ushort)Math.Max(Math.Abs((this.xCoord - other.xCoord)), Math.Abs((this.yCoord - other.yCoord))); 
         }
-    }
+        public override string ToString()
+        {
+            return $"({this.xCoord},{this.yCoord})";
+        }
+    }    
     public struct ClusterInfo
     { 
         public double FirstToA { get; set; }
@@ -101,6 +113,36 @@ namespace ClusterCalculator
                 yield return clInfo;
             }
         }
+
+    }
+    public enum ClusterAttribute
+    {
+        TotalEnergy, PixelCount, AverageEnergy, Convexity, Width, Branches
+
+    }
+    public enum BranchAttribute
+    {
+        StartPoint, Length, SubBranches
+
+    }
+    public static class Extensions
+    {
+        public static string AttrToString(this ClusterAttribute attribute)
+        {
+            var fullName = attribute.ToString();
+            return fullName.Substring(fullName.LastIndexOf('.') + 1);
+        }
+        public static ClusterAttribute ToAttribute(this string attributeName)
+        {
+            Enum.TryParse(attributeName, out ClusterAttribute enumAttribute);
+            return enumAttribute;
+            
+        }
+    }
+    public static class NumExtensions
+    {
+        public static double Sqr(this double value) => value * value;
+        public static int Sqr(this int value) => value * value;
 
     }
 }

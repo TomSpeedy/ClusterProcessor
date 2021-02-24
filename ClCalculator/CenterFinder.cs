@@ -14,9 +14,9 @@ namespace ClusterCalculator
         private NeighbourCountFilter NeighbourFilter;
         const int MinNeighbourCount = 3;
         const int Epsilon = 3;
-        public EnergyCenterFinder(StreamReader aFile, StreamReader bFile, StreamReader cFile, StreamReader tFile) 
+        public EnergyCenterFinder(Calibration calib) 
         {
-            EnergyCalc = new EnergyCalculator(aFile, bFile, cFile, tFile);
+            EnergyCalc = new EnergyCalculator(calib);
             NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount >= MinNeighbourCount, NeighbourCountOption.WithYpsilonNeighbours); //we only count non diagonals neighbours
         }
         private double CalcSurroundEnergy(PixelPoint point, HashSet<PixelPoint> points)

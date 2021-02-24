@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IO;
-using System.Windows.Forms;
 using ClusterCalculator;
-/*namespace ClusterUI
+namespace ClusterCalculator
 {
-    interface IClusterReader 
+    public interface IClusterReader 
     {
         void GetTextFileNames(TextReader reader, string iniPath, out string pxFile, out string clFile);
         Cluster LoadFromText(StreamReader pixelStream, StreamReader clusterStream, int clusterNumber = 1);
+        Cluster LoadByClInfo(StreamReader pixelStream, ClusterInfo clInfo);
 
     }
-    class MMClusterReader : IClusterReader
+    public class MMClusterReader : IClusterReader
     {
         private string getLine(int clusterNumber, StreamReader reader)
         {
@@ -34,7 +34,7 @@ using ClusterCalculator;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Processing error, Selected '.ini' file is not in correct format or is inaccessible.");
+                //MessageBox.Show("Processing error, Selected '.ini' file is not in correct format or is inaccessible.");
                 throw (ex);
             }
         }
@@ -64,13 +64,27 @@ using ClusterCalculator;
             }
             catch
             {
-                MessageBox.Show("Cluster was not successfully loaded because either there was an error parsing input file");
+                //MessageBox.Show("Cluster was not successfully loaded because either there was an error parsing input file");
                 return null;
             }
         }
+        public Cluster LoadByClInfo(StreamReader pixelStream, ClusterInfo clInfo)
+        {
+            Cluster cluster = new Cluster(FirstToA: clInfo.FirstToA,
+                                             PixelCount: clInfo.PixCount,
+                                             ByteStart: clInfo.ByteStart);
+            cluster.Points = new PixelPoint[cluster.PixelCount];
+
+            pixelStream.DiscardBufferedData();
+            pixelStream.BaseStream.Position = (long)cluster.ByteStart;
+
+            for (int i = 0; i < cluster.PixelCount; i++)
+            {
+                string[] pixel = pixelStream.ReadLine().Split(' ');
+                cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]), double.Parse(pixel[2].Replace('.', ',')), double.Parse(pixel[3].Replace('.', ',')));
+            }
+
+            return (cluster);
+        }
     }
-    interface IClusterDetailsReader
-    { 
-       //ClusterDetails Load
-    }
-}*/
+}

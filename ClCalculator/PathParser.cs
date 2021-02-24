@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ClusterUI
+namespace ClusterCalculator
 {
-    class PathParser
+    public class PathParser
     {
         public static string GetPrefixPath(string iniPath)
         {

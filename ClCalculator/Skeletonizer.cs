@@ -11,18 +11,24 @@ namespace ClusterCalculator
 {
     public interface ISkeletonizer
     {
-        PixelPoint[] Skeletonize(IList<PixelPoint> points);
+        PixelPoint[] SkeletonizePoints(IList<PixelPoint> points);
+        Cluster SkeletonizeCluster(Cluster cluster);
 
     }
     public class ThinSkeletonizer : ISkeletonizer
     {
         HashSet<PixelPoint> pointsHash { get; set; }
         List<PixelPoint> neighboursTemp { get; set; }
-        //EnergyCalculator EnergyCalculator { get; }
+        EnergyCalculator EnergyCalculator { get; }
+        EnergyHaloFilter HaloFilter { get; }
 
         readonly (int x,  int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
-
-        public PixelPoint[] Skeletonize(IList<PixelPoint> points)
+        public ThinSkeletonizer(EnergyCalculator energyCalc)
+        {
+            EnergyCalculator = energyCalc;
+            HaloFilter = new EnergyHaloFilter(EnergyCalculator);
+        }
+        private PixelPoint[] SkeletonizeSelected(IList<PixelPoint> points, Predicate<PixelPoint> condition, bool preserveEnergy = true)
         {
             //prepare collections of points
             pointsHash = points.ToHashSet();
@@ -40,13 +46,13 @@ namespace ClusterCalculator
                 foreach (var current in pointsHash)
                 {
 
-                        GetNeighbours(current); //returns value to neighboursTemp (to reuse the same list)
-                        if (neighboursTemp.Count >= 2 && neighboursTemp.Count <= 6 && (GetZeroOneCount(current) == 1)
-                            && (!NeighbourExists(current, 2) || !NeighbourExists(current, 4) || (!NeighbourExists(current, 0) && !NeighbourExists(current, 6))))
-                        {
-                            toDelete.Add(current);
-                        }
-                  
+                    GetNeighbours(current); //returns value to neighboursTemp (to reuse the same list)
+                    if (neighboursTemp.Count >= 2 && neighboursTemp.Count <= 6 && (GetZeroOneCount(current) == 1)
+                        && (!NeighbourExists(current, 2) || !NeighbourExists(current, 4) || (!NeighbourExists(current, 0) && !NeighbourExists(current, 6))) && condition(current))
+                    {
+                        toDelete.Add(current);
+                    }
+
                 }
                 for (int i = 0; i < toDelete.Count; i++)
                 {
@@ -67,15 +73,15 @@ namespace ClusterCalculator
                 toDelete.Clear();
 
                 //second subiteration
-                foreach (var current in pointsHash) 
+                foreach (var current in pointsHash)
                 {
-                        GetNeighbours(current); //returns value to neighboursTemp (to reuse the same list)
-                        if (neighboursTemp.Count >= 2 && neighboursTemp.Count <= 6 && (GetZeroOneCount(current) == 1)
-                            && (!NeighbourExists(current, 0) || !NeighbourExists(current, 6) || (!NeighbourExists(current, 2) && !NeighbourExists(current, 4))))
+                    GetNeighbours(current); //returns value to neighboursTemp (to reuse the same list)
+                    if (neighboursTemp.Count >= 2 && neighboursTemp.Count <= 6 && (GetZeroOneCount(current) == 1)
+                        && (!NeighbourExists(current, 0) || !NeighbourExists(current, 6) || (!NeighbourExists(current, 2) && !NeighbourExists(current, 4))) && condition(current))
 
-                        {
-                            toDelete.Add(current);
-                        }                       
+                    {
+                        toDelete.Add(current);
+                    }
 
                 }
                 for (int i = 0; i < toDelete.Count; i++)
@@ -84,10 +90,15 @@ namespace ClusterCalculator
 
                     pointsHash.TryGetValue(toDelete[i], out PixelPoint actualVal);
                     GetNeighbours(toDelete[i]);
+                    //if preserveEnergy
+                    var currentEnergy = EnergyCalculator.ToElectronVolts(actualVal.ToT, actualVal.xCoord, actualVal.yCoord);
                     for (int j = 0; j < neighboursTemp.Count; j++)
                     {
+                        
                         pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
-                        actualNeighbour.SetToT(actualNeighbour.ToT + (actualVal.ToT / neighboursTemp.Count));
+                        var neighbourEnergy = EnergyCalculator.ToElectronVolts(actualNeighbour.ToT, actualNeighbour.xCoord, actualNeighbour.yCoord);
+                        actualNeighbour.SetToT(EnergyCalculator.ToTimeOverThreshold(neighbourEnergy
+                            + (currentEnergy / neighboursTemp.Count), actualNeighbour.xCoord, actualNeighbour.yCoord));
                     }
                     //----
                     pointsHash.Remove(toDelete[i]);
@@ -96,6 +107,19 @@ namespace ClusterCalculator
                 toDelete.Clear();
             }
             return pointsHash.ToArray();
+        }
+        public PixelPoint[] SkeletonizePoints(IList<PixelPoint> points)
+        {
+            var removedHalo = SkeletonizeSelected(points, point => !HaloFilter.MatchesFilter(point));
+            var allSkeletonized = SkeletonizeSelected(removedHalo, condition: point => true);
+            return allSkeletonized;
+        }
+        public Cluster SkeletonizeCluster(Cluster cluster)
+        {
+            var skeletPoints = SkeletonizePoints(cluster.Points);
+            var skeletCluster = new Cluster(cluster.FirstToA, cluster.PixelCount, cluster.ByteStart);
+            skeletCluster.Points = skeletPoints;
+            return skeletCluster;
         }
         private void GetNeighbours(PixelPoint point)
         {

@@ -55,14 +55,14 @@ namespace ClusterCalculator
             return finalData;
             
         }
-        /*public Point3D[] To3DPoints(double[,] finalData)
+        public PointD3[] To3DPoints(double[,] finalData)
         {
-            Point3D[] array3D = new Point3D[finalData.Rows()];
+            PointD3[] array3D = new PointD3[finalData.Rows()];
             for (int i = 0; i < finalData.Rows(); i++)
             {
-                array3D[i] = new Point3D((float)finalData[i, 0], (float)finalData[i, 1], 0); 
+                array3D[i] = new PointD3((float)finalData[i, 0], (float)finalData[i, 1], 0); 
             }
             return array3D;
-        }*/
+        }
     }
 }

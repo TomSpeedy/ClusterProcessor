@@ -70,10 +70,15 @@
     <Compile Include="BranchedCluster.cs" />
     <Compile Include="CenterFinder.cs" />
     <Compile Include="ClusterCore.cs" />
+    <Compile Include="ClusterReader.cs" />
+    <Compile Include="ClusterWriter.cs" />
+    <Compile Include="ConvexHull.cs" />
     <Compile Include="EnergyCalculator.cs" />
+    <Compile Include="PathParser.cs" />
     <Compile Include="PixelFilters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Skeletonizer.cs" />
+    <Compile Include="ZCalculator.cs" />
     <Compile Include="VertexFinder.cs" />
   </ItemGroup>
   <ItemGroup>

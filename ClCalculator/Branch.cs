@@ -12,6 +12,7 @@ namespace ClusterCalculator
         readonly (int x, int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
         NeighbourCountFilter NeighCountFilter { get;}
         EnergyCenterFinder EnCenterFinder { get; }
+        const int trivialBranchLength = 3;
         public BranchAnalyzer(EnergyCenterFinder centerFinder)
         {
             EnCenterFinder = centerFinder;
@@ -19,7 +20,7 @@ namespace ClusterCalculator
         }
         public BranchedCluster Analyze(Cluster cluster)
         {
-            const int trivialBranchLength = 3;
+            
 
             List<Branch> mainBranches = new List<Branch>();
             var usablePoints = cluster.Points.ToHashSet();
@@ -37,6 +38,7 @@ namespace ClusterCalculator
                 usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
                 usablePoints.Add(center);
             }
+            AdjustMissedCrossPoints(mainBranches, crossPoints, cluster.Points);
             return new BranchedCluster(cluster, mainBranches);
         }
         public Branch GetCoreBranch(HashSet<PixelPoint> usablePoints, PixelPoint startBranchPoint, IList<PixelPoint> crossPoints)
@@ -50,11 +52,12 @@ namespace ClusterCalculator
             var subBranchUsablePoints = usablePoints.Except(nonUsablePoints).ToHashSet();
             foreach (var localBranchPoint in localCrossPoints)
             {
-                mainBranch.SubBranches.Add(GetCoreBranch(subBranchUsablePoints, localBranchPoint, crossPoints));
+                 mainBranch.SubBranches.Add(GetCoreBranch(subBranchUsablePoints, localBranchPoint, crossPoints));
             }
             mainBranch.CalcTotalPoints();
             return mainBranch;
         }
+        
         public PixelPoint[] FindLongestPathDFS(PixelPoint startPoint, HashSet<PixelPoint> usablePoints, IList<PixelPoint> crossPoints)
 
         {
@@ -110,7 +113,6 @@ namespace ClusterCalculator
             distLabeledPoints.Add(startPoint, distance);
             while (toVisit.Count != 0)
             {
-                //if current and previous are not neighbours then pop from onBranch till they are? and if they are push current on onBranch Stack? 
                 current = toVisit.Dequeue();
                 
                 neighbours = GetNeighbours(current, usablePoints);
@@ -130,10 +132,14 @@ namespace ClusterCalculator
             longestPath[distance] = current;
             for (int i = 1; i < longestPath.Length - 1; i++)
             {              
-                longestPath[distance - i ] = GetNeighbours(current, usablePoints).Find(neighbour => distLabeledPoints[neighbour] == distance - i);
+                var usableNeighbours = GetNeighbours(current, usablePoints).FindAll(neighbour => distLabeledPoints[neighbour] == distance - i);
+                //sort the neighbours so that 4 neighbours are prefered before 8 neighbours
+                usableNeighbours.Sort((PixelPoint left, PixelPoint right) => (Math.Abs(left.xCoord - current.xCoord) + Math.Abs(left.yCoord - current.yCoord)) 
+                - (Math.Abs(right.xCoord - current.xCoord) + Math.Abs(right.yCoord - current.yCoord)));
+                longestPath[distance - i] = usableNeighbours[0];
                 current = longestPath[distance - i];
             }
-            longestPath[0] = startPoint; //startPoint might not be in usablePOints
+            longestPath[0] = startPoint; //startPoint might not be in usablePoints
             return longestPath;
         }
         private List<PixelPoint> GetNeighbours(PixelPoint point, HashSet<PixelPoint> usablePoints)
@@ -155,10 +161,39 @@ namespace ClusterCalculator
         {
             return first.GetDistance(second) <= 1; 
         }
+        private void AdjustMissedCrossPoints(IList<Branch> mainBranches, IList<PixelPoint> crossPoints, IList<PixelPoint> allPoints)
+        {
+            HashSet<PixelPoint> usedPoints = new HashSet<PixelPoint>();
+            foreach (var branch in mainBranches)
+            {
+                usedPoints = usedPoints.Union(branch.CalcTotalPoints()).ToHashSet();
+            }
+            var usablePoints = allPoints.Except(usedPoints).ToHashSet();
+            for (int i = 0; i < crossPoints.Count; ++i)
+            {
+                var neighbours = GetNeighbours(crossPoints[i], usedPoints);
+                if (neighbours.Count >= 1 && usablePoints.Contains(crossPoints[i])) 
+                {
+                    foreach (var branch in mainBranches)
+                    {
+                        if (branch.CalcTotalPoints().Contains(neighbours[0]))
+                        {
+                            var parentBranch = branch.FindBranch(neighbours[0]);
+                            var newBranch = GetCoreBranch(usablePoints, crossPoints[i], crossPoints);
+                            var newPoints = newBranch.CalcTotalPoints();
+                            if (newPoints.Count > trivialBranchLength)
+                                parentBranch.SubBranches.Add(newBranch);
+                            usablePoints = usablePoints.Except(newPoints).ToHashSet();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
     public class Branch
     {
-        PixelPoint StartPoint;
+        public PixelPoint StartPoint;
         public List<Branch> SubBranches;
         public HashSet<PixelPoint> Points { get; private set; }
         public HashSet<PixelPoint> TotalPoints { get; private set; }
@@ -171,6 +206,20 @@ namespace ClusterCalculator
             }
             return TotalPoints;
         }
+        public Branch FindBranch(PixelPoint point)
+        {
+            if (Points.Contains(point))
+                return this;
+            foreach (var subBranch in SubBranches)
+            {
+                var searchResult = subBranch.FindBranch(point);
+                if (searchResult != null)
+                {
+                    return searchResult;
+                }
+            }
+            return null;
+        }
 
         public Branch(PixelPoint startPoint, HashSet<PixelPoint> points) 
         {
@@ -180,6 +229,23 @@ namespace ClusterCalculator
             TotalPoints = new HashSet<PixelPoint>();
         
         }
+        public Dictionary<BranchAttribute, object> ToDictionary()
+        {
+            Dictionary<BranchAttribute, object> dict = new Dictionary<BranchAttribute, object>();
+            dict.Add(BranchAttribute.Length, this.Points.Count);
+            dict.Add(BranchAttribute.StartPoint, this.StartPoint);
+            if (this.SubBranches.Count != 0)
+            {
+                List<Dictionary<BranchAttribute, object>> subBranches = new List<Dictionary<BranchAttribute, object>>();
+                foreach (var subBranch in SubBranches)
+                {
+                    subBranches.Add(subBranch.ToDictionary());        
+                }
+                dict.Add(BranchAttribute.SubBranches, subBranches);
+            }
+            return dict;
+        }
+
     }
         
 }

@@ -15,12 +15,12 @@ namespace ClusterCalculator
         double[][] bConf = new double[confSize][];
         double[][] cConf = new double[confSize][];
         double[][] tConf = new double[confSize][];
-        public EnergyCalculator(StreamReader aFile, StreamReader bFile, StreamReader cFile, StreamReader tFile)
+        public EnergyCalculator(Calibration calib)
         {
-            LoadConfigFile(aFile, this.aConf);
-            LoadConfigFile(bFile, this.bConf);
-            LoadConfigFile(cFile, this.cConf);
-            LoadConfigFile(tFile, this.tConf);
+            LoadConfigFile(calib.AFile, this.aConf);
+            LoadConfigFile(calib.BFile, this.bConf);
+            LoadConfigFile(calib.CFile, this.cConf);
+            LoadConfigFile(calib.TFile, this.tConf);
         }
         public double ToElectronVolts(double ToT, ushort x, ushort y)
         {
@@ -34,13 +34,22 @@ namespace ClusterCalculator
             return energy;
         }
 
-        public double ToEnergy(double Energy, ushort x, ushort y)
+        public double ToTimeOverThreshold(double Energy, ushort x, ushort y)
         {
             double a = aConf[x][y];
             double b = bConf[x][y];
             double c = cConf[x][y];
             double t = tConf[x][y];
-            throw new NotImplementedException();
+            return a * Energy + b - (c / Energy - t);
+        }
+        public double CalcTotalEnergy(IList<PixelPoint> points)
+        {
+            var totalEnergy = 0d;
+            for (int i = 0; i < points.Count; ++i)
+            {
+                totalEnergy += ToElectronVolts(points[i].ToT, points[i].xCoord, points[i].yCoord);
+            }
+            return totalEnergy;
         }
         private void LoadConfigFile(StreamReader configFile, double[][] configArray)
         {
@@ -62,6 +71,25 @@ namespace ClusterCalculator
                 }
 
             }
+        }
+    }
+    public struct Calibration
+    {
+        public StreamReader AFile { get; }
+        public StreamReader BFile { get; }
+        public StreamReader CFile { get; }
+        public StreamReader TFile { get; }
+        public Calibration(string directory)
+        {
+            const string aFile = "a.txt";
+            const string bFile = "b.txt";
+            const string cFile = "c.txt";
+            const string tFile = "t.txt";
+
+            AFile = new StreamReader(directory + aFile);
+            BFile = new StreamReader(directory + bFile);
+            CFile = new StreamReader(directory + cFile);
+            TFile = new StreamReader(directory + tFile);
         }
     }
 }

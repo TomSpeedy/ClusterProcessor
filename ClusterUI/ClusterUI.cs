@@ -17,42 +17,44 @@ using ClusterCalculator;
 
 namespace ClusterUI 
 
-    // TODO : gather more interesting clusters
-
-
 {
     public partial class ClusterUI : Form
     {
-        const string configPath = "../../../config/";
+        private string configPath = "../../../config/";
         private int clusterNumber = 1;
         private string pxFile;
-        private string clFile;    
+        private string clFile;
         private HistogramPoint[] HistogramPoints { get; set; }
         private HistogramPoint[] HistogramPixPoints { get; set; }
         private Cluster Current { get; set; }
         private ScatterChart ScatterChart { get; set; }
-        private IClusterReader ClusterReader { get; set; }
+
+        private IClusterReader ClusterReader { get; }
+        private EnergyCalculator EnergyCalculator {get; set;}
         public ClusterUI()
         {
             InitializeComponent();
             ClusterHistogram.Visible = false;
             ClusterPixHistogram.Visible = false;
             ClusterReader = new MMClusterReader();
+            ConfigDirTextBox.Text = configPath;
 
         }
         #region Event Handlers
         public void NextButtonClicked(object sender, EventArgs e)
         {
-                clusterNumber++;
+            clusterNumber++;
             Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
-            Current = cluster;
             if (cluster != null)
             {
+                Current = cluster;
                 HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
             }
             else
+            {
                 clusterNumber--;
+            }
 
         }
         public void PrevButtonClicked(object sender, EventArgs e)
@@ -60,13 +62,13 @@ namespace ClusterUI
             if (clusterNumber >= 2)
                 clusterNumber--;
             Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
-            HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
             if (cluster != null)
             {
+                Current = cluster;
                 HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
             }
-            Current = cluster;
+            
         }
         public void BrowseViewButtonClicked(object sender, EventArgs e)
         {
@@ -76,13 +78,24 @@ namespace ClusterUI
                 InViewFilePathBox.Text = fileDialog.FileName;
             }
         }
+        public void BrowseConfigButtonClicked(object sender, EventArgs e)
+        {
+            using (var dialog = new FolderBrowserDialog())
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    ConfigDirTextBox.Text = dialog.SelectedPath;
+                }
+            }
+        }
         public void LoadClustersClicked(object sender, EventArgs e)
         {
             try
             {
+                configPath = ConfigDirTextBox.Text + "\\";
                 ClusterReader.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
                 Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
-                
+                EnergyCalculator = new EnergyCalculator(new Calibration(configPath));
 
                 if (cluster != null)
                 {
@@ -90,14 +103,14 @@ namespace ClusterUI
                     PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
                     PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
                 }
+
                 Current = cluster;
 
                 NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
-                //add info about clfile and px file and clusterIndex
             }
             catch 
             {
-                return;
+                MessageBox.Show("File was not load because of an error. Please check format of the file");
             }
         }
         public void View3DClicked(object sender, EventArgs e)
@@ -106,9 +119,9 @@ namespace ClusterUI
             if (Current == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();
-            //Point3D[] points3D = anal.To3DPoints(anal.Transform(Current.Points));//zCalculator.TransformPoints(Current);
-            //ScatterChart chart = new ScatterChart(winChartViewer, points3D);
-            //ScatterChart = chart;
+           /*Point3D[] points3D = ToPoints3D(anal.Transform(Current.Points))*/ var points3D = ToPoints3D(zCalculator.TransformPoints(Current));
+            ScatterChart chart = new ScatterChart(winChartViewer, points3D);
+            ScatterChart = chart;
         }
         public void HideHistogramClicked(object sender, EventArgs e)
         {
@@ -187,27 +200,11 @@ namespace ClusterUI
                 
 
         }
-        public void ProcessFilterClicked(object sender, EventArgs e)
-        {
-            Thread filteringThread = new Thread(() => ProcessFilter());
-            filteringThread.Start();
-            
-
-        }
-        public void BrowseFilterFileButtonClicked(object sender, EventArgs e)
-        {
-            var fileDialog = new OpenFileDialog();
-            if (fileDialog.ShowDialog() == DialogResult.OK)
-            {
-                InFilePathBox.Text = fileDialog.FileName;
-            }
-        }
         public void SkeletonizeButtonClicked(object sender, EventArgs e)
         {
-            EnergyCalculator energyCalculator = new EnergyCalculator(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
-            PixelFilter haloFilter = new EnergyHaloFilter(energyCalculator);
-            ISkeletonizer skeletonizer = new ThinSkeletonizer();
-            Current.Points = haloFilter.Process(skeletonizer.Skeletonize(Current.Points)).ToArray();
+            PixelFilter haloFilter = new EnergyHaloFilter(EnergyCalculator);
+            ISkeletonizer skeletonizer = new ThinSkeletonizer(EnergyCalculator);
+            Current.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
 
             PictureBox.Image = GetClusterImage(point => point.ToT, Current);
 
@@ -216,20 +213,25 @@ namespace ClusterUI
         #endregion
         public void ViewBranchButtonClicked(object sender, EventArgs e)
         {
-            var centerCalc = new EnergyCenterFinder(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
+            var skeletonizer = new ThinSkeletonizer(EnergyCalculator);
+            Current.Points = skeletonizer.SkeletonizePoints(Current.Points);
+            var centerCalc = new EnergyCenterFinder(new Calibration(configPath));
             var center = centerCalc.CalcCenterPoint(Current.Points);
             var branchAnalyzer = new BranchAnalyzer(centerCalc);
             var analyzedCluster = branchAnalyzer.Analyze(Current);
-            Current.Points = analyzedCluster.MainBranches[0].Points.ToArray();
-            PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
+            var mainBranches = analyzedCluster.MainBranches;
+            Color[] branchColors = { Color.Blue, Color.Green, Color.Aqua, Color.DarkGreen };
+            for (int i = 0; i < mainBranches.Count; i++)
+                PictureBox.Image = DrawBranches(mainBranches[i], branchColors[i % branchColors.Length]);
+            //PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
         }
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
         {
             const int bitmapSize = 256;
-            var centerCalc = new EnergyCenterFinder(new StreamReader(configPath + "a.txt"), new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"));
+            var centerCalc = new EnergyCenterFinder(new Calibration(configPath));
             var center = centerCalc.CalcCenterPoint(cluster.Points);
 
-            var vertexFinder = new VertexFinder();
+            var vertexFinder = new VertexFinder(new Calibration( configPath));
 
             var possibleCentersFinder = new NeighbourCountFilter(neighBourCount => neighBourCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
             var vertices = vertexFinder.FindVertices(cluster.Points);
@@ -243,87 +245,34 @@ namespace ClusterUI
             {
                 pixels.SetPixel(pixel.xCoord, pixel.yCoord, cluster.ToColor(Math.Max(Math.Min(6 * Math.Log(attributeGetter(pixel), 1.16) / 256, 1), 0)));
 
-                if (pixel.GetDistance(center) <= 1)
+                /*if (pixel.GetDistance(center) <= 1)
                     pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Blue);
                 else if (vertices.Contains(pixel))
                     pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Purple);
                 else if (centers.Contains(pixel))
                     pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Green);
 
-
+                */
             }
             return pixels;
         }
-        private void CreateNewIniFile(StreamReader example, StreamWriter output, string oldClFileName, string newClFileName)
+
+        public Image DrawBranches(Branch branch, Color color)
         {
-            while (example.Peek() != -1)
-            {
-                output.WriteLine(example.ReadLine().Replace(oldClFileName.Substring(PathParser.GetPrefixPath(oldClFileName).Length),
-                    newClFileName));
+            Bitmap bitmap = (Bitmap)PictureBox.Image;
+            var branchListPoints = branch.Points.ToList();
+            for (int i = 0; i < branch.Points.Count; ++i)
+            {               
+                bitmap.SetPixel(branchListPoints[i].xCoord, branchListPoints[i].yCoord, color);
             }
-            output.Close();
+            foreach (var subBranch in branch.SubBranches)
+            {
+                DrawBranches(subBranch, ControlPaint.Light(color));
+            }
+            return bitmap;
         }
 
-        private void ProcessFilter()
-        { 
-            try
-            {
-                const int minVertexCount = 3;
 
-                var workingDirName = PathParser.GetPrefixPath(InFilePathBox.Text);
-                ClusterReader.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
-                var outClPath = clFile + "_filtered_" + DateTime.Now.ToString().Replace(':', '-') + ".cl";
-                var filteredOut = new StreamWriter(outClPath);
-                CreateNewIniFile(new StreamReader(InFilePathBox.Text), new StreamWriter(workingDirName + OutFileNameIniBox.Text + ".ini"), clFile, PathParser.GetSuffixPath(outClPath));
-
-                var pixelCountFilter = new PixelCountFilter(new StreamReader(pxFile),
-                    int.TryParse(FromPixCountFilterBox.Text, out int resultLowerP) ? resultLowerP : 0,
-                    int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000);
-
-                var energyFilter = new EnergyFilter(new StreamReader(pxFile), new StreamReader(configPath + "a.txt"),
-                    new StreamReader(configPath + "b.txt"), new StreamReader(configPath + "c.txt"), new StreamReader(configPath + "t.txt"),
-                    double.TryParse(FromEnergyFilterBox.Text, out double resultLowerE) ? resultLowerE : 0,
-                    double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : 1000000);
-
-                var convexityFilter = new ConvexityFilter(new StreamReader(pxFile),
-                     int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
-                     int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100, ConvexitySkeletFilterCheckBox.Checked);
-
-                var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile), minVertexCount);
-
-                List<ClusterFilter> usedFiletrs = new List<ClusterFilter>();
-                if (int.TryParse(FromPixCountFilterBox.Text, out int valInt) || int.TryParse(ToPixCountFilterBox.Text, out valInt))
-                {
-                    usedFiletrs.Add(pixelCountFilter);
-                }
-                if (double.TryParse(FromEnergyFilterBox.Text, out double valDouble) || double.TryParse(ToEnergyFilterBox.Text, out valDouble))
-                {
-                    usedFiletrs.Add(energyFilter);
-                }
-                usedFiletrs.Add(vertexCountFilter);
-                if (double.TryParse(FromLinearityTextBox.Text, out  valDouble) || double.TryParse(ToLinearityTextBox.Text, out valDouble))
-                {
-                    usedFiletrs.Add(convexityFilter);
-                }
-                              
-                usedFiletrs.Add(new SuccessFilter());
-                var multiFilter = new MultiFilter(usedFiletrs);
-                multiFilter.Process(new StreamReader(clFile), filteredOut);
-
-                filteredOut.Close();
-                MessageBox.Show("Done");
-            }
-            catch (IOException)
-            {
-                MessageBox.Show("Processing error. Input or output file is not accessible or is in incorrect format.");
-                return;
-            }
-            catch
-            {
-                MessageBox.Show("Processing error. Input is in incorrect format.");
-                return;
-            }
-        }
         public void DrawLineInt(Bitmap bmp, ConvexHull hull)
         {
 
@@ -348,6 +297,15 @@ namespace ClusterUI
         private void Form1_Load(object sender, EventArgs e)
         {
 
+        }
+        private Point3D[] ToPoints3D(PointD3[] points)
+        {
+            var newPoints = new Point3D[points.Length];
+            for (int i = 0; i < points.Length; i++)
+            {
+                newPoints[i] = new Point3D(points[i].X, points[i].Y, points[i].Z);
+            }
+            return newPoints;
         }
     }
 
@@ -449,6 +407,69 @@ namespace ClusterUI
 
 
     }
+    public class ScatterChart
+    {
+        private readonly ThreeDScatterChart chart;
+        private readonly double[] xData;
+        private readonly double[] zData;
+        private readonly double[] yData;
+        public int angleVert { get; set; }
+        public int angleHoriz { get; set; }
+        const string Title = "3D Trajectory";
+        //Name of demo module
+        public string getName() { return Title; }
+        public Point3D ToPoint3D(PointD3 point)
+        {
+            return new Point3D(point.X, point.Y, point.Z);
+        }
+        //Number of charts produced in this demo module
+        public int getNoOfCharts() { return 1; }
 
-    
+        //Main code for creating chart.
+        //Note: the argument chartIndex is unused because this demo only has 1 chart.
+        public ScatterChart(WinChartViewer viewer, Point3D[] points3D)
+        {
+            xData = points3D.Select(point => (double)point.X).ToArray();
+            yData = points3D.Select(point => (double)point.Y).ToArray();
+            zData = points3D.Select(point => (double)point.Z / 10D).ToArray();
+
+            // Create a ThreeDScatterChart object of size 720 x 600 pixels
+            var chart = new ThreeDScatterChart(viewer.Width, viewer.Height);
+            chart.setPlotRegion((viewer.Width / 2), (viewer.Height / 2), 200, 200, 200);
+            chart.setColorAxis(370, 190, ChartDirector.Chart.Left, 300, ChartDirector.Chart.Right);
+
+            Initialize(chart);
+            // Output the chart
+            viewer.Chart = chart;
+            //Save chart
+            this.chart = chart;
+        }
+        public ThreeDScatterChart RotateChart(int angleVert, int angleHoriz)
+        {
+            var chart = new ThreeDScatterChart(this.chart.getWidth(), this.chart.getHeight());
+            chart.setPlotRegion((this.chart.getWidth() / 2), (this.chart.getHeight() / 2), 200, 200, 200);
+
+
+            Initialize(chart);
+            chart.setViewAngle(angleVert, angleHoriz);
+            //viewer.ImageMap = chart.getHTMLImageMap("clickable", "",
+            return chart;
+        }
+        private void Initialize(ThreeDScatterChart chart)
+        {
+            const string TitleFont = "Times New Roman Italic";
+            const string AxisLabelFont = "Arial Bold";
+            const int AxisFontSize = 10;
+            chart.addTitle(Title, TitleFont, 18);
+            // Add a scatter group to the chart using 11 pixels glass sphere symbols, in which the
+            // color depends on the z value of the symbol
+            chart.addScatterGroup(this.xData, this.yData, this.zData, "Trajectory", ChartDirector.Chart.GlassSphere2Shape, 11,
+                ChartDirector.Chart.SameAsMainColor);
+            // Set the x, y and z axis titles using 10 points Arial Bold font
+            chart.xAxis().setTitle("X-Axis", AxisLabelFont, AxisFontSize);
+            chart.yAxis().setTitle("Y-Axis", AxisLabelFont, AxisFontSize);
+            chart.zAxis().setTitle("Z-Axis", AxisLabelFont, AxisFontSize);
+        }
+    }
+
 }

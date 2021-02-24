@@ -32,7 +32,7 @@ namespace ClusterCalculator
     public class EnergyHaloFilter : PixelFilter
     {
         EnergyCalculator EnergyCalculator { get; }
-        const double HaloLimit = 8;
+        const double HaloLimit = 12;
         public EnergyHaloFilter(EnergyCalculator energyCalculator)
         {
             EnergyCalculator = energyCalculator;
