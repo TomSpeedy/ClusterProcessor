@@ -55,6 +55,7 @@ namespace ClusterUI
             {
                 clusterNumber--;
             }
+            ClusterIndexValueLabel.Text = clusterNumber.ToString();
 
         }
         public void PrevButtonClicked(object sender, EventArgs e)
@@ -68,9 +69,28 @@ namespace ClusterUI
                 HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
                 PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
             }
-            
+            ClusterIndexValueLabel.Text = clusterNumber.ToString();
+
         }
-        public void BrowseViewButtonClicked(object sender, EventArgs e)
+        public void FindClusterByIndexClicked(object sender, EventArgs e)
+        {
+            if (int.TryParse(FindByIndexTextBox.Text, out int result))
+            {
+                Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), result);
+                if (cluster != null)
+                {
+                    Current = cluster;
+                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
+                    PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
+                    clusterNumber = result;
+                }
+                else
+                {
+                    MessageBox.Show("Error, cluster with given index was not found.");
+                }
+            }
+        }
+    public void BrowseViewButtonClicked(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
             if (fileDialog.ShowDialog() == DialogResult.OK)
@@ -105,7 +125,7 @@ namespace ClusterUI
                 }
 
                 Current = cluster;
-
+                ClusterIndexValueLabel.Text = clusterNumber.ToString();
                 NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
             }
             catch 
@@ -202,11 +222,15 @@ namespace ClusterUI
         }
         public void SkeletonizeButtonClicked(object sender, EventArgs e)
         {
+            if (Current == null)
+                return;
             PixelFilter haloFilter = new EnergyHaloFilter(EnergyCalculator);
             ISkeletonizer skeletonizer = new ThinSkeletonizer(EnergyCalculator);
-            Current.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
-
-            PictureBox.Image = GetClusterImage(point => point.ToT, Current);
+            //opt 1 Current.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
+            //opt2
+            var currentSkelet = new Cluster(Current.FirstToA, Current.PixelCount, Current.ByteStart);
+            currentSkelet.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
+            PictureBox.Image = GetClusterImage(point => point.ToT, currentSkelet);
 
         }
 
@@ -214,28 +238,33 @@ namespace ClusterUI
         public void ViewBranchButtonClicked(object sender, EventArgs e)
         {
             var skeletonizer = new ThinSkeletonizer(EnergyCalculator);
-            Current.Points = skeletonizer.SkeletonizePoints(Current.Points);
+            var skeletCluster = new Cluster(Current.FirstToA, Current.PixelCount, Current.ByteStart);
+            skeletCluster.Points = skeletonizer.SkeletonizePoints(Current.Points);
+            //Current.Points = skeletonizer.SkeletonizePoints(Current.Points);
             var centerCalc = new EnergyCenterFinder(new Calibration(configPath));
-            var center = centerCalc.CalcCenterPoint(Current.Points);
+            var center = centerCalc.CalcCenterPoint(skeletCluster, Current.Points);
             var branchAnalyzer = new BranchAnalyzer(centerCalc);
-            var analyzedCluster = branchAnalyzer.Analyze(Current);
+            var analyzedCluster = branchAnalyzer.Analyze(skeletCluster, Current);
             var mainBranches = analyzedCluster.MainBranches;
-            Color[] branchColors = { Color.Blue, Color.Green, Color.Aqua, Color.DarkGreen };
+            Color[] branchColors = { Color.Blue, Color.Green, Color.Red, Color.Yellow };
+            foreach (var pixel in skeletCluster.Points)
+                ((Bitmap)PictureBox.Image).SetPixel(pixel.xCoord, pixel.yCoord, Color.Black);
             for (int i = 0; i < mainBranches.Count; i++)
                 PictureBox.Image = DrawBranches(mainBranches[i], branchColors[i % branchColors.Length]);
+            ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.White);
             //PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
         }
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
         {
             const int bitmapSize = 256;
             var centerCalc = new EnergyCenterFinder(new Calibration(configPath));
-            var center = centerCalc.CalcCenterPoint(cluster.Points);
+            //var center = centerCalc.CalcCenterPoint(cluster.Points);
 
             var vertexFinder = new VertexFinder(new Calibration( configPath));
 
-            var possibleCentersFinder = new NeighbourCountFilter(neighBourCount => neighBourCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
-            var vertices = vertexFinder.FindVertices(cluster.Points);
-            var centers = possibleCentersFinder.Process(cluster.Points);
+            //var possibleCentersFinder = new NeighbourCountFilter(neighBourCount => neighBourCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
+            //var vertices = vertexFinder.FindVertices(cluster.Points);
+            //var centers = possibleCentersFinder.Process(cluster.Points);
 
             var pixels = new Bitmap(bitmapSize, bitmapSize);
             for (int i = 0; i < bitmapSize; i++)
@@ -261,6 +290,7 @@ namespace ClusterUI
         {
             Bitmap bitmap = (Bitmap)PictureBox.Image;
             var branchListPoints = branch.Points.ToList();
+
             for (int i = 0; i < branch.Points.Count; ++i)
             {               
                 bitmap.SetPixel(branchListPoints[i].xCoord, branchListPoints[i].yCoord, color);

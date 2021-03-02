@@ -50,6 +50,8 @@
             this.OrLabel = new System.Windows.Forms.Label();
             this.InViewFilePathBox = new System.Windows.Forms.TextBox();
             this.FilePathLabel = new System.Windows.Forms.Label();
+            this.ClusterIndexValueLabel = new System.Windows.Forms.Label();
+            this.ClusterIndexLabel = new System.Windows.Forms.Label();
             this.skeletonizeButton = new System.Windows.Forms.Button();
             this.showPixHistogramButton = new System.Windows.Forms.Button();
             this.hidePixHistogramButton = new System.Windows.Forms.Button();
@@ -70,12 +72,17 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
+            this.ControlGroupBox = new System.Windows.Forms.GroupBox();
+            this.FindByIndexTextBox = new System.Windows.Forms.TextBox();
+            this.ClusterFindIndexLabel = new System.Windows.Forms.Label();
+            this.FindByIndexButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.ViewGroup.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).BeginInit();
             this.ShowDetailsGroupBox.SuspendLayout();
+            this.ControlGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // ClusterHistogram
@@ -107,9 +114,9 @@
             // 
             // PreviousButton
             // 
-            this.PreviousButton.Location = new System.Drawing.Point(3, 165);
+            this.PreviousButton.Location = new System.Drawing.Point(6, 146);
             this.PreviousButton.Name = "PreviousButton";
-            this.PreviousButton.Size = new System.Drawing.Size(100, 32);
+            this.PreviousButton.Size = new System.Drawing.Size(78, 32);
             this.PreviousButton.TabIndex = 2;
             this.PreviousButton.Text = "Previous";
             this.PreviousButton.UseVisualStyleBackColor = true;
@@ -117,9 +124,9 @@
             // 
             // NextButton
             // 
-            this.NextButton.Location = new System.Drawing.Point(109, 165);
+            this.NextButton.Location = new System.Drawing.Point(93, 146);
             this.NextButton.Name = "NextButton";
-            this.NextButton.Size = new System.Drawing.Size(105, 32);
+            this.NextButton.Size = new System.Drawing.Size(89, 32);
             this.NextButton.TabIndex = 3;
             this.NextButton.Text = "Next";
             this.NextButton.UseVisualStyleBackColor = true;
@@ -150,7 +157,7 @@
             this.ViewClusters.Location = new System.Drawing.Point(0, 121);
             this.ViewClusters.Margin = new System.Windows.Forms.Padding(2);
             this.ViewClusters.Name = "ViewClusters";
-            this.ViewClusters.Size = new System.Drawing.Size(397, 32);
+            this.ViewClusters.Size = new System.Drawing.Size(381, 32);
             this.ViewClusters.TabIndex = 9;
             this.ViewClusters.Text = "Load Clusters";
             this.ViewClusters.UseVisualStyleBackColor = true;
@@ -166,14 +173,12 @@
             this.ViewGroup.Controls.Add(this.OrLabel);
             this.ViewGroup.Controls.Add(this.InViewFilePathBox);
             this.ViewGroup.Controls.Add(this.FilePathLabel);
-            this.ViewGroup.Controls.Add(this.PreviousButton);
             this.ViewGroup.Controls.Add(this.ViewClusters);
-            this.ViewGroup.Controls.Add(this.NextButton);
             this.ViewGroup.Location = new System.Drawing.Point(9, 10);
             this.ViewGroup.Margin = new System.Windows.Forms.Padding(2);
             this.ViewGroup.Name = "ViewGroup";
             this.ViewGroup.Padding = new System.Windows.Forms.Padding(2);
-            this.ViewGroup.Size = new System.Drawing.Size(406, 202);
+            this.ViewGroup.Size = new System.Drawing.Size(395, 202);
             this.ViewGroup.TabIndex = 10;
             this.ViewGroup.TabStop = false;
             this.ViewGroup.Text = "Select file to view";
@@ -256,6 +261,26 @@
             this.FilePathLabel.Size = new System.Drawing.Size(66, 17);
             this.FilePathLabel.TabIndex = 10;
             this.FilePathLabel.Text = "File path:";
+            // 
+            // ClusterIndexValueLabel
+            // 
+            this.ClusterIndexValueLabel.AutoSize = true;
+            this.ClusterIndexValueLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.ClusterIndexValueLabel.Location = new System.Drawing.Point(90, 45);
+            this.ClusterIndexValueLabel.Name = "ClusterIndexValueLabel";
+            this.ClusterIndexValueLabel.Size = new System.Drawing.Size(16, 17);
+            this.ClusterIndexValueLabel.TabIndex = 19;
+            this.ClusterIndexValueLabel.Text = "0";
+            // 
+            // ClusterIndexLabel
+            // 
+            this.ClusterIndexLabel.AutoSize = true;
+            this.ClusterIndexLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.ClusterIndexLabel.Location = new System.Drawing.Point(6, 45);
+            this.ClusterIndexLabel.Name = "ClusterIndexLabel";
+            this.ClusterIndexLabel.Size = new System.Drawing.Size(78, 17);
+            this.ClusterIndexLabel.TabIndex = 18;
+            this.ClusterIndexLabel.Text = "Cluster No:";
             // 
             // skeletonizeButton
             // 
@@ -455,11 +480,55 @@
             this.button1.Text = "Load Description File";
             this.button1.UseVisualStyleBackColor = true;
             // 
+            // ControlGroupBox
+            // 
+            this.ControlGroupBox.Controls.Add(this.FindByIndexTextBox);
+            this.ControlGroupBox.Controls.Add(this.ClusterFindIndexLabel);
+            this.ControlGroupBox.Controls.Add(this.FindByIndexButton);
+            this.ControlGroupBox.Controls.Add(this.ClusterIndexValueLabel);
+            this.ControlGroupBox.Controls.Add(this.PreviousButton);
+            this.ControlGroupBox.Controls.Add(this.ClusterIndexLabel);
+            this.ControlGroupBox.Controls.Add(this.NextButton);
+            this.ControlGroupBox.Location = new System.Drawing.Point(409, 12);
+            this.ControlGroupBox.Name = "ControlGroupBox";
+            this.ControlGroupBox.Size = new System.Drawing.Size(188, 195);
+            this.ControlGroupBox.TabIndex = 26;
+            this.ControlGroupBox.TabStop = false;
+            this.ControlGroupBox.Text = "Control Panel";
+            // 
+            // FindByIndexTextBox
+            // 
+            this.FindByIndexTextBox.Location = new System.Drawing.Point(49, 71);
+            this.FindByIndexTextBox.Name = "FindByIndexTextBox";
+            this.FindByIndexTextBox.Size = new System.Drawing.Size(52, 20);
+            this.FindByIndexTextBox.TabIndex = 22;
+            // 
+            // ClusterFindIndexLabel
+            // 
+            this.ClusterFindIndexLabel.AutoSize = true;
+            this.ClusterFindIndexLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.ClusterFindIndexLabel.Location = new System.Drawing.Point(2, 73);
+            this.ClusterFindIndexLabel.Name = "ClusterFindIndexLabel";
+            this.ClusterFindIndexLabel.Size = new System.Drawing.Size(45, 17);
+            this.ClusterFindIndexLabel.TabIndex = 21;
+            this.ClusterFindIndexLabel.Text = "Index:";
+            // 
+            // FindByIndexButton
+            // 
+            this.FindByIndexButton.Location = new System.Drawing.Point(107, 69);
+            this.FindByIndexButton.Name = "FindByIndexButton";
+            this.FindByIndexButton.Size = new System.Drawing.Size(75, 23);
+            this.FindByIndexButton.TabIndex = 20;
+            this.FindByIndexButton.Text = "Find";
+            this.FindByIndexButton.UseVisualStyleBackColor = true;
+            this.FindByIndexButton.Click += new System.EventHandler(this.FindClusterByIndexClicked);
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.ControlGroupBox);
             this.Controls.Add(this.ShowDetailsGroupBox);
             this.Controls.Add(this.NowViewingLabel);
             this.Controls.Add(this.RotateRightButton);
@@ -487,6 +556,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).EndInit();
             this.ShowDetailsGroupBox.ResumeLayout(false);
             this.ShowDetailsGroupBox.PerformLayout();
+            this.ControlGroupBox.ResumeLayout(false);
+            this.ControlGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -530,6 +601,12 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label ClusterIndexValueLabel;
+        private System.Windows.Forms.Label ClusterIndexLabel;
+        private System.Windows.Forms.GroupBox ControlGroupBox;
+        private System.Windows.Forms.TextBox FindByIndexTextBox;
+        private System.Windows.Forms.Label ClusterFindIndexLabel;
+        private System.Windows.Forms.Button FindByIndexButton;
     }
 }
 

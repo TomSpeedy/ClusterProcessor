@@ -31,7 +31,7 @@ namespace ClusterCalculator
         private PixelPoint[] SkeletonizeSelected(IList<PixelPoint> points, Predicate<PixelPoint> condition, bool preserveEnergy = true)
         {
             //prepare collections of points
-            pointsHash = points.ToHashSet();
+            pointsHash = points.ToHashSetPixPoints();
             neighboursTemp = new List<PixelPoint>();
 
 
@@ -56,16 +56,20 @@ namespace ClusterCalculator
                 }
                 for (int i = 0; i < toDelete.Count; i++)
                 {
-                    // TODO correction needed, split ToA of deleted pixel among its neighbours
 
                     pointsHash.TryGetValue(toDelete[i], out PixelPoint actualVal);
                     GetNeighbours(toDelete[i]);
+                    if (preserveEnergy)
+                    {
+                        var currentEnergy = EnergyCalculator.ToElectronVolts(actualVal.ToT, actualVal.xCoord, actualVal.yCoord);
                     for (int j = 0; j < neighboursTemp.Count; j++)
                     {
                         pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
-                        actualNeighbour.SetToT(actualNeighbour.ToT + (actualVal.ToT / neighboursTemp.Count));
+                        var neighbourEnergy = EnergyCalculator.ToElectronVolts(actualNeighbour.ToT, actualNeighbour.xCoord, actualNeighbour.yCoord);
+                        actualNeighbour.SetToT(EnergyCalculator.ToTimeOverThreshold(neighbourEnergy
+                            + (currentEnergy / neighboursTemp.Count), actualNeighbour.xCoord, actualNeighbour.yCoord));
                     }
-                    //----
+                    }
 
                     pointsHash.Remove(toDelete[i]);
                 }
@@ -86,19 +90,21 @@ namespace ClusterCalculator
                 }
                 for (int i = 0; i < toDelete.Count; i++)
                 {
-                    // TODO correction needed
 
                     pointsHash.TryGetValue(toDelete[i], out PixelPoint actualVal);
                     GetNeighbours(toDelete[i]);
-                    //if preserveEnergy
-                    var currentEnergy = EnergyCalculator.ToElectronVolts(actualVal.ToT, actualVal.xCoord, actualVal.yCoord);
+                    if (preserveEnergy)
+                    {
+                        var currentEnergy = EnergyCalculator.ToElectronVolts(actualVal.ToT, actualVal.xCoord, actualVal.yCoord);
                     for (int j = 0; j < neighboursTemp.Count; j++)
                     {
                         
-                        pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
+                            pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
                         var neighbourEnergy = EnergyCalculator.ToElectronVolts(actualNeighbour.ToT, actualNeighbour.xCoord, actualNeighbour.yCoord);
                         actualNeighbour.SetToT(EnergyCalculator.ToTimeOverThreshold(neighbourEnergy
                             + (currentEnergy / neighboursTemp.Count), actualNeighbour.xCoord, actualNeighbour.yCoord));
+                        
+                    }
                     }
                     //----
                     pointsHash.Remove(toDelete[i]);
@@ -110,8 +116,8 @@ namespace ClusterCalculator
         }
         public PixelPoint[] SkeletonizePoints(IList<PixelPoint> points)
         {
-            var removedHalo = SkeletonizeSelected(points, point => !HaloFilter.MatchesFilter(point));
-            var allSkeletonized = SkeletonizeSelected(removedHalo, condition: point => true);
+            var removedHalo = SkeletonizeSelected(points, point => !HaloFilter.MatchesFilter(point), preserveEnergy:true);
+            var allSkeletonized = SkeletonizeSelected(removedHalo, condition: point => true, preserveEnergy:true);
             return allSkeletonized;
         }
         public Cluster SkeletonizeCluster(Cluster cluster)

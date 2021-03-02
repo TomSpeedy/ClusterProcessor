@@ -122,10 +122,10 @@ namespace ClusterCalculator
     }
     public enum BranchAttribute
     {
-        StartPoint, Length, SubBranches
+        StartPoint, Length, SubBranches, CrossPointCount
 
     }
-    public static class Extensions
+    public static class AttrExtensions
     {
         public static string AttrToString(this ClusterAttribute attribute)
         {

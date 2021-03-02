@@ -12,7 +12,7 @@ namespace ClusterCalculator
     public interface IZCalculator
     {
         PointD3[] TransformPoints(Cluster cluster);
-        double CalculateZ(PixelPoint point);
+        double CalculateZ(PixelPoint point, Cluster cluster);
     }
     public class ZCalculator : IZCalculator
     {
@@ -29,12 +29,12 @@ namespace ClusterCalculator
             var points3D = new PointD3[cluster.Points.Length];
             for (int i = 0; i < points3D.Length; i++)
             {
-                var z = CalculateZ(cluster.Points[i]);
+                var z = CalculateZ(cluster.Points[i], Cluster);
                 points3D[i] = new PointD3(cluster.Points[i].xCoord, cluster.Points[i].yCoord, (float)z);
             }
             return points3D;
         }
-        public double CalculateZ(PixelPoint point)
+        public double CalculateZ(PixelPoint point, Cluster Cluster)
         {
             var relativeToA = point.ToA - Cluster.FirstToA;
             return (Configuration.Thick / (2 * Configuration.Ud)) * (Configuration.Ud + Configuration.Ub) *

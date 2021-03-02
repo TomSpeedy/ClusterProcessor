@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
 using ClusterCalculator;
+
 namespace ClusterDescriptionGen
 {
     public partial class Form1 : Form
@@ -102,10 +103,11 @@ namespace ClusterDescriptionGen
                             }
                             if (branchedCluster == null)
                             {
-                                branchedCluster = branchAnalyzer.Analyze(skeletonizedCluster);
+                                branchedCluster = branchAnalyzer.Analyze(skeletonizedCluster, current);
                             }
                             attributePairs[attribute] = branchedCluster.ToDictionaries();
                             break;
+
                         default: break;
 
                     }

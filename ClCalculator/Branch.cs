@@ -3,45 +3,132 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Accord.Statistics.Models.Regression.Linear;
 namespace ClusterCalculator
 {
     public class BranchAnalyzer
     {
 
         readonly (int x, int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
-        NeighbourCountFilter NeighCountFilter { get;}
+        NeighbourCountFilter NeighCountFilter { get; }
         EnergyCenterFinder EnCenterFinder { get; }
         const int trivialBranchLength = 3;
+        int maxDepth = 4; //changes in analyze method
         public BranchAnalyzer(EnergyCenterFinder centerFinder)
         {
             EnCenterFinder = centerFinder;
             NeighCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
         }
-        public BranchedCluster Analyze(Cluster cluster)
+        public BranchedCluster Analyze(Cluster skeletCluster, Cluster originCluster, int maxDepth = 4)
         {
-            
 
+            this.maxDepth = maxDepth;
             List<Branch> mainBranches = new List<Branch>();
-            var usablePoints = cluster.Points.ToHashSet();
-            var center = EnCenterFinder.CalcCenterPoint(cluster.Points);
-            var crossPoints = NeighCountFilter.Process(cluster.Points);
-            Branch mainBranch = GetCoreBranch(usablePoints, center, crossPoints);
-            
+            var usablePoints = skeletCluster.Points.ToHashSetPixPoints();
+            var center = EnCenterFinder.CalcCenterPoint(skeletCluster, originCluster.Points);
+            var crossPoints = NeighCountFilter.Process(skeletCluster.Points);
+            Branch mainBranch = GetCoreBranch(usablePoints, center, crossPoints, maxDepth);
+
             var currentBranch = mainBranch;
             usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
             while (currentBranch.Points.Count > trivialBranchLength)
             {
 
                 mainBranches.Add(currentBranch);
-                currentBranch = GetCoreBranch(usablePoints, center, crossPoints);
+                currentBranch = GetCoreBranch(usablePoints, center, crossPoints, maxDepth);
                 usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
                 usablePoints.Add(center);
             }
-            AdjustMissedCrossPoints(mainBranches, crossPoints, cluster.Points);
-            return new BranchedCluster(cluster, mainBranches);
+            AdjustMissedCrossPoints(mainBranches, crossPoints, skeletCluster.Points);
+            mainBranches.Sort((left, right) => {
+
+                if (left.Points.Count < right.Points.Count)
+                    return 1;
+                else if (left.Points.Count > right.Points.Count)
+                    return -1;
+                else
+                    return 0;
+            });
+
+            const int epsilonBranchDist = 4;
+            var branchesToCheck = new Dictionary<Branch, List<Branch>>();
+            foreach (var mainBr in mainBranches)
+            {
+                branchesToCheck.Add(mainBr, new List<Branch>());
+                foreach (var subBr in mainBr.SubBranches)
+                    if ((subBr.StartPoint.GetDistance(mainBr.StartPoint) < epsilonBranchDist))
+                        branchesToCheck[mainBr].Add(subBr);
+            }
+            //merge two mainbranches if they are Continuous
+            for (int i = 0; i < mainBranches.Count - 1; ++i)
+            {
+                for (int j = i + 1; j < mainBranches.Count; ++j)
+                {
+                    if (AreContinuous(mainBranches[i], mainBranches[j]))
+                    {
+                        MergeBranches(mainBranches[i], mainBranches[j], mainBranches.Except(new Branch[]{ mainBranches[i], mainBranches[j]}));
+                        mainBranches.RemoveAt(j);
+                        return new BranchedCluster(skeletCluster, mainBranches, center);
+                    }
+                }
+            }
+            //merge mainbranch and its suitable subbranch - in case of subbranch error
+            for (int i = 0; i < mainBranches.Count; ++i)
+            {
+                for(int j = 0; j < mainBranches[i].SubBranches.Count; ++j)
+                {
+                    var subBranch = mainBranches[i].SubBranches[j];
+                    if (mainBranches[i].StartPoint.GetDistance(subBranch.StartPoint) < epsilonBranchDist &&AreContinuous(mainBranches[i], mainBranches[i].SubBranches[j]))
+                    {
+                        MergeBranches(mainBranches[i], subBranch, mainBranches.Except(new Branch[] { mainBranches[i] }));
+                        return new BranchedCluster(skeletCluster, mainBranches, center);
+                    }
+                }
+            }
+            return new BranchedCluster(skeletCluster, mainBranches, center);
         }
-        public Branch GetCoreBranch(HashSet<PixelPoint> usablePoints, PixelPoint startBranchPoint, IList<PixelPoint> crossPoints)
+        public bool AreContinuous(Branch left, Branch right)
+        {
+            const double epsilonAngle = 0.35d;
+            const int epsilonPointCount = 15;
+            var angle = CalculateAngle(left.Points.Take(epsilonPointCount).ToArray(), right.Points.Take(epsilonPointCount).ToArray());
+            return ( angle < epsilonAngle);
+
+
+        }
+        public void MergeBranches(Branch left, Branch right, IEnumerable<Branch> otherMainBranches)
+        {
+            left.Points.UnionWith(right.Points.Reverse());
+            left.SubBranches = left.SubBranches.Union(right.SubBranches).Union(otherMainBranches).Except(new Branch[] { left, right}).ToList();
+        }
+        public double CalculateAngle(IEnumerable<PixelPoint> left, IEnumerable<PixelPoint> right)
+        {
+            double leftSlope, rightSlope;
+            SimpleLinearRegression leftRegression, rightRegression;
+            //catch blocks handle infinity-slope cases
+            try
+            {
+                leftRegression = SimpleLinearRegression.FromData(left.Select(point => (double)point.xCoord).ToArray(), left.Select(point => (double)point.yCoord).ToArray());
+                leftSlope = leftRegression.Slope;
+            }
+            catch
+            {
+                leftSlope = double.MaxValue;
+            }
+            try
+            {
+                rightRegression = SimpleLinearRegression.FromData(right.Select(point => (double)point.xCoord).ToArray(), right.Select(point => (double)point.yCoord).ToArray());
+                rightSlope = rightRegression.Slope;
+            }
+            catch
+            {
+                rightSlope = double.MaxValue;
+            }
+
+
+            return Math.Atan(Math.Abs((leftSlope - rightSlope) / (1 + leftSlope * rightSlope)));
+        }
+        public Branch GetCoreBranch(HashSet<PixelPoint> usablePoints, PixelPoint startBranchPoint, IList<PixelPoint> crossPoints, int depth)
         {
             Branch mainBranch = new Branch(startBranchPoint,
                 FindLongestPathBFS(startBranchPoint, usablePoints/*, crossPoints*/).ToHashSet());
@@ -50,11 +137,13 @@ namespace ClusterCalculator
             var nonUsablePoints = mainBranch.Points.Except(localCrossPoints);
             nonUsablePoints.Append(startBranchPoint);
             var subBranchUsablePoints = usablePoints.Except(nonUsablePoints).ToHashSet();
+            if (depth > 0)
             foreach (var localBranchPoint in localCrossPoints)
             {
-                 mainBranch.SubBranches.Add(GetCoreBranch(subBranchUsablePoints, localBranchPoint, crossPoints));
+                 mainBranch.SubBranches.Add(GetCoreBranch(subBranchUsablePoints, localBranchPoint, crossPoints, depth - 1));
             }
-            mainBranch.CalcTotalPoints();
+            if (depth == maxDepth)
+                mainBranch.CalcTotalPoints();
             return mainBranch;
         }
         
@@ -179,7 +268,7 @@ namespace ClusterCalculator
                         if (branch.CalcTotalPoints().Contains(neighbours[0]))
                         {
                             var parentBranch = branch.FindBranch(neighbours[0]);
-                            var newBranch = GetCoreBranch(usablePoints, crossPoints[i], crossPoints);
+                            var newBranch = GetCoreBranch(usablePoints, crossPoints[i], crossPoints, maxDepth);
                             var newPoints = newBranch.CalcTotalPoints();
                             if (newPoints.Count > trivialBranchLength)
                                 parentBranch.SubBranches.Add(newBranch);
