@@ -42,12 +42,12 @@ namespace ClusterCalculator
             double t = tConf[x][y];
             return a * Energy + b - (c / Energy - t);
         }
-        public double CalcTotalEnergy(IList<PixelPoint> points)
+        public double CalcTotalEnergy(IEnumerable<PixelPoint> points)
         {
             var totalEnergy = 0d;
-            for (int i = 0; i < points.Count; ++i)
+            foreach (var point in points)
             {
-                totalEnergy += ToElectronVolts(points[i].ToT, points[i].xCoord, points[i].yCoord);
+                totalEnergy += ToElectronVolts(point.ToT, point.xCoord, point.yCoord);
             }
             return totalEnergy;
         }

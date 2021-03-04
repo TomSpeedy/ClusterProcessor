@@ -117,12 +117,14 @@ namespace ClusterCalculator
     }
     public enum ClusterAttribute
     {
-        TotalEnergy, PixelCount, AverageEnergy, Convexity, Width, Branches
+        TotalEnergy, PixelCount, AverageEnergy, MaxEnergy,
+        Convexity, Width, Branches, CrosspointCount,
+        BranchCount, RelativeHaloSize, VertexCount
 
     }
     public enum BranchAttribute
     {
-        StartPoint, Length, SubBranches, CrossPointCount
+        StartPoint, Length, SubBranches, BranchEnergy
 
     }
     public static class AttrExtensions

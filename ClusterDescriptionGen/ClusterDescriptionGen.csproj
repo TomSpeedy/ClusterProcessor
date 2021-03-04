@@ -84,6 +84,10 @@
       <Project>{ea18b5cf-5e61-45a1-b5c3-3349f93e999d}</Project>
       <Name>ClusterCalculator</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ClusterFilter\ClusterFilter.csproj">
+      <Project>{dc502441-3410-4d15-beae-cab6d6871d2d}</Project>
+      <Name>ClusterFilter</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

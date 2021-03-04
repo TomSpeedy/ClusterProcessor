@@ -41,7 +41,7 @@ namespace ClusterCalculator
         {
             ++WrittenCount;
             OutputStream.WriteLine('{');
-            OutputStream.WriteLine($"\tid:{WrittenCount}");
+            OutputStream.WriteLine($"\t\"id\":{WrittenCount},");
             int depth = 1;
             int attributeProcessed = 0;
             foreach (var attribute in attributes)
@@ -49,7 +49,7 @@ namespace ClusterCalculator
                 if (attribute.Value is List<Dictionary<BranchAttribute, object>>)
                 {
                     var innerId = 0;
-                    OutputStream.WriteLine($"\t{attribute.Key}:");
+                    OutputStream.WriteLine($"\t\"{attribute.Key}\":");
                     OutputStream.WriteLine("\t[");
                     foreach (var branchDict in (List<Dictionary<BranchAttribute, object>>)attribute.Value)
                     {
@@ -62,7 +62,7 @@ namespace ClusterCalculator
                     OutputStream.WriteLine("\t]");
                 }     
                 else
-                    OutputStream.Write($"\t{attribute.Key}:{attribute.Value}");
+                    OutputStream.Write($"\t\"{attribute.Key}\":{attribute.Value}");
                 attributeProcessed++;
                 if (attributeProcessed < attributes.Count)
                     OutputStream.Write(',');
@@ -82,18 +82,24 @@ namespace ClusterCalculator
                 {
 
                     var subBranchesProcessed = 0;
-                
-                foreach (var subBranch in (List<Dictionary<BranchAttribute, object>>)attribute.Value)
+                    var branchAttributes = (List<Dictionary<BranchAttribute, object>>)attribute.Value;
+                    OutputStream.WriteLine($"{prefix}\t\"{attribute.Key}\":");
+                    OutputStream.WriteLine($"{prefix}\t[");
+                foreach (var subBranch in branchAttributes)
                     {
-                        WriteDescription(subBranch, depth + 1);
+                        WriteDescription(subBranch, depth + 2);
                         subBranchesProcessed++;
-                        if (attributeProcessed < attributes.Count)
-                            OutputStream.Write(',');
-                        
+                        if (subBranchesProcessed < branchAttributes.Count)
+                        {
+                            OutputStream.WriteLine(',');
+                        }
+                        else
+                            OutputStream.WriteLine();
                     }
+                    OutputStream.WriteLine($"{prefix}\t]");
                 }
                 else
-                    OutputStream.Write(prefix + $"\t{attribute.Key}:{attribute.Value}");
+                    OutputStream.Write(prefix + $"\t\"{attribute.Key}\":{attribute.Value}");
                 attributeProcessed++;
                 if (attributeProcessed < attributes.Count)
                     OutputStream.Write(',');

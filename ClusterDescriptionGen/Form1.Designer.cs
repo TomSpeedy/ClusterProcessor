@@ -65,15 +65,15 @@
             this.AttributeCheckedList.Items.AddRange(new object[] {
             "TotalEnergy",
             "AverageEnergy",
+            "MaxEnergy",
             "PixelCount",
             "Convexity",
             "Width",
-            "Core",
-            "HaloSize",
-            "Vertex Count",
-            "Branches",
-            "Branch Lengths",
-            "Max Branch Length"});
+            "CrosspointCount",
+            "VertexCount",
+            "RelativeHaloSize",
+            "BranchCount",
+            "Branches"});
             this.AttributeCheckedList.Location = new System.Drawing.Point(22, 97);
             this.AttributeCheckedList.Name = "AttributeCheckedList";
             this.AttributeCheckedList.Size = new System.Drawing.Size(245, 184);

@@ -17,11 +17,11 @@ namespace ClusterCalculator
             Center = center;
         }
         public List<Branch> MainBranches { get; private set; }
-        public List<Dictionary<BranchAttribute, object>> ToDictionaries()
+        public List<Dictionary<BranchAttribute, object>> ToDictionaries(EnergyCalculator energyCalculator)
         {
             List<Dictionary<BranchAttribute, object>> dicts = new List<Dictionary<BranchAttribute, object>>();            
             foreach (var branch in MainBranches)
-                dicts.Add(branch.ToDictionary());
+                dicts.Add(branch.ToDictionary(energyCalculator));
             return dicts;
         }
     }

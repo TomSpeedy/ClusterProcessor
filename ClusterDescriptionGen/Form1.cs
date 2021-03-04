@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
+using ClusterFilter;
 using ClusterCalculator;
 
 namespace ClusterDescriptionGen
@@ -50,6 +51,8 @@ namespace ClusterDescriptionGen
             var clusterCollection = new ClusterInfoCollection(new StreamReader(clFile));
             EnergyCenterFinder centerFinder = new EnergyCenterFinder(new Calibration(configPath));
             BranchAnalyzer branchAnalyzer = new BranchAnalyzer(centerFinder);
+            NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
+            VertexFinder vertexFinder = new VertexFinder(new Calibration(configPath));
             ISkeletonizer skeletonizer = new ThinSkeletonizer(EnergyCalculator);
             var attributePairs = new Dictionary<ClusterAttribute, object>();
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
@@ -92,7 +95,7 @@ namespace ClusterDescriptionGen
                                 hull = new ConvexHull(newPoints.ToList());
                             }
                             if (attribute == ClusterAttribute.Convexity)
-                                attributePairs[attribute] = Math.Min(100 * clInfo.PixCount / (double)hull.CalculateArea(), 100);
+                                attributePairs[attribute] = Math.Min(clInfo.PixCount / (double)hull.CalculateArea(), 1);
                             else
                                 attributePairs[attribute] = hull.CalculateWidth();
                             break;
@@ -105,9 +108,48 @@ namespace ClusterDescriptionGen
                             {
                                 branchedCluster = branchAnalyzer.Analyze(skeletonizedCluster, current);
                             }
-                            attributePairs[attribute] = branchedCluster.ToDictionaries();
+                            attributePairs[attribute] = branchedCluster.ToDictionaries(EnergyCalculator);
                             break;
-
+                        case ClusterAttribute.CrosspointCount:
+                            if (skeletonizedCluster == null)
+                            {
+                                skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            }
+                            var crossPoints = neighbourCountFilter.Process(skeletonizedCluster.Points);
+                            attributePairs[attribute] = crossPoints.Count;
+                            break;
+                        case ClusterAttribute.RelativeHaloSize:
+                            if (skeletonizedCluster == null)
+                            {
+                                skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            }
+                            attributePairs[attribute] = skeletonizedCluster.Points.Length / (double)current.Points.Length;
+                            break;
+                        case ClusterAttribute.VertexCount:
+                            if (skeletonizedCluster == null)
+                            {
+                                skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            }
+                            attributePairs[attribute] = vertexFinder.FindVertices(skeletonizedCluster.Points).Count;
+                            break;
+                        case ClusterAttribute.BranchCount:
+                            if (skeletonizedCluster == null)
+                            {
+                                skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            }
+                            if (branchedCluster == null)
+                            {
+                                branchedCluster = branchAnalyzer.Analyze(skeletonizedCluster, current);
+                            }
+                            int branchesCount = 0;
+                            foreach (var branch in branchedCluster.MainBranches)
+                                branchesCount += (branch.GetTotalSubBranchCount() + 1);
+                            attributePairs[attribute] = branchesCount;
+                            break;
+                        case ClusterAttribute.MaxEnergy:
+                            double maxEnergy = current.Points.Max(point => EnergyCalculator.ToElectronVolts(point.ToT, point.xCoord, point.yCoord));
+                            attributePairs[attribute] = maxEnergy;
+                            break;
                         default: break;
 
                     }
