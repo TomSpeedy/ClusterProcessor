@@ -6,7 +6,7 @@ namespace ClusterClassifier
 {
     class Edges
     {
-        private double[][] Matrix { get; set; }
+        public double[][] Matrix { get; set; }
         public Edges(uint leftNCount, uint rightNCount, bool randomize = true)
         {
 
@@ -17,7 +17,8 @@ namespace ClusterClassifier
                 Matrix[i] = new double[leftNCount];
                 for (int j = 0; j < Matrix[i].Length; j++)
                 {
-                    Matrix[i][j] = random.NextDouble();
+                    Matrix[i][j] = (2*random.NextDouble()) - 1;
+
                 }
             }
 

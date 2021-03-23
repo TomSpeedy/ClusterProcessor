@@ -92,10 +92,16 @@ namespace ClusterCalculator
     }
     public class ClusterInfoCollection : IEnumerable<ClusterInfo>
     {
-        private readonly StreamReader ClFile; 
+        private readonly StreamReader ClFile;
+        public readonly StreamReader PxFile;
         public ClusterInfoCollection(StreamReader clFile)
         {
             this.ClFile = clFile;
+        }
+        public ClusterInfoCollection(StreamReader clFile, StreamReader pxFile)
+        {
+            this.ClFile = clFile;
+            this.PxFile = pxFile;
         }
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
         public IEnumerator<ClusterInfo> GetEnumerator()
@@ -119,8 +125,9 @@ namespace ClusterCalculator
     {
         TotalEnergy, PixelCount, AverageEnergy, MaxEnergy,
         Convexity, Width, Branches, CrosspointCount,
-        BranchCount, RelativeHaloSize, VertexCount
-
+        BranchCount, RelativeHaloSize, VertexCount,
+        Class
+        
     }
     public enum BranchAttribute
     {

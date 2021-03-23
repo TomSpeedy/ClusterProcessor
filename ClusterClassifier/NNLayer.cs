@@ -50,11 +50,12 @@ namespace ClusterClassifier
         {
             for (int i = 0; i < Neurons.Length; i++)
             {
-                Neurons[i].Value = -Neurons[i].Bias;
+                Neurons[i].Value = Neurons[i].Bias;
                 for (int j = 0; j < Previous.Neurons.Length; j++)
                 {
                     Neurons[i].Value += Previous.Neurons[j].Value * LeftEdges[i][j];
                 }
+                Neurons[i].NonSqueezedValue = Neurons[i].Value;
                 Neurons[i].Value = sqFunction.Squeeze(Neurons[i].Value);
             }
         }
@@ -105,7 +106,7 @@ namespace ClusterClassifier
         {
             for (int i = 0; i < Neurons.Length; i++)
             {
-                Neurons[i].Value = - Neurons[i].Bias;
+                Neurons[i].Value = Neurons[i].Bias;
                 for (int j = 0; j < Previous.Neurons.Length; j++)
                 {
                     Neurons[i].Value += Previous.Neurons[j].Value * LeftEdges[i][j];

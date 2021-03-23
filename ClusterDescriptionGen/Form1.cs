@@ -22,33 +22,75 @@ namespace ClusterDescriptionGen
         public Form1()
         {
             InitializeComponent();
+            SelectedInputListView.View = View.Details;
+        }
+        private void AddItemToListView()
+        {
+            // Add a new item to the ListView, with an empty label
+            // (you can set any default properties that you want to here)
+            ListViewItem selectedItem = SelectedInputListView.SelectedItems[0];
+            //selectedItem.SubItems[1].
+
+                        
         }
         public void BrowseProcessButtonClicked(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
+            fileDialog.Multiselect = true;
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                InputTextbox.Text = fileDialog.FileName;
+                
+                //InputTextbox.Text += string.Join(";",fileDialog.FileNames);
+                    const string noClass = "<none>";
+                    foreach (var fileName in fileDialog.FileNames)
+                    {
+                        var selectedFileClassPair = new ListViewItem(noClass);
+                        selectedFileClassPair.SubItems.Add(fileName);
+                        SelectedInputListView.Items.Add(selectedFileClassPair);
+                    }
+                    
             }
         }
-       /* public void BrowseConfigButtonClicked(object sender, EventArgs e)
+        /* public void BrowseConfigButtonClicked(object sender, EventArgs e)
+         {
+             using (var dialog = new FolderBrowserDialog())
+             {
+                 if (dialog.ShowDialog() == DialogResult.OK)
+                 {
+                     ConfigDirTextBox.Text = dialog.SelectedPath;
+                 }
+             }
+         }*/
+        struct ClusterCollectionAndEnum
         {
-            using (var dialog = new FolderBrowserDialog())
+            public string Class { get; }
+            public ClusterInfoCollection Collection { get; }
+            public IEnumerator<ClusterInfo> Enumerator { get; }
+            public ClusterCollectionAndEnum(ClusterInfoCollection collection, IEnumerator<ClusterInfo> enumerator, string clusterClass)
             {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    ConfigDirTextBox.Text = dialog.SelectedPath;
-                }
+                Class = clusterClass;
+                Collection = collection;
+                Enumerator = enumerator;
             }
-        }*/
+        }
         public void ProcessButtonClicked(object sender, EventArgs e)
         {
             
 
             ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text));
             EnergyCalculator = new EnergyCalculator(new Calibration(configPath));
-            ClusterReader.GetTextFileNames(new StreamReader(InputTextbox.Text), InputTextbox.Text, out string pxFile, out string clFile);
-            var clusterCollection = new ClusterInfoCollection(new StreamReader(clFile));
+
+            string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
+            string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[0].Text).ToArray();
+            //string[] pxFiles = new string[iniFiles.Length];
+            List <ClusterCollectionAndEnum> clusterEnumCollections = new List<ClusterCollectionAndEnum>();
+            for (int i = 0; i < iniFiles.Length; i++ )
+            {
+                ClusterReader.GetTextFileNames(new StreamReader(iniFiles[i]), iniFiles[i], out string pxFile, out string clFile);
+                var clCollection = new ClusterInfoCollection(new StreamReader(clFile), new StreamReader(pxFile));
+                clusterEnumCollections.Add(new ClusterCollectionAndEnum(clCollection, clCollection.GetEnumerator(), classes[i]));
+            }
+
             EnergyCenterFinder centerFinder = new EnergyCenterFinder(new Calibration(configPath));
             BranchAnalyzer branchAnalyzer = new BranchAnalyzer(centerFinder);
             NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
@@ -62,20 +104,43 @@ namespace ClusterDescriptionGen
                 attributePairs.Add(attributeName, null);
                 attributesToGet.Add(attributeName);
             }
-
+           // var clusterCollection = clusterCollections[0];
             Cluster current;
-            var pxFileReader = new StreamReader(pxFile);
-            int index = 0; //remove
-            foreach (var clInfo in clusterCollection)
+            //var pxFileReader = new StreamReader(pxFile);
+            int clustersProcessedCount = 0; //remove
+            int maxClusterCount = 10000;
+            Random random = new Random();
+
+            bool done = false;
+            while (clustersProcessedCount < maxClusterCount && clusterEnumCollections.Count > 0)
             {
-                current = ClusterReader.LoadByClInfo(pxFileReader, clInfo);
-                index++;
+                var clusterEnumCollection = clusterEnumCollections[random.Next(0, clusterEnumCollections.Count - 1)];
+                
+                while (!clusterEnumCollection.Enumerator.MoveNext())
+                {                  
+                    clusterEnumCollections.Remove(clusterEnumCollection);
+                    clusterEnumCollection.Enumerator.Dispose();
+                    if (clusterEnumCollections.Count == 0)
+                    {
+                        done = true;
+                        break;
+                    }
+                    clusterEnumCollection = clusterEnumCollections[random.Next(0, clusterEnumCollections.Count - 1)];
+                }
+                if (done)
+                    break;
+                var clInfo = clusterEnumCollection.Enumerator.Current;
+            //foreach (var clInfo in clusterCollection)
+            //{
+                
+                current = ClusterReader.LoadByClInfo(clusterEnumCollection.Collection.PxFile, clInfo);
+                clustersProcessedCount++;
                 ConvexHull hull = null;
                 Cluster skeletonizedCluster = null;
                 BranchedCluster branchedCluster = null;
                 foreach (var attribute in attributesToGet)
                 {
-                    
+
                     switch (attribute)
                     {
                         case ClusterAttribute.PixelCount:
@@ -102,7 +167,7 @@ namespace ClusterDescriptionGen
                         case ClusterAttribute.Branches:
                             if (skeletonizedCluster == null)
                             {
-                                skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);                   
+                                skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
                             }
                             if (branchedCluster == null)
                             {
@@ -150,13 +215,16 @@ namespace ClusterDescriptionGen
                             double maxEnergy = current.Points.Max(point => EnergyCalculator.ToElectronVolts(point.ToT, point.xCoord, point.yCoord));
                             attributePairs[attribute] = maxEnergy;
                             break;
+                        case ClusterAttribute.Class:
+                            attributePairs[attribute] = clusterEnumCollection.Class;
+                            break;
                         default: break;
 
                     }
-                }
-                ClDescriptionWriter.WriteDescription(attributePairs);
-                if (index > 50) break;
-            
+                 }
+                    ClDescriptionWriter.WriteDescription(attributePairs);
+                    //if (clustersProcessedCount > 1000) break;
+                //}
             }
             ClDescriptionWriter.Close();
         }

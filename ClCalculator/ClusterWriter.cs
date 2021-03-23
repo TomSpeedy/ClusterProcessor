@@ -59,7 +59,7 @@ namespace ClusterCalculator
                         OutputStream.WriteLine();
                         innerId++;
                     }
-                    OutputStream.WriteLine("\t]");
+                    OutputStream.Write("\t]");
                 }     
                 else
                     OutputStream.Write($"\t\"{attribute.Key}\":{attribute.Value}");

@@ -6,28 +6,24 @@ namespace ClusterClassifier
 {
     interface ICostFunction
     {
-        double CalcValue(Neuron[] actual);
-        double calcDerivative(Neuron neuron);
+        double CalcValue(Neuron[] actual, double[] expected);
+        double CalcDerivative(Neuron neuron, double expected);
     }
     class SquareDiffCostFunction : ICostFunction
     {
-        private  double[] Expected { get; }
-        public SquareDiffCostFunction(double[] expected)
-        {
-            Expected = expected;
-        }
-        public double CalcValue(Neuron[] actual)
+
+        public double CalcValue(Neuron[] actual, double[] expected)
         {
             double finalCost = 0;
-            for (int i = 0; i < Expected.Length; i++)
+            for (int i = 0; i < expected.Length; i++)
             {
-                finalCost += (actual[i].Value - Expected[i]) * (Expected[i] - actual[i].Value);
+                finalCost += (actual[i].Value - expected[i]) * (actual[i].Value - expected[i]);
             }
             return finalCost;
         }
-        public double calcDerivative(Neuron neuron)
+        public double CalcDerivative(Neuron neuron, double expected)
         {
-            return 2 * (neuron.Value - Expected[neuron.Id]);
+            return 2 * (neuron.Value - expected);
         }
     }
 
