@@ -81,8 +81,8 @@ namespace ClusterFilter
                     
                     ushort.TryParse(tokens[0], out ushort x);
                     ushort.TryParse(tokens[1], out ushort y);
-                    double.TryParse(tokens[2].Replace('.', ','), out double ToA);
-                    double.TryParse(tokens[3].Replace('.', ','), out double ToT);
+                    double.TryParse(tokens[2], out double ToA);
+                    double.TryParse(tokens[3], out double ToT);
                     double Energy = 0;
                     if ((x <= 255) && (x >= 0) && (y >= 0) &&(y <= 255))
                         Energy = EnergyCalculator.ToElectronVolts(ToT, x, y);
@@ -159,8 +159,8 @@ namespace ClusterFilter
                     
                 ushort.TryParse(tokens[0], out ushort x);
                 ushort.TryParse(tokens[1], out ushort y);
-                double.TryParse(tokens[2].Replace('.', ','), out double ToA);
-                double.TryParse(tokens[3].Replace('.', ','), out double ToT);
+                double.TryParse(tokens[2], out double ToA);
+                double.TryParse(tokens[3], out double ToT);
                 if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1) //we didnt read the same pixel twice, If we did, then just ignore it
                 {
 
@@ -228,8 +228,8 @@ namespace ClusterFilter
                 }
                 ushort.TryParse(tokens[0], out ushort x);
                 ushort.TryParse(tokens[1], out ushort y);
-                double.TryParse(tokens[2].Replace('.', ','), out double ToA);
-                double.TryParse(tokens[3].Replace('.', ','), out double ToT);
+                double.TryParse(tokens[2], out double ToA);
+                double.TryParse(tokens[3], out double ToT);
                 points.Add(new PixelPoint(x, y, ToA, ToT));
             }
             return VertexFinder.FindVertices(points).Count >= MinVertexCount;

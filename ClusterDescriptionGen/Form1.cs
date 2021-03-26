@@ -10,28 +10,21 @@ using System.IO;
 using System.Windows.Forms;
 using ClusterFilter;
 using ClusterCalculator;
-
+using System.Threading;
+using System.Globalization;
 namespace ClusterDescriptionGen
 {
     public partial class Form1 : Form
     {
-        private const string configPath = "../../../config/";
+        private const string configPath = "../../../config/calib_files_fe/";
         private IDescriptionWriter ClDescriptionWriter { get; set; }
-        private EnergyCalculator EnergyCalculator { get; set; }
+        private EnergyCalculator[] EnergyCalculators { get; set; }
         private IClusterReader ClusterReader { get; } = new MMClusterReader();
         public Form1()
         {
             InitializeComponent();
             SelectedInputListView.View = View.Details;
-        }
-        private void AddItemToListView()
-        {
-            // Add a new item to the ListView, with an empty label
-            // (you can set any default properties that you want to here)
-            ListViewItem selectedItem = SelectedInputListView.SelectedItems[0];
-            //selectedItem.SubItems[1].
-
-                        
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
         }
         public void BrowseProcessButtonClicked(object sender, EventArgs e)
         {
@@ -51,26 +44,38 @@ namespace ClusterDescriptionGen
                     
             }
         }
-        /* public void BrowseConfigButtonClicked(object sender, EventArgs e)
+         public void BrowseConfigButtonClicked(object sender, EventArgs e)
          {
              using (var dialog = new FolderBrowserDialog())
              {
                  if (dialog.ShowDialog() == DialogResult.OK)
                  {
-                     ConfigDirTextBox.Text = dialog.SelectedPath;
-                 }
+                    for(int i = 0; i < SelectedInputListView.Items.Count; ++i)
+                    {
+                        if(SelectedInputListView.Items[i].SubItems.Count < 3)
+                        {
+                            //TODO check if folder contains a.txt ...
+                            SelectedInputListView.Items[i].SubItems.Add(dialog.SelectedPath + '\\');
+                            break;
+                        }
+
+                    }
+                }
              }
-         }*/
+         }
         struct ClusterCollectionAndEnum
         {
             public string Class { get; }
+            public string ConfigPath { get; }
             public ClusterInfoCollection Collection { get; }
             public IEnumerator<ClusterInfo> Enumerator { get; }
-            public ClusterCollectionAndEnum(ClusterInfoCollection collection, IEnumerator<ClusterInfo> enumerator, string clusterClass)
+
+            public ClusterCollectionAndEnum(ClusterInfoCollection collection, IEnumerator<ClusterInfo> enumerator, string clusterClass, string configPath)
             {
                 Class = clusterClass;
                 Collection = collection;
                 Enumerator = enumerator;
+                ConfigPath = configPath;
             }
         }
         public void ProcessButtonClicked(object sender, EventArgs e)
@@ -78,24 +83,36 @@ namespace ClusterDescriptionGen
             
 
             ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text));
-            EnergyCalculator = new EnergyCalculator(new Calibration(configPath));
 
             string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
             string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[0].Text).ToArray();
+            string[] configDirs = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[2].Text).ToArray();
             //string[] pxFiles = new string[iniFiles.Length];
             List <ClusterCollectionAndEnum> clusterEnumCollections = new List<ClusterCollectionAndEnum>();
+
+            NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
+            EnergyCalculators = new EnergyCalculator[configDirs.Length];
+            EnergyCenterFinder[] centerFinders = new EnergyCenterFinder[configDirs.Length];
+            BranchAnalyzer[] branchAnalyzers = new BranchAnalyzer[configDirs.Length];
+            
+            VertexFinder[] vertexFinders = new VertexFinder[configDirs.Length];
+            ISkeletonizer[] skeletonizers = new ThinSkeletonizer[configDirs.Length];
+
             for (int i = 0; i < iniFiles.Length; i++ )
             {
                 ClusterReader.GetTextFileNames(new StreamReader(iniFiles[i]), iniFiles[i], out string pxFile, out string clFile);
                 var clCollection = new ClusterInfoCollection(new StreamReader(clFile), new StreamReader(pxFile));
-                clusterEnumCollections.Add(new ClusterCollectionAndEnum(clCollection, clCollection.GetEnumerator(), classes[i]));
+                clusterEnumCollections.Add(new ClusterCollectionAndEnum(clCollection, clCollection.GetEnumerator(), classes[i], configDirs[i]));
+                centerFinders[i] = new EnergyCenterFinder(new Calibration(clusterEnumCollections.Last().ConfigPath));
+                branchAnalyzers[i] = new BranchAnalyzer(centerFinders[i]);
+                EnergyCalculators[i] = new EnergyCalculator(new Calibration(clusterEnumCollections.Last().ConfigPath));
+                vertexFinders[i] = new VertexFinder(new Calibration(clusterEnumCollections.Last().ConfigPath));
+                skeletonizers[i] = new ThinSkeletonizer(EnergyCalculators[i]);
             }
 
-            EnergyCenterFinder centerFinder = new EnergyCenterFinder(new Calibration(configPath));
-            BranchAnalyzer branchAnalyzer = new BranchAnalyzer(centerFinder);
-            NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
-            VertexFinder vertexFinder = new VertexFinder(new Calibration(configPath));
-            ISkeletonizer skeletonizer = new ThinSkeletonizer(EnergyCalculator);
+            
+
+
             var attributePairs = new Dictionary<ClusterAttribute, object>();
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
             foreach (var checkedAttribute in AttributeCheckedList.CheckedItems)
@@ -104,17 +121,16 @@ namespace ClusterDescriptionGen
                 attributePairs.Add(attributeName, null);
                 attributesToGet.Add(attributeName);
             }
-           // var clusterCollection = clusterCollections[0];
             Cluster current;
-            //var pxFileReader = new StreamReader(pxFile);
             int clustersProcessedCount = 0; //remove
-            int maxClusterCount = 10000;
+            int maxClusterCount = 1000000;
             Random random = new Random();
 
             bool done = false;
             while (clustersProcessedCount < maxClusterCount && clusterEnumCollections.Count > 0)
             {
-                var clusterEnumCollection = clusterEnumCollections[random.Next(0, clusterEnumCollections.Count - 1)];
+                var currentIndex = random.Next(0, clusterEnumCollections.Count);
+                var clusterEnumCollection = clusterEnumCollections[currentIndex];
                 
                 while (!clusterEnumCollection.Enumerator.MoveNext())
                 {                  
@@ -125,10 +141,19 @@ namespace ClusterDescriptionGen
                         done = true;
                         break;
                     }
-                    clusterEnumCollection = clusterEnumCollections[random.Next(0, clusterEnumCollections.Count - 1)];
+                    currentIndex = random.Next(0, clusterEnumCollections.Count);
+                    clusterEnumCollection = clusterEnumCollections[currentIndex];
                 }
                 if (done)
                     break;
+
+                var centerFinder = centerFinders[currentIndex];
+                var branchAnalyzer = branchAnalyzers[currentIndex];
+                var EnergyCalculator = EnergyCalculators[currentIndex];
+                var vertexFinder = vertexFinders[currentIndex];
+                var skeletonizer = skeletonizers[currentIndex];
+
+
                 var clInfo = clusterEnumCollection.Enumerator.Current;
             //foreach (var clInfo in clusterCollection)
             //{

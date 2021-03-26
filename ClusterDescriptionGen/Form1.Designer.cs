@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.SelectedInputListView = new System.Windows.Forms.ListView();
+            this.SelectedFilesClassName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SelectedFilesColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SelectInputListLabel = new System.Windows.Forms.Label();
             this.AttributeCheckedList = new System.Windows.Forms.CheckedListBox();
             this.ProcessButton = new System.Windows.Forms.Button();
             this.OutputTextbox = new System.Windows.Forms.TextBox();
@@ -36,15 +40,14 @@
             this.OutputLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.InputLabel = new System.Windows.Forms.Label();
-            this.SelectInputListLabel = new System.Windows.Forms.Label();
-            this.SelectedInputListView = new System.Windows.Forms.ListView();
-            this.SelectedFilesClassName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.SelectedFilesColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ConfigFilesInputColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.AddConfigFileButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.AddConfigFileButton);
             this.groupBox1.Controls.Add(this.SelectedInputListView);
             this.groupBox1.Controls.Add(this.SelectInputListLabel);
             this.groupBox1.Controls.Add(this.AttributeCheckedList);
@@ -56,10 +59,43 @@
             this.groupBox1.Controls.Add(this.InputLabel);
             this.groupBox1.Location = new System.Drawing.Point(29, 24);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(888, 330);
+            this.groupBox1.Size = new System.Drawing.Size(1358, 330);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Menu";
+            // 
+            // SelectedInputListView
+            // 
+            this.SelectedInputListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.SelectedFilesClassName,
+            this.SelectedFilesColumnHeader,
+            this.ConfigFilesInputColumn});
+            this.SelectedInputListView.HideSelection = false;
+            this.SelectedInputListView.LabelEdit = true;
+            this.SelectedInputListView.Location = new System.Drawing.Point(320, 35);
+            this.SelectedInputListView.Name = "SelectedInputListView";
+            this.SelectedInputListView.Size = new System.Drawing.Size(977, 209);
+            this.SelectedInputListView.TabIndex = 11;
+            this.SelectedInputListView.UseCompatibleStateImageBehavior = false;
+            // 
+            // SelectedFilesClassName
+            // 
+            this.SelectedFilesClassName.Text = "Class Name (optional)";
+            this.SelectedFilesClassName.Width = 100;
+            // 
+            // SelectedFilesColumnHeader
+            // 
+            this.SelectedFilesColumnHeader.Text = "Selected File Path";
+            this.SelectedFilesColumnHeader.Width = 400;
+            // 
+            // SelectInputListLabel
+            // 
+            this.SelectInputListLabel.AutoSize = true;
+            this.SelectInputListLabel.Location = new System.Drawing.Point(317, 14);
+            this.SelectInputListLabel.Name = "SelectInputListLabel";
+            this.SelectInputListLabel.Size = new System.Drawing.Size(76, 13);
+            this.SelectInputListLabel.TabIndex = 10;
+            this.SelectInputListLabel.Text = "Selected Input";
             // 
             // AttributeCheckedList
             // 
@@ -103,7 +139,7 @@
             // 
             this.BrowseButton.Location = new System.Drawing.Point(91, 25);
             this.BrowseButton.Name = "BrowseButton";
-            this.BrowseButton.Size = new System.Drawing.Size(176, 23);
+            this.BrowseButton.Size = new System.Drawing.Size(107, 23);
             this.BrowseButton.TabIndex = 4;
             this.BrowseButton.Text = "Browse and Add...";
             this.BrowseButton.UseVisualStyleBackColor = true;
@@ -135,43 +171,26 @@
             this.InputLabel.TabIndex = 0;
             this.InputLabel.Text = "Select input:";
             // 
-            // SelectInputListLabel
+            // ConfigFilesInputColumn
             // 
-            this.SelectInputListLabel.AutoSize = true;
-            this.SelectInputListLabel.Location = new System.Drawing.Point(317, 14);
-            this.SelectInputListLabel.Name = "SelectInputListLabel";
-            this.SelectInputListLabel.Size = new System.Drawing.Size(76, 13);
-            this.SelectInputListLabel.TabIndex = 10;
-            this.SelectInputListLabel.Text = "Selected Input";
+            this.ConfigFilesInputColumn.Text = "Config File Path";
+            this.ConfigFilesInputColumn.Width = 400;
             // 
-            // SelectedInputListView
+            // AddConfigFileButton
             // 
-            this.SelectedInputListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.SelectedFilesClassName,
-            this.SelectedFilesColumnHeader});
-            this.SelectedInputListView.HideSelection = false;
-            this.SelectedInputListView.LabelEdit = true;
-            this.SelectedInputListView.Location = new System.Drawing.Point(320, 35);
-            this.SelectedInputListView.Name = "SelectedInputListView";
-            this.SelectedInputListView.Size = new System.Drawing.Size(547, 209);
-            this.SelectedInputListView.TabIndex = 11;
-            this.SelectedInputListView.UseCompatibleStateImageBehavior = false;
-            // 
-            // SelectedFilesClassName
-            // 
-            this.SelectedFilesClassName.Text = "Class Name (optional)";
-            this.SelectedFilesClassName.Width = 100;
-            // 
-            // SelectedFilesColumnHeader
-            // 
-            this.SelectedFilesColumnHeader.Text = "Selected File Path";
-            this.SelectedFilesColumnHeader.Width = 600;
+            this.AddConfigFileButton.Location = new System.Drawing.Point(204, 25);
+            this.AddConfigFileButton.Name = "AddConfigFileButton";
+            this.AddConfigFileButton.Size = new System.Drawing.Size(101, 23);
+            this.AddConfigFileButton.TabIndex = 12;
+            this.AddConfigFileButton.Text = "Add Config File";
+            this.AddConfigFileButton.UseVisualStyleBackColor = true;
+            this.AddConfigFileButton.Click += new System.EventHandler(this.BrowseConfigButtonClicked);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(929, 564);
+            this.ClientSize = new System.Drawing.Size(1443, 564);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -195,6 +214,8 @@
         private System.Windows.Forms.ColumnHeader SelectedFilesClassName;
         private System.Windows.Forms.ColumnHeader SelectedFilesColumnHeader;
         private System.Windows.Forms.Label SelectInputListLabel;
+        private System.Windows.Forms.Button AddConfigFileButton;
+        private System.Windows.Forms.ColumnHeader ConfigFilesInputColumn;
     }
 }
 

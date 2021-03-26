@@ -5,6 +5,8 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using ClusterCalculator;
+using System.Threading;
+using System.Globalization;
 namespace ClusterCalculator
 {
     public interface IClusterWriter
@@ -36,9 +38,17 @@ namespace ClusterCalculator
         public JSONDecriptionWriter(StreamWriter outputStream)
         {
             OutputStream = outputStream;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+            outputStream.WriteLine("[");
         }
         public void WriteDescription(Dictionary<ClusterAttribute, object> attributes)
         {
+
+            if (WrittenCount > 0)
+            {
+                OutputStream.Write(',');
+                OutputStream.WriteLine();
+            }
             ++WrittenCount;
             OutputStream.WriteLine('{');
             OutputStream.WriteLine($"\t\"id\":{WrittenCount},");
@@ -69,7 +79,7 @@ namespace ClusterCalculator
                 OutputStream.WriteLine();
 
             }
-            OutputStream.WriteLine('}');
+            OutputStream.Write("}");
         }
         public void WriteDescription(Dictionary<BranchAttribute, object> attributes, int depth)
         {
@@ -109,6 +119,8 @@ namespace ClusterCalculator
         }
         public void Close()
         {
+            OutputStream.WriteLine();
+            OutputStream.WriteLine("]");
             OutputStream.Close();
         }
     }

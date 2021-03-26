@@ -12,7 +12,7 @@ using System.IO;
 using System.Runtime.InteropServices.ComTypes;
 using System.Drawing.Text;
 using ClusterCalculator;
-
+using System.Globalization;
 namespace ClusterFilter
 
 {
@@ -23,6 +23,7 @@ namespace ClusterFilter
         public FilterUI()
         {
             InitializeComponent();
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
         }
         #region Event Handlers
         

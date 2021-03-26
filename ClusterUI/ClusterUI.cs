@@ -14,6 +14,8 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Drawing.Text;
 using ChartDirector;
 using ClusterCalculator;
+using System.Globalization;
+
 
 namespace ClusterUI 
 
@@ -38,6 +40,7 @@ namespace ClusterUI
             ClusterPixHistogram.Visible = false;
             ClusterReader = new MMClusterReader();
             ConfigDirTextBox.Text = configPath;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
         }
         #region Event Handlers
@@ -135,7 +138,7 @@ namespace ClusterUI
         }
         public void View3DClicked(object sender, EventArgs e)
         {
-            AnalysisPCA anal = new AnalysisPCA();
+            //AnalysisPCA anal = new AnalysisPCA();
             if (Current == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();

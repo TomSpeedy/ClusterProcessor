@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Accord.Neuro.Learning;
+using Accord.Neuro;
+using Accord.Statistics;
 namespace ClusterClassifier
 {
     interface ISqueezeFunction
@@ -21,7 +23,7 @@ namespace ClusterClassifier
             return squeezedValue * (1 - squeezedValue);
         }
     }
-    class ReluSqeezeFunction : ISqueezeFunction
+    class ReluSqeezeFunction : ISqueezeFunction, IActivationFunction
     {
         const double leakConstant = 0.01;
         public double Squeeze(double value)
@@ -40,5 +42,8 @@ namespace ClusterClassifier
                 return 0;
             return leakConstant;
         }
+        public double Function(double value) => Squeeze(value);
+        public double Derivative(double value) => CalcDerivative(value);
+        public double Derivative2(double value) => 0;
     }
 }

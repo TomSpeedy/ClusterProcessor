@@ -29,8 +29,16 @@ namespace ClusterCalculator
             double b = bConf[x][y];
             double c = cConf[x][y];
             double t = tConf[x][y];
-            double D = Math.Pow((-a * t - ToT - b), 2) - 4 * a * (-b * t - c + ToT * t);
+            double D = Math.Pow((-a * t - ToT + b), 2) - 4 * a * (-b * t - c + ToT * t);
             double energy = (a * t + ToT + b + Math.Sqrt(D)) / (2 * a);
+            if(a == 0)
+            { }
+            if(double.IsNaN(energy))
+            {
+                energy = 3.00;
+            }
+            if(double.IsInfinity(energy))
+            { }
             return energy;
         }
 
@@ -58,7 +66,7 @@ namespace ClusterCalculator
             configArray[0] = new double[256];
             for (int j = 0; j < configArray[0].Length - 1; j++)
             {
-                configArray[0][j] = double.Parse(stringValues[j].Replace('.', ','));
+                configArray[0][j] = double.Parse(stringValues[j]);
             }
             configArray[0][255] = configArray[0][254];
             for (int i = 1; i < configArray.Length; i++)
@@ -67,7 +75,7 @@ namespace ClusterCalculator
                 configArray[i] = new double[256];
                 for (int j = 0; j < configArray[i].Length; j++)
                 {
-                    configArray[i][j] = double.Parse(stringValues[j].Replace('.', ','));
+                    configArray[i][j] = double.Parse(stringValues[j]);
                 }
 
             }

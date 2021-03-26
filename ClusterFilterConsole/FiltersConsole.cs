@@ -75,7 +75,7 @@ namespace ClusterFilterConsole
             configArray[0] = new double[256];
             for (int j = 0; j < configArray[0].Length - 1; j++)
             {
-                configArray[0][j] = double.Parse(stringValues[j].Replace('.', ','));
+                configArray[0][j] = double.Parse(stringValues[j]);
             }
             configArray[0][255] = configArray[0][254];
             for (int i = 1; i < configArray.Length; i++)
@@ -84,7 +84,7 @@ namespace ClusterFilterConsole
                 configArray[i] = new double[256];
                 for (int j = 0; j < configArray[i].Length; j++)
                 {
-                    configArray[i][j] = double.Parse(stringValues[j].Replace('.', ','));
+                    configArray[i][j] = double.Parse(stringValues[j]);
                 }
 
             }
@@ -116,8 +116,8 @@ namespace ClusterFilterConsole
 
                     ushort.TryParse(tokens[0], out ushort x);
                     ushort.TryParse(tokens[1], out ushort y);
-                    double.TryParse(tokens[2].Replace('.', ','), out double ToA);
-                    double.TryParse(tokens[3].Replace('.', ','), out double ToT);
+                    double.TryParse(tokens[2], out double ToA);
+                    double.TryParse(tokens[3], out double ToT);
                     double Energy = 0;
                     if ((x <= 255) && (x >= 0) && (y >= 0) && (y <= 255))
                         Energy = ToElectronVolts(ToT, x, y);
@@ -191,8 +191,8 @@ namespace ClusterFilterConsole
 
                 ushort.TryParse(tokens[0], out ushort x);
                 ushort.TryParse(tokens[1], out ushort y);
-                double.TryParse(tokens[2].Replace('.', ','), out double ToA);
-                double.TryParse(tokens[3].Replace('.', ','), out double ToT);
+                double.TryParse(tokens[2], out double ToA);
+                double.TryParse(tokens[3], out double ToT);
                 if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1) //we didnt read the same pixel twice, If we did, then just ignore it
                 {
 

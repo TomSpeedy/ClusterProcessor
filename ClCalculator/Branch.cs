@@ -32,7 +32,7 @@ namespace ClusterCalculator
 
             var currentBranch = mainBranch;
             usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
-            while (currentBranch.Points.Count > trivialBranchLength)
+            while (currentBranch.Points.Count > trivialBranchLength || mainBranches.Count == 0)
             {
                 maxbranchCount = 30;
                 mainBranches.Add(currentBranch);
@@ -329,7 +329,7 @@ namespace ClusterCalculator
         {
             Dictionary<BranchAttribute, object> dict = new Dictionary<BranchAttribute, object>();
             dict.Add(BranchAttribute.Length, this.Points.Count);
-            dict.Add(BranchAttribute.StartPoint, this.StartPoint);
+            //dict.Add(BranchAttribute.StartPoint, this.StartPoint);
             dict.Add(BranchAttribute.BranchEnergy, energyCalc.CalcTotalEnergy(this.Points.ToList()));
             if (this.SubBranches.Count != 0)
             {

@@ -111,7 +111,7 @@ namespace ClusterCalculator
                 string[] tokens = ClFile.ReadLine().Split();
                 var clInfo = new ClusterInfo()
                 {
-                    FirstToA = double.Parse(tokens[0].Replace('.', ',')),
+                    FirstToA = double.Parse(tokens[0]),
                     PixCount = uint.Parse(tokens[1]),
                     LineStart = ulong.Parse(tokens[2]),
                     ByteStart = ulong.Parse(tokens[3])

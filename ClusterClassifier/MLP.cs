@@ -64,7 +64,7 @@ namespace ClusterClassifier
             backPropagation.CalculateGradient(this, expectedResult, testSetSize);
             return backPropagation.Gradient;
         }
-        public void ProcessTrainingSet(IList<double[]> trainingSetInputs, IList<double[]> trainingSetOutputs)
+        public double ProcessTrainingSet(IList<double[]> trainingSetInputs, IList<double[]> trainingSetOutputs)
         {
             Gradient avgGradient = new Gradient();
             double avgCostFunc = 0;
@@ -80,7 +80,7 @@ namespace ClusterClassifier
             }
             avgGradient.Normalize();
             MakeStep(avgGradient, avgCostFunc, trainingSetInputs, trainingSetOutputs);
-
+            return avgCostFunc;
         }
         private void DescentValues(Gradient gradient, double stepSize = 0.05)
         {

@@ -38,7 +38,7 @@ namespace ClusterFilterConsole
             if (clusterInfo == null)
                 return null;
 
-            Cluster cluster = new Cluster(FirstToA : double.Parse(clusterInfo[0].Replace('.', ',')),
+            Cluster cluster = new Cluster(FirstToA : double.Parse(clusterInfo[0]),
                                           PixelCount : uint.Parse(clusterInfo[1]),
                                           ByteStart : ulong.Parse(clusterInfo[3]));
             cluster.Points = new PixelPoint[cluster.PixelCount];
@@ -49,7 +49,7 @@ namespace ClusterFilterConsole
             for (int i = 0; i < cluster.PixelCount; i++)
             {
                 string[] pixel = pixelStream.ReadLine().Split(' ');
-                cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]), double.Parse(pixel[2].Replace('.', ',')), double.Parse(pixel[3].Replace('.', ',')));
+                cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]), double.Parse(pixel[2]), double.Parse(pixel[3]));
             }
 
             return (cluster);
