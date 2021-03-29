@@ -16,7 +16,7 @@ namespace ClusterClassifier
             if (randomize)
             {
                 Random random = new Random();
-                Bias = random.NextDouble() / 5;
+                Bias = (random.NextDouble())/ 10;
                 Value = 0;
             }
             else

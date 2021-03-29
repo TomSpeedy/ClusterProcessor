@@ -29,9 +29,11 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.AddConfigFileButton = new System.Windows.Forms.Button();
             this.SelectedInputListView = new System.Windows.Forms.ListView();
             this.SelectedFilesClassName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SelectedFilesColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ConfigFilesInputColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SelectInputListLabel = new System.Windows.Forms.Label();
             this.AttributeCheckedList = new System.Windows.Forms.CheckedListBox();
             this.ProcessButton = new System.Windows.Forms.Button();
@@ -40,13 +42,13 @@
             this.OutputLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.InputLabel = new System.Windows.Forms.Label();
-            this.ConfigFilesInputColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.AddConfigFileButton = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button1);
             this.groupBox1.Controls.Add(this.AddConfigFileButton);
             this.groupBox1.Controls.Add(this.SelectedInputListView);
             this.groupBox1.Controls.Add(this.SelectInputListLabel);
@@ -63,6 +65,16 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Menu";
+            // 
+            // AddConfigFileButton
+            // 
+            this.AddConfigFileButton.Location = new System.Drawing.Point(204, 25);
+            this.AddConfigFileButton.Name = "AddConfigFileButton";
+            this.AddConfigFileButton.Size = new System.Drawing.Size(101, 23);
+            this.AddConfigFileButton.TabIndex = 12;
+            this.AddConfigFileButton.Text = "Add Config File";
+            this.AddConfigFileButton.UseVisualStyleBackColor = true;
+            this.AddConfigFileButton.Click += new System.EventHandler(this.BrowseConfigButtonClicked);
             // 
             // SelectedInputListView
             // 
@@ -87,6 +99,11 @@
             // 
             this.SelectedFilesColumnHeader.Text = "Selected File Path";
             this.SelectedFilesColumnHeader.Width = 400;
+            // 
+            // ConfigFilesInputColumn
+            // 
+            this.ConfigFilesInputColumn.Text = "Config File Path";
+            this.ConfigFilesInputColumn.Width = 400;
             // 
             // SelectInputListLabel
             // 
@@ -171,20 +188,15 @@
             this.InputLabel.TabIndex = 0;
             this.InputLabel.Text = "Select input:";
             // 
-            // ConfigFilesInputColumn
+            // button1
             // 
-            this.ConfigFilesInputColumn.Text = "Config File Path";
-            this.ConfigFilesInputColumn.Width = 400;
-            // 
-            // AddConfigFileButton
-            // 
-            this.AddConfigFileButton.Location = new System.Drawing.Point(204, 25);
-            this.AddConfigFileButton.Name = "AddConfigFileButton";
-            this.AddConfigFileButton.Size = new System.Drawing.Size(101, 23);
-            this.AddConfigFileButton.TabIndex = 12;
-            this.AddConfigFileButton.Text = "Add Config File";
-            this.AddConfigFileButton.UseVisualStyleBackColor = true;
-            this.AddConfigFileButton.Click += new System.EventHandler(this.BrowseConfigButtonClicked);
+            this.button1.Location = new System.Drawing.Point(977, 258);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(280, 23);
+            this.button1.TabIndex = 13;
+            this.button1.Text = "Copy Last Config Path";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.CopyLastPathButtonClicked);
             // 
             // Form1
             // 
@@ -216,6 +228,7 @@
         private System.Windows.Forms.Label SelectInputListLabel;
         private System.Windows.Forms.Button AddConfigFileButton;
         private System.Windows.Forms.ColumnHeader ConfigFilesInputColumn;
+        private System.Windows.Forms.Button button1;
     }
 }
 

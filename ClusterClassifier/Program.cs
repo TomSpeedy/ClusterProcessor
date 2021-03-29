@@ -13,9 +13,36 @@ using System.Linq;
 using Accord.Math;
 using System.Globalization;
 using System.Threading;
+using Accord.MachineLearning.DecisionTrees;
+using Accord.MachineLearning.DecisionTrees.Learning;
 namespace ClusterClassifier
 {
-    
+    struct Interval
+    {
+        public double Min { get; }
+
+        public double Max { get; }
+        public double Size => Max - Min;
+
+        public Interval(double min, double max)
+        {
+            Min = min;
+            Max = max;
+        }
+
+    }
+    class NNInputProcessor
+    {
+        public double[] NormalizeElements(double[] originVector, Interval[] intervalVector)
+        {
+            double[] newVector = new double[originVector.Length];
+            for (int i = 0; i < originVector.Length; i++)
+            {
+                newVector[i] =  (originVector[i] - intervalVector[i].Min) / (intervalVector[i].Size);
+            }
+            return newVector;
+        }
+    }
     class Program
     {
         static Random rand = new Random();
@@ -28,7 +55,7 @@ namespace ClusterClassifier
             return result;
         }
 
-        static double[] ReadJsonToVector(JsonTextReader reader, string[] usableKeys, string[] classes, out int classIndex)
+        static double[] ReadJsonToVector(JsonTextReader reader, string[] usableKeys, string[] classes,  out int classIndex)
         {
             
                 if (reader.Read())
@@ -44,13 +71,10 @@ namespace ClusterClassifier
                             if (!jsonRecord.ContainsKey(usableKey))
                                 throw new ArgumentException($"Error, Required property \"{usableKey}\" for training set is not included in given input file");
 
-                        if (double.TryParse(jsonRecord[usableKey].ToString(), out attributeVal))
-                        {
-                            if (usableKey == "MaxEnergy" || usableKey == "AverageEnergy" || usableKey == "TotalEnergy")
-                                resultVector.Add(attributeVal/1000000d);
-                            else
-                                resultVector.Add(attributeVal);
-                        }
+                            if (double.TryParse(jsonRecord[usableKey].ToString(), out attributeVal))
+                            {                              
+                                    resultVector.Add(attributeVal);
+                            }
 
                         }
                         const string ClassKey = "Class";
@@ -60,7 +84,7 @@ namespace ClusterClassifier
                         classIndex = Array.IndexOf(classes, jsonRecord[ClassKey].ToString());
                         if (classIndex < 0)
                             throw new ArgumentException($"Error, Class value: \"{jsonRecord[ClassKey]}\" is not valid class value");
-                        return resultVector.ToArray().Normalize();
+                        return resultVector.ToArray();
                     }
                 }
                 classIndex = -1;
@@ -90,12 +114,14 @@ namespace ClusterClassifier
     new double[] { 0, 0, 1 }, new double[] { 1, 0, 0 }, new double[] { 0, 1, 0 }, new double[] { 0, 0, 1 } };
     */
             // create neural network
-            const string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/outTest.json";
-            string[] outputClasses = new string[] { 
+            const string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/fiveCategories.json";
+            string[] outputClasses = new string[] {
                 "proton",
-                "muon",
+                "he",
+                "low_electron",
                 "electron",
-                "fe"
+                "muon"
+
             };
 
             StreamReader inputStream = new StreamReader(jsonFilePath);
@@ -104,123 +130,80 @@ namespace ClusterClassifier
                 "AverageEnergy",
                 "MaxEnergy",
                 "PixelCount",
-	            "Convexity",
-	            "Width",
-	            "CrosspointCount",
-	            "VertexCount",
-	            "RelativeHaloSize",
-	            "BranchCount"
-	            };
+                "Convexity",
+                "Width",
+                "CrosspointCount",
+                "VertexCount",
+                "RelativeHaloSize",
+                "BranchCount"
+                };
             ICostFunction costFunction = new SquareDiffCostFunction();
-            var myNN = new MLP(new uint [] { 16, 16, 16}, costFunction);
+            var myNN = new MLP(new uint[] { 20, 20 }, costFunction);
             myNN.CreateInput(new double[10]);
-            myNN.CreateOutput(4);
+            myNN.CreateOutput((uint)outputClasses.Length);
 
             ActivationNetwork network = new ActivationNetwork(
-                new SigmoidFunction(2),
-                validFields.Length, // two inputs in the network
-                16, // two neurons in the first layer
-                16,
-                outputClasses.Length); // one neuron in the second layer
+                new SigmoidFunction(1),
+                validFields.Length, 
+                new int[] {16, 16, outputClasses.Length}
+                ); // one neuron in the second layer
                     // create teacher
-            BackPropagationLearning teacher = new BackPropagationLearning(network);
+           BackPropagationLearning teacher = new BackPropagationLearning(network);
+            teacher.Momentum = 0.5;
+            teacher.LearningRate = 0.1;
             var jsonStream = new JsonTextReader(inputStream);
             var _inputVector = ReadJsonToVector(jsonStream, validFields, outputClasses, out int _classIndex);
-            
+            NNInputProcessor preprocessor = new NNInputProcessor();
+            Interval[] inputIntervals = { new Interval(0, 1500), new Interval(0, 100), new Interval(0, 500), new Interval(0, 100), new Interval(0, 1),
+                                         new Interval(0, 100), new Interval(0, 10), new Interval(0, 10), new Interval(0,1), new Interval(0,10) };
             // loop
             int i = 0;
-            while (i < 500000 && inputStream.Peek() != -1)
+            const int epochSize = 32;
+            
+            while (i < 30000 && inputStream.Peek() != -1)
             {
-                double[][] input = new double[32][];
-                double[][] output = new double[32][];
+                double[][] input = new double[epochSize][];
+                double[][] output = new double[epochSize][];
                 
-                for (int j = 0; j < 32; j++)
+                for (int j = 0; j < epochSize; j++)
                 {
-                    var inputVector = ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex);
+                    var inputVector = preprocessor.NormalizeElements(ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex),inputIntervals);
                     var outputVector = new double[outputClasses.Length];
                     outputVector[classIndex] = 1;
                     input[j] = inputVector;
                     output[j] = outputVector;
                 }
-                var err = myNN.ProcessTrainingSet(input, output.ToList());
+               // tree = teach.Learn(input, output)
+                //var err = myNN.ProcessTrainingSet(input, output.ToList());
 
                 // run epoch of learning procedure
                 double error = teacher.RunEpoch(input, output);
+                
                 if (i % 10 == 0)
+
                     Console.WriteLine(error);
-                if (i % 100 == 0)
-                { }
+                //if (i % 10000 == 0)
+                //{ }
                     // check error value to see if we need to stop
                     // ...
                     i++;
-                
-            }         
-            /*var result = network.Compute(one);
-            result = network.Compute(two);
-            result = network.Compute(SwitchRandomVal(four));
-            result = network.Compute(SwitchRandomVal(SwitchRandomVal(four)));
-            
-            const int testSetSize = 6;
-            ICostFunction costFunction = new SquareDiffCostFunction();
-            var myNN = new MLP(layerSizes, costFunction);
-            double[] one = new double[] { 1, 0, 0, 1, 0, 0, 1, 0, 0 };
-            double[] one2 = new double[] { 0, 1, 0, 0, 1, 0, 0, 1, 0 };
-            double[] two = new double[] { 1, 1, 1, 0, 1, 0, 1, 1, 1 };
-            double[] four = new double[] { 0, 1, 0, 0, 1, 1, 0, 0, 1 };
-            myNN.CreateInput(new double[] { 1, 0, 0, 1, 0, 0, 1, 0, 0 });
-            myNN.CreateOutput();
-            Gradient gradient = new Gradient();
-            for (int j = 0; j < 15000; j++)
-            {
-                if(j==14999)
+                if (i >= 10000)
                 { }
-                List<double[]> inputTrainSet = new List<double[]>();
-                List<double[]> outputTrainSet = new List<double[]>();
-                for (int i = 0; i < testSetSize; i++)
-                {                
-                    double[] input = new double[myNN.inputLayer.GetSize()];
-                    double[] output = new double[myNN.outputLayer.GetSize()];
-                    if (i % 3 == 0)
-                    {
-                        if (rand.NextDouble() < 0.3)
-                            input = one2;
-                         else
-                          input = one;
-                        
-                        output = new double[] { 1, 0, 0 };
-                    }
-                    else if (i % 3 == 1)
-                    {
-                        if (rand.NextDouble() < 0.1)
-                            myNN.SetInput(SwitchRandomVal(two));
-                        else
-                        input = two;
-                        output = new double[] { 0, 1, 0 };
-                    }
-                    else
-                    {
-
-                        if (rand.NextDouble() < 0.1)
-                            input = SwitchRandomVal(four);
-                        else
-                            input = four;
-                            output = new double[] { 0, 0, 1 };
-                    }
-                    inputTrainSet.Add(input);
-                    outputTrainSet.Add(output);
-
-                }
-                myNN.ProcessTrainingSet(inputTrainSet, outputTrainSet);
-
             }
-            myNN.SetInput(two);
-            myNN.Process();
-            myNN.SetInput(one2);
-            myNN.Process();
-            myNN.SetInput(one);
-            myNN.Process();
-            myNN.SetInput(SwitchRandomVal(SwitchRandomVal(four)));
-            myNN.Process();*/
+            double[][] inp = new double[16][];
+            double[][] outp = new double[16][];
+            for (int j = 0; j < 16; j++)
+            {
+                
+                var inputVector = preprocessor.NormalizeElements(ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex), inputIntervals);
+                var outputVector = new double[outputClasses.Length];
+                outputVector[classIndex] = 1;
+                inp[j] = inputVector;
+                outp[j] = outputVector;
+                var result = network.Compute(inp[j]);
+            }
+            var erro = myNN.ProcessTrainingSet(inp, outp.ToList());
+            
         }
         }
 }

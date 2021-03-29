@@ -298,7 +298,7 @@ namespace ClusterCalculator
             TotalPoints = TotalPoints.Union(Points).ToHashSet();
             foreach (var subBranch in SubBranches)
             {
-                TotalPoints = TotalPoints.Union(subBranch.CalcTotalPoints()).ToHashSet(); ;
+                TotalPoints = TotalPoints.Union(subBranch.CalcTotalPoints()).ToHashSet(); 
             }
             return TotalPoints;
         }
