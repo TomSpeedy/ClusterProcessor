@@ -118,9 +118,10 @@ namespace ClusterDescriptionGen
             Cluster current;
             int clustersProcessedCount = 0; //remove
             int maxClusterCount = 1000000;
+            int minimalClassCount = clusterEnumCollections.Count;
             Random random = new Random();
             IAttributeCalculator attrCalc = new DefaultAttributeCalculator();
-            while (clustersProcessedCount < maxClusterCount && clusterEnumCollections.Count > 0)
+            while (clustersProcessedCount < maxClusterCount && clusterEnumCollections.Count >= minimalClassCount)
             {
                 var currentIndex = random.Next(0, clusterEnumCollections.Count);
                 var clusterEnumCollection = clusterEnumCollections[currentIndex];

@@ -114,14 +114,14 @@ namespace ClusterClassifier
     new double[] { 0, 0, 1 }, new double[] { 1, 0, 0 }, new double[] { 0, 1, 0 }, new double[] { 0, 0, 1 } };
     */
             // create neural network
-            const string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/fiveCategories.json";
+            const string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/outSmaller.json";
             string[] outputClasses = new string[] {
                 "proton",
                 "he",
                 "low_electron",
                 "electron",
-                "muon"
-
+                "muon",
+                "pion"
             };
 
             StreamReader inputStream = new StreamReader(jsonFilePath);
@@ -145,22 +145,22 @@ namespace ClusterClassifier
             ActivationNetwork network = new ActivationNetwork(
                 new SigmoidFunction(1),
                 validFields.Length, 
-                new int[] {16, 16, outputClasses.Length}
+                new int[] {13,13, outputClasses.Length}
                 ); // one neuron in the second layer
                     // create teacher
            BackPropagationLearning teacher = new BackPropagationLearning(network);
             teacher.Momentum = 0.5;
-            teacher.LearningRate = 0.1;
+            teacher.LearningRate = 0.5;
             var jsonStream = new JsonTextReader(inputStream);
             var _inputVector = ReadJsonToVector(jsonStream, validFields, outputClasses, out int _classIndex);
             NNInputProcessor preprocessor = new NNInputProcessor();
-            Interval[] inputIntervals = { new Interval(0, 1500), new Interval(0, 100), new Interval(0, 500), new Interval(0, 100), new Interval(0, 1),
-                                         new Interval(0, 100), new Interval(0, 10), new Interval(0, 10), new Interval(0,1), new Interval(0,10) };
+            Interval[] inputIntervals = { new Interval(0, 1500), new Interval(0, 70), new Interval(0, 500), new Interval(0, 200), new Interval(0, 1),
+                                         new Interval(0, 100), new Interval(0, 10), new Interval(0, 10), new Interval(0,1), new Interval(0,5) };
             // loop
             int i = 0;
             const int epochSize = 32;
             
-            while (i < 30000 && inputStream.Peek() != -1)
+            while ( inputStream.BaseStream.Position < inputStream.BaseStream.Length - 10000000)
             {
                 double[][] input = new double[epochSize][];
                 double[][] output = new double[epochSize][];
@@ -179,7 +179,7 @@ namespace ClusterClassifier
                 // run epoch of learning procedure
                 double error = teacher.RunEpoch(input, output);
                 
-                if (i % 10 == 0)
+                if (i % 100 == 0)
 
                     Console.WriteLine(error);
                 //if (i % 10000 == 0)
@@ -192,18 +192,43 @@ namespace ClusterClassifier
             }
             double[][] inp = new double[16][];
             double[][] outp = new double[16][];
-            for (int j = 0; j < 16; j++)
+            int[][] confusionMatrix = new int[outputClasses.Length][];
+            for (int j = 0; j < outputClasses.Length; j++)
+            {
+                confusionMatrix[j] = new int[outputClasses.Length];
+            }
+            for (int j = 0; j < 10000; j++)
             {
                 
                 var inputVector = preprocessor.NormalizeElements(ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex), inputIntervals);
                 var outputVector = new double[outputClasses.Length];
-                outputVector[classIndex] = 1;
-                inp[j] = inputVector;
-                outp[j] = outputVector;
-                var result = network.Compute(inp[j]);
+                outputVector[classIndex] = 2;
+                //inp[j] = inputVector;
+                //outp[j] = outputVector;
+                var result = network.Compute(inputVector);
+                var predictedClass = result.ArgMax();
+                confusionMatrix[predictedClass][classIndex]++;
+                
             }
-            var erro = myNN.ProcessTrainingSet(inp, outp.ToList());
-            
+            //var erro = myNN.ProcessTrainingSet(inp, outp.ToList());
+
+            var diagSum = 0;
+            var totalSum = 0;
+            for (int j = 0; j < outputClasses.Length; j++)
+            {
+
+                for (int k = 0; k < outputClasses.Length; k++)
+                {
+                    Console.Write(confusionMatrix[j][k]);
+                    Console.Write(" ");
+                    totalSum += confusionMatrix[j][k];
+                    if (j == k)
+                        diagSum += confusionMatrix[j][k];
+
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine("SuccessPercentage is : " + diagSum / (double)totalSum);
         }
         }
 }
