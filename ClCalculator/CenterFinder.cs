@@ -19,7 +19,7 @@ namespace ClusterCalculator
                     hashSet.Add(point);
                 else
                 { hashSet.TryGetValue(point, out PixelPoint oldPoint);
-                    if (oldPoint.ToT < point.ToT)
+                    if (oldPoint.Energy < point.Energy)
                     {
                         hashSet.Remove(oldPoint);
                         hashSet.Add(point);
@@ -31,7 +31,6 @@ namespace ClusterCalculator
     }
     public class EnergyCenterFinder
     {
-        private EnergyCalculator EnergyCalc;
         private NeighbourCountFilter NeighbourFilter;
         private IZCalculator ZCalculator;
         const int MinNeighbourCount = 3;
@@ -39,10 +38,9 @@ namespace ClusterCalculator
         const double skeletWeight = 1.5;
         const double noSkeletWeight = 1;
         const double coreWeight = 3;
-        public EnergyCenterFinder(Calibration calib) 
+        public EnergyCenterFinder() 
         {
             ZCalculator = new ZCalculator();
-            EnergyCalc = new EnergyCalculator(calib);
             NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount >= MinNeighbourCount, NeighbourCountOption.WithYpsilonNeighbours); //we only count non diagonals neighbours
         }
         private double CalcSurroundEnergy(PixelPoint point, HashSet<PixelPoint> allPoints, HashSet<PixelPoint> skeletPoints)
@@ -56,12 +54,12 @@ namespace ClusterCalculator
                     var weight = skeletPoints.Contains(neighbour) ? skeletWeight : noSkeletWeight;
                     if (i < ushort.MaxValue && j < ushort.MaxValue && j >= 0 && i >= 0 && allPoints.TryGetValue(neighbour, out PixelPoint actualNeighbour))
                     {
-                        surroundEnergy += weight * EnergyCalc.ToElectronVolts(actualNeighbour.ToT, actualNeighbour.xCoord, actualNeighbour.yCoord);
+                        surroundEnergy += weight* actualNeighbour.Energy;
                     }
                     
                 }
             }
-            surroundEnergy += (coreWeight - skeletWeight) * EnergyCalc.ToElectronVolts(point.ToT, point.xCoord, point.yCoord);
+            surroundEnergy += (coreWeight - skeletWeight) * point.Energy;
             return surroundEnergy;
         }
 

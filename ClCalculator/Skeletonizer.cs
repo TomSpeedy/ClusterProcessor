@@ -23,10 +23,9 @@ namespace ClusterCalculator
         EnergyHaloFilter HaloFilter { get; }
 
         readonly (int x,  int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
-        public ThinSkeletonizer(EnergyCalculator energyCalc)
+        public ThinSkeletonizer()
         {
-            EnergyCalculator = energyCalc;
-            HaloFilter = new EnergyHaloFilter(EnergyCalculator);
+            HaloFilter = new EnergyHaloFilter();
         }
         private PixelPoint[] SkeletonizeSelected(IList<PixelPoint> points, Predicate<PixelPoint> condition, bool preserveEnergy = true)
         {
@@ -61,13 +60,13 @@ namespace ClusterCalculator
                     GetNeighbours(toDelete[i]);
                     if (preserveEnergy)
                     {
-                        var currentEnergy = EnergyCalculator.ToElectronVolts(actualVal.ToT, actualVal.xCoord, actualVal.yCoord);
+                        var currentEnergy = actualVal.Energy;
                     for (int j = 0; j < neighboursTemp.Count; j++)
                     {
                         pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
-                        var neighbourEnergy = EnergyCalculator.ToElectronVolts(actualNeighbour.ToT, actualNeighbour.xCoord, actualNeighbour.yCoord);
-                        actualNeighbour.SetToT(EnergyCalculator.ToTimeOverThreshold(neighbourEnergy
-                            + (currentEnergy / neighboursTemp.Count), actualNeighbour.xCoord, actualNeighbour.yCoord));
+                        var neighbourEnergy = actualNeighbour.Energy;
+                        actualNeighbour.SetEnergy(neighbourEnergy
+                            + (currentEnergy / neighboursTemp.Count));
                     }
                     }
 
@@ -95,14 +94,14 @@ namespace ClusterCalculator
                     GetNeighbours(toDelete[i]);
                     if (preserveEnergy)
                     {
-                        var currentEnergy = EnergyCalculator.ToElectronVolts(actualVal.ToT, actualVal.xCoord, actualVal.yCoord);
+                        var currentEnergy = actualVal.Energy;
                     for (int j = 0; j < neighboursTemp.Count; j++)
                     {
                         
                             pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
-                        var neighbourEnergy = EnergyCalculator.ToElectronVolts(actualNeighbour.ToT, actualNeighbour.xCoord, actualNeighbour.yCoord);
-                        actualNeighbour.SetToT(EnergyCalculator.ToTimeOverThreshold(neighbourEnergy
-                            + (currentEnergy / neighboursTemp.Count), actualNeighbour.xCoord, actualNeighbour.yCoord));
+                        var neighbourEnergy = actualNeighbour.Energy;
+                        actualNeighbour.SetEnergy(neighbourEnergy
+                            + (currentEnergy / neighboursTemp.Count));
                         
                     }
                     }

@@ -19,7 +19,7 @@ namespace ClusterFilter
     public partial class FilterUI : Form
     {
         const string configPath = "../../../config/";
-        private IClusterReader ClusterReader { get; set; }
+        private IClusterReader ClusterReader { get; set; } = new MMClusterReader();
         public FilterUI()
         {
             InitializeComponent();
@@ -65,7 +65,7 @@ namespace ClusterFilter
 
                 var workingDirName = PathParser.GetPrefixPath(InFilePathBox.Text);
                 ClusterReader.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
-                var outClPath = clFile + "_filtered_" + DateTime.Now.ToString().Replace(':', '-') + ".cl";
+                var outClPath = clFile.Replace('.','_') + "_filtered_" + DateTime.Now.ToString().Replace('/', '-').Replace(':','-') + ".cl";
                 var filteredOut = new StreamWriter(outClPath);
                 CreateNewIniFile(new StreamReader(InFilePathBox.Text), new StreamWriter(workingDirName + OutFileNameIniBox.Text + ".ini"), clFile, PathParser.GetSuffixPath(outClPath));
 
@@ -73,15 +73,15 @@ namespace ClusterFilter
                     int.TryParse(FromPixCountFilterBox.Text, out int resultLowerP) ? resultLowerP : 0,
                     int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000);
 
-                var energyFilter = new EnergyFilter(new StreamReader(pxFile), new Calibration(configPath),
+                var energyFilter = new EnergyFilter(new StreamReader(pxFile), 
                     double.TryParse(FromEnergyFilterBox.Text, out double resultLowerE) ? resultLowerE : 0,
                     double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : 1000000);
 
-                var convexityFilter = new ConvexityFilter(new StreamReader(pxFile), new Calibration(configPath),
+                var convexityFilter = new ConvexityFilter(new StreamReader(pxFile), 
                      int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
                      int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100, ConvexitySkeletFilterCheckBox.Checked);
 
-                var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile), minVertexCount, new Calibration(configPath));
+                var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile), minVertexCount);
 
                 List<ClusterFilter> usedFiletrs = new List<ClusterFilter>();
                 if (int.TryParse(FromPixCountFilterBox.Text, out int valInt) || int.TryParse(ToPixCountFilterBox.Text, out valInt))

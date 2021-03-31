@@ -18,7 +18,6 @@ namespace ClusterDescriptionGen
     {
         private const string configPath = "../../../config/calib_files_fe/";
         private IDescriptionWriter ClDescriptionWriter { get; set; }
-        private EnergyCalculator[] EnergyCalculators { get; set; }
         
         public Form1()
         {
@@ -86,7 +85,7 @@ namespace ClusterDescriptionGen
             IClusterReader clusterReader  = new MMClusterReader();
         string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
             string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[0].Text).ToArray();
-            string[] configDirs = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[2].Text).ToArray();
+            //string[] configDirs = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[2].Text).ToArray();
             //string[] pxFiles = new string[iniFiles.Length];
             List <ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
 
@@ -98,7 +97,7 @@ namespace ClusterDescriptionGen
                 var clCollection = new ClusterInfoCollection(new StreamReader(clFile), new StreamReader(pxFile));
 
                 var existingClEnumCollections = clusterEnumCollections.FindAll(clusterEnColl => (clusterEnColl.Class == classes[i]));
-                var newPartition = new ClusterClassPartition(clCollection, configDirs[i]);
+                var newPartition = new ClusterClassPartition(clCollection, null);
                 if (existingClEnumCollections.Count == 0)
                   clusterEnumCollections.Add(new ClusterClassCollection( newPartition, classes[i]));
                 else
@@ -154,8 +153,6 @@ namespace ClusterDescriptionGen
                     continue;
                 }
                 clEnumCollections.Remove(currentClEnumCollection);
-                //TODO maybe end program after first removal, to have data evenly distributed
-
                 if (clEnumCollections.Count == 0)
                 {
                     done = true;

@@ -51,8 +51,8 @@ namespace ClusterUI
             if (cluster != null)
             {
                 Current = cluster;
-                HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
-                PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
+                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
             }
             else
             {
@@ -69,8 +69,8 @@ namespace ClusterUI
             if (cluster != null)
             {
                 Current = cluster;
-                HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
-                PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
+                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
             }
             ClusterIndexValueLabel.Text = clusterNumber.ToString();
 
@@ -83,8 +83,8 @@ namespace ClusterUI
                 if (cluster != null)
                 {
                     Current = cluster;
-                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
-                    PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
+                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                    PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
                     clusterNumber = result;
                 }
                 else
@@ -122,9 +122,9 @@ namespace ClusterUI
 
                 if (cluster != null)
                 {
-                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.ToT).Points;
+                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
                     PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-                    PictureBox.Image = GetClusterImage(point => point.ToT, cluster);
+                    PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
                 }
 
                 Current = cluster;
@@ -227,24 +227,24 @@ namespace ClusterUI
         {
             if (Current == null)
                 return;
-            PixelFilter haloFilter = new EnergyHaloFilter(EnergyCalculator);
-            ISkeletonizer skeletonizer = new ThinSkeletonizer(EnergyCalculator);
+            PixelFilter haloFilter = new EnergyHaloFilter();
+            ISkeletonizer skeletonizer = new ThinSkeletonizer();
             //opt 1 Current.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
             //opt2
             var currentSkelet = new Cluster(Current.FirstToA, Current.PixelCount, Current.ByteStart);
             currentSkelet.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
-            PictureBox.Image = GetClusterImage(point => point.ToT, currentSkelet);
+            PictureBox.Image = GetClusterImage(point => point.Energy, currentSkelet);
 
         }
 
         #endregion
         public void ViewBranchButtonClicked(object sender, EventArgs e)
         {
-            var skeletonizer = new ThinSkeletonizer(EnergyCalculator);
+            var skeletonizer = new ThinSkeletonizer();
             var skeletCluster = new Cluster(Current.FirstToA, Current.PixelCount, Current.ByteStart);
             skeletCluster.Points = skeletonizer.SkeletonizePoints(Current.Points);
             //Current.Points = skeletonizer.SkeletonizePoints(Current.Points);
-            var centerCalc = new EnergyCenterFinder(new Calibration(configPath));
+            var centerCalc = new EnergyCenterFinder();
             var center = centerCalc.CalcCenterPoint(skeletCluster, Current.Points);
             var branchAnalyzer = new BranchAnalyzer(centerCalc);
             var analyzedCluster = branchAnalyzer.Analyze(skeletCluster, Current);
@@ -260,10 +260,10 @@ namespace ClusterUI
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
         {
             const int bitmapSize = 256;
-            var centerCalc = new EnergyCenterFinder(new Calibration(configPath));
+            var centerCalc = new EnergyCenterFinder();
             //var center = centerCalc.CalcCenterPoint(cluster.Points);
 
-            var vertexFinder = new VertexFinder(new Calibration( configPath));
+            var vertexFinder = new VertexFinder();
 
             //var possibleCentersFinder = new NeighbourCountFilter(neighBourCount => neighBourCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
             //var vertices = vertexFinder.FindVertices(cluster.Points);

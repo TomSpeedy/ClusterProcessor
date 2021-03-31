@@ -31,16 +31,13 @@ namespace ClusterCalculator
     }
     public class EnergyHaloFilter : PixelFilter
     {
-        EnergyCalculator EnergyCalculator { get; }
-        const double HaloLimit = 12;
-        public EnergyHaloFilter(EnergyCalculator energyCalculator)
-        {
-            EnergyCalculator = energyCalculator;
-
+        const double HaloLimit = 10;
+        public EnergyHaloFilter()
+        {         
         }
         public override bool MatchesFilter(PixelPoint pixel)
         {
-            return (EnergyCalculator.ToElectronVolts(pixel.ToT, pixel.xCoord, pixel.yCoord) >= HaloLimit);
+            return pixel.Energy >= HaloLimit;
         }
     }
     public enum NeighbourCountOption

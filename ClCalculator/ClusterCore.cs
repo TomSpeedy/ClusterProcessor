@@ -36,21 +36,27 @@ namespace ClusterCalculator
     public struct PixelPoint : IEquatable<PixelPoint>
     {
 
-        public PixelPoint(ushort xCoord, ushort yCoord, double ToA = 0, double ToT = 0)
+        public PixelPoint(ushort xCoord, ushort yCoord, double ToA = 0, double Energy = 0)
         {
             this.xCoord = xCoord;
             this.yCoord = yCoord;
             this.ToA = ToA;
-            this.ToT = ToT;
-
+            this.Energy = Energy;
+        }
+        public PixelPoint(ushort xCoord, ushort yCoord, double ToA, double ToT, EnergyCalculator enCalculator)
+        {
+            this.xCoord = xCoord;
+            this.yCoord = yCoord;
+            this.ToA = ToA;
+            this.Energy = enCalculator.ToElectronVolts(ToT, xCoord, yCoord);
         }
         public ushort xCoord { get; }
         public ushort yCoord { get; }
         public double ToA { get; }
-        public double ToT { get; private set; }
-        public void SetToT(double newToT)
+        public double Energy { get; private set; }
+        public void SetEnergy(double newEnergy)
         {
-            ToT = newToT;
+            Energy = newEnergy;
         }
         public override int GetHashCode()
         {

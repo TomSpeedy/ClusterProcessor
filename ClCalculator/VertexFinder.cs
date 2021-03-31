@@ -11,9 +11,9 @@ namespace ClusterCalculator
         private ISkeletonizer Skeletonizer { get; }
         const int VertexNeighbourCount = 1;
         private NeighbourCountFilter NeighbourFilter { get; }
-        public VertexFinder(Calibration calib)
+        public VertexFinder()
         {
-            Skeletonizer = new ThinSkeletonizer(new EnergyCalculator(calib));
+            Skeletonizer = new ThinSkeletonizer();
             NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount == VertexNeighbourCount, NeighbourCountOption.WithAllDiagonalNeighbours); //we also count diagonal neighbours
         }
 

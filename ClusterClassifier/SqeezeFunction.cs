@@ -46,4 +46,11 @@ namespace ClusterClassifier
         public double Derivative(double value) => CalcDerivative(value);
         public double Derivative2(double value) => 0;
     }
+    class TanhSqueezeFunction : IActivationFunction
+    {
+        private SigmoidFunction sigmSqueeze = new SigmoidFunction(1);
+        public double Function(double value) => 2*sigmSqueeze.Function(2 * value) - 1;
+        public double Derivative(double value) => 1 - Function(value)*Function(value);
+        public double Derivative2(double value) => -8*Math.Sinh(value) / (3*Math.Cosh(value) + Math.Cosh(3*value));
+    }
 }

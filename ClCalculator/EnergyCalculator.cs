@@ -22,6 +22,10 @@ namespace ClusterCalculator
             LoadConfigFile(calib.CFile, this.cConf);
             LoadConfigFile(calib.TFile, this.tConf);
         }
+        public EnergyCalculator()
+        {
+            
+        }
         public double ToElectronVolts(double ToT, ushort x, ushort y)
         {
 
@@ -29,16 +33,13 @@ namespace ClusterCalculator
             double b = bConf[x][y];
             double c = cConf[x][y];
             double t = tConf[x][y];
+            const double defaultEnergy = 3.00;
             double D = Math.Pow((-a * t - ToT + b), 2) - 4 * a * (-b * t - c + ToT * t);
             double energy = (a * t + ToT + b + Math.Sqrt(D)) / (2 * a);
-            if(a == 0)
-            { }
             if(double.IsNaN(energy))
             {
-                energy = 3.00;
+                energy = defaultEnergy;
             }
-            if(double.IsInfinity(energy))
-            { }
             return energy;
         }
 
@@ -55,7 +56,7 @@ namespace ClusterCalculator
             var totalEnergy = 0d;
             foreach (var point in points)
             {
-                totalEnergy += ToElectronVolts(point.ToT, point.xCoord, point.yCoord);
+                totalEnergy += point.Energy;
             }
             return totalEnergy;
         }

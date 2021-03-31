@@ -53,8 +53,8 @@ namespace ClusterFilter
         
         private StreamReader PixelFile { get; set; }
         private EnergyCalculator EnergyCalculator { get; set; }
-        
 
+        private bool NeedsCalibration = false;
         private double LowerBound { get; }
         private double UpperBound { get; }
         public EnergyFilter(StreamReader pixelFile, Calibration calib, double lowerBound = 0D, double upperBound = double.MaxValue)
@@ -63,6 +63,14 @@ namespace ClusterFilter
             this.LowerBound = lowerBound;
             this.UpperBound = upperBound;
             this.EnergyCalculator = new EnergyCalculator(calib);
+            NeedsCalibration = true;
+        }
+        public EnergyFilter(StreamReader pixelFile,  double lowerBound = 0D, double upperBound = double.MaxValue)
+        {
+            this.PixelFile = pixelFile;
+            this.LowerBound = lowerBound;
+            this.UpperBound = upperBound;
+            this.EnergyCalculator = new EnergyCalculator();
 
         }
         public override bool MatchesFilter(ClusterInfo clInfo)
@@ -85,9 +93,12 @@ namespace ClusterFilter
                     double.TryParse(tokens[3], out double ToT);
                     double Energy = 0;
                     if ((x <= 255) && (x >= 0) && (y >= 0) &&(y <= 255))
-                        Energy = EnergyCalculator.ToElectronVolts(ToT, x, y);
+                        Energy = NeedsCalibration ? EnergyCalculator.ToElectronVolts(ToT, x, y): ToT;
                     totalEnergy += Energy;
                    
+                }
+                else
+                {
                 }
             }
             if ((totalEnergy >= LowerBound) && (totalEnergy <= UpperBound))
@@ -131,6 +142,7 @@ namespace ClusterFilter
         private double UpperBound { get; }
         private EnergyCalculator EnergyCalculator {get;}
         bool useSkelet { get; }
+        bool NeedsCalibration = false;
 
         public ConvexityFilter(StreamReader pixelFile, Calibration calib, int lowerBound, int upperBound, bool useSkelet = false)
         {
@@ -138,12 +150,23 @@ namespace ClusterFilter
             this.LowerBound = lowerBound;
             this.UpperBound = upperBound;
             EnergyCalculator = new EnergyCalculator(calib);
+            NeedsCalibration = true;
         }
-       
+        public ConvexityFilter(StreamReader pixelFile, int lowerBound, int upperBound, bool useSkelet = false)
+        {
+            this.PixelFile = pixelFile;
+            this.LowerBound = lowerBound;
+            this.UpperBound = upperBound;
+            EnergyCalculator = new EnergyCalculator();
+        }
         public override bool MatchesFilter(ClusterInfo clInfo)
         {
             PixelFile.DiscardBufferedData();
+          
             PixelFile.BaseStream.Seek((long)clInfo.ByteStart, SeekOrigin.Begin);
+            //TODO add cluster reder method readPixel
+
+
             var points = new List<PixelPoint>();
             for (int i = 0; i < clInfo.PixCount; i++)
             {
@@ -156,7 +179,7 @@ namespace ClusterFilter
                         throw new InvalidOperationException();
 
                 }
-                    
+
                 ushort.TryParse(tokens[0], out ushort x);
                 ushort.TryParse(tokens[1], out ushort y);
                 double.TryParse(tokens[2], out double ToA);
@@ -164,7 +187,7 @@ namespace ClusterFilter
                 if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1) //we didnt read the same pixel twice, If we did, then just ignore it
                 {
 
-                    points.Add(new PixelPoint(x, y, ToA, ToT));
+                    points.Add(new PixelPoint(x, y, ToA, NeedsCalibration ? EnergyCalculator.ToElectronVolts(ToT, x, y) : ToT));
 
                 }
             }
@@ -175,7 +198,7 @@ namespace ClusterFilter
             {
                 if(useSkelet)
                 {
-                    ISkeletonizer skeletonizer = new ThinSkeletonizer(EnergyCalculator);
+                    ISkeletonizer skeletonizer = new ThinSkeletonizer();
                     var hull = new ConvexHull(skeletonizer.SkeletonizePoints(points));
                     area = hull.CalculateArea();
                 }
@@ -204,9 +227,9 @@ namespace ClusterFilter
         private VertexFinder VertexFinder { get; }
         private StreamReader PixelFile { get; set; }
         private int MinVertexCount { get; }
-        public VertexCountFilter(StreamReader pixelFile, int minVertexCount, Calibration calib)
+        public VertexCountFilter(StreamReader pixelFile, int minVertexCount)
         {
-            VertexFinder = new VertexFinder(calib);
+            VertexFinder = new VertexFinder();
             PixelFile = pixelFile;
             MinVertexCount = minVertexCount;
         }

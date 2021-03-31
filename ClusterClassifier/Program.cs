@@ -43,17 +43,11 @@ namespace ClusterClassifier
             return newVector;
         }
     }
+    
     class Program
     {
         static Random rand = new Random();
-        static double[] SwitchRandomVal(double[] input)
-        {
-            double[] result = new double[input.Length];
-            input.CopyTo(result, 0);
-            int swapIndex = rand.Next(0, input.Length - 1);
-            result[swapIndex] = result[swapIndex] == 1d ? 0 : 1;
-            return result;
-        }
+
 
         static double[] ReadJsonToVector(JsonTextReader reader, string[] usableKeys, string[] classes,  out int classIndex)
         {
@@ -114,14 +108,18 @@ namespace ClusterClassifier
     new double[] { 0, 0, 1 }, new double[] { 1, 0, 0 }, new double[] { 0, 1, 0 }, new double[] { 0, 0, 1 } };
     */
             // create neural network
-            const string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/outSmaller.json";
+             string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/elPiUnified.json";
             string[] outputClasses = new string[] {
-                "proton",
-                "he",
-                "low_electron",
-                "electron",
+                "electr_pion0",
+                "electr15",
+                "electr30",
+                "electr45",
+                "electr60",
+                "electr75",
                 "muon",
-                "pion"
+                "pion22",
+                "pion45",
+                "pion60",
             };
 
             StreamReader inputStream = new StreamReader(jsonFilePath);
@@ -137,61 +135,55 @@ namespace ClusterClassifier
                 "RelativeHaloSize",
                 "BranchCount"
                 };
-            ICostFunction costFunction = new SquareDiffCostFunction();
-            var myNN = new MLP(new uint[] { 20, 20 }, costFunction);
-            myNN.CreateInput(new double[10]);
-            myNN.CreateOutput((uint)outputClasses.Length);
 
-            ActivationNetwork network = new ActivationNetwork(
+            ActivationNetwork elMuPiNetwork = new ActivationNetwork(
                 new SigmoidFunction(1),
-                validFields.Length, 
-                new int[] {13,13, outputClasses.Length}
+                validFields.Length,
+                new int[] { 16, 16, outputClasses.Length }
                 ); // one neuron in the second layer
-                    // create teacher
-           BackPropagationLearning teacher = new BackPropagationLearning(network);
+                   // create teacher
+            BackPropagationLearning teacher = new BackPropagationLearning(elMuPiNetwork);
             teacher.Momentum = 0.5;
-            teacher.LearningRate = 0.5;
+            teacher.LearningRate = 0.8;
             var jsonStream = new JsonTextReader(inputStream);
             var _inputVector = ReadJsonToVector(jsonStream, validFields, outputClasses, out int _classIndex);
             NNInputProcessor preprocessor = new NNInputProcessor();
-            Interval[] inputIntervals = { new Interval(0, 1500), new Interval(0, 70), new Interval(0, 500), new Interval(0, 200), new Interval(0, 1),
-                                         new Interval(0, 100), new Interval(0, 10), new Interval(0, 10), new Interval(0,1), new Interval(0,5) };
+            Interval[] elMuPiIntervals = { new Interval(0, 500), new Interval(0, 70), new Interval(0, 150), new Interval(0, 120), new Interval(0, 1),
+                                         new Interval(0, 70), new Interval(0, 10), new Interval(0, 10), new Interval(0,1), new Interval(0,5) };
             // loop
             int i = 0;
-            const int epochSize = 32;
-            
-            while ( inputStream.BaseStream.Position < inputStream.BaseStream.Length - 10000000)
+            int epochSize = 32;
+
+            while (inputStream.BaseStream.Position < inputStream.BaseStream.Length - 10000000)
             {
                 double[][] input = new double[epochSize][];
                 double[][] output = new double[epochSize][];
-                
+
                 for (int j = 0; j < epochSize; j++)
                 {
-                    var inputVector = preprocessor.NormalizeElements(ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex),inputIntervals);
+                    var inputVector = preprocessor.NormalizeElements(ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex), elMuPiIntervals);
                     var outputVector = new double[outputClasses.Length];
                     outputVector[classIndex] = 1;
                     input[j] = inputVector;
                     output[j] = outputVector;
                 }
-               // tree = teach.Learn(input, output)
+                // tree = teach.Learn(input, output)
                 //var err = myNN.ProcessTrainingSet(input, output.ToList());
 
                 // run epoch of learning procedure
                 double error = teacher.RunEpoch(input, output);
-                
+
                 if (i % 100 == 0)
 
                     Console.WriteLine(error);
                 //if (i % 10000 == 0)
                 //{ }
-                    // check error value to see if we need to stop
-                    // ...
-                    i++;
+                // check error value to see if we need to stop
+                // ...
+                i++;
                 if (i >= 10000)
                 { }
             }
-            double[][] inp = new double[16][];
-            double[][] outp = new double[16][];
             int[][] confusionMatrix = new int[outputClasses.Length][];
             for (int j = 0; j < outputClasses.Length; j++)
             {
@@ -199,36 +191,183 @@ namespace ClusterClassifier
             }
             for (int j = 0; j < 10000; j++)
             {
-                
-                var inputVector = preprocessor.NormalizeElements(ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex), inputIntervals);
+                var unNormalizedVect = ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex);
+                var inputVector = preprocessor.NormalizeElements(unNormalizedVect, elMuPiIntervals);
                 var outputVector = new double[outputClasses.Length];
-                outputVector[classIndex] = 2;
-                //inp[j] = inputVector;
-                //outp[j] = outputVector;
-                var result = network.Compute(inputVector);
+                outputVector[classIndex] = 1;
+
+                var result = elMuPiNetwork.Compute(inputVector);
                 var predictedClass = result.ArgMax();
                 confusionMatrix[predictedClass][classIndex]++;
-                
-            }
-            //var erro = myNN.ProcessTrainingSet(inp, outp.ToList());
 
+            }
+            var totalSum =0;
             var diagSum = 0;
-            var totalSum = 0;
             for (int j = 0; j < outputClasses.Length; j++)
             {
 
                 for (int k = 0; k < outputClasses.Length; k++)
                 {
                     Console.Write(confusionMatrix[j][k]);
-                    Console.Write(" ");
+                    Console.Write("\t");
                     totalSum += confusionMatrix[j][k];
                     if (j == k)
                         diagSum += confusionMatrix[j][k];
+
 
                 }
                 Console.WriteLine();
             }
             Console.WriteLine("SuccessPercentage is : " + diagSum / (double)totalSum);
+            //another classifier
+
+
+
+
+            jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/smallerWDeg0.json";
+            outputClasses = new string[] {
+                "electron",
+                "muon",
+                "pion",
+                "el_pi_deg0",
+                "he",
+                "low_electron",
+                "proton"
+                
+            };
+
+            inputStream = new StreamReader(jsonFilePath);
+            validFields = new string[]{
+                "TotalEnergy",
+                "AverageEnergy",
+                "MaxEnergy",
+                "PixelCount",
+                "Convexity",
+                "Width",
+                "CrosspointCount",
+                "VertexCount",
+                "RelativeHaloSize",
+                "BranchCount"
+                };
+
+            ActivationNetwork smallNetwork = new ActivationNetwork(
+                new SigmoidFunction(1),
+                validFields.Length,
+                new int[] { 13, 13, outputClasses.Length }
+                ); // one neuron in the second layer
+                   // create teacher
+            teacher = new BackPropagationLearning(smallNetwork);
+            teacher.Momentum = 0.5;
+            teacher.LearningRate = 0.8;
+            jsonStream = new JsonTextReader(inputStream);
+            _inputVector = ReadJsonToVector(jsonStream, validFields, outputClasses, out int _classIndex2);
+            preprocessor = new NNInputProcessor();
+            var smallInputIntervals = new Interval[]{ new Interval(0, 1500), new Interval(0, 100), new Interval(0, 300), new Interval(0, 120), new Interval(0, 1),
+                                         new Interval(0, 130), new Interval(0, 10), new Interval(0, 10), new Interval(0,1), new Interval(0,6) };
+            // loop
+            i = 0;
+            epochSize = 32;
+
+
+            while (inputStream.BaseStream.Position < inputStream.BaseStream.Length - 10000000)
+            {
+                double[][] input = new double[epochSize][];
+                double[][] output = new double[epochSize][];
+
+                for (int j = 0; j < epochSize; j++)
+                {
+                    var inputVector = preprocessor.NormalizeElements(ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex), smallInputIntervals);
+                    var outputVector = new double[outputClasses.Length];
+                    outputVector[classIndex] = 1;
+                    input[j] = inputVector;
+                    output[j] = outputVector;
+                }
+
+                // run epoch of learning procedure
+                double error = teacher.RunEpoch(input, output);
+
+                if (i % 100 == 0)
+                    Console.WriteLine(error);
+                //if (i % 10000 == 0)
+                //{ }
+                // check error value to see if we need to stop
+                // ...
+                i++;
+
+            }
+
+            confusionMatrix = new int[outputClasses.Length][];
+            for (int j = 0; j < outputClasses.Length; j++)
+            {
+                confusionMatrix[j] = new int[outputClasses.Length];
+            }
+            for (int j = 0; j < 10000; j++)
+            {
+                var unNormalizedVect = ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex);
+                var inputVector = preprocessor.NormalizeElements(unNormalizedVect, smallInputIntervals);
+                var outputVector = new double[outputClasses.Length];
+                outputVector[classIndex] = 1;
+
+                var result = smallNetwork.Compute(inputVector);
+                var predictedClass = result.ArgMax();
+                if (predictedClass < 4)
+                {
+                    result = elMuPiNetwork.Compute(preprocessor.NormalizeElements(unNormalizedVect, elMuPiIntervals));
+                    predictedClass = result.ArgMax();
+                    switch (predictedClass)
+                    {
+                        case 0:
+                            predictedClass = 3;
+                            break;
+                        case 1:
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                            predictedClass = 0;
+                            break;
+                        case 6:
+                            predictedClass = 1;
+                            break;
+                        case 7:
+                        case 8:
+                        case 9:
+                            predictedClass = 2;
+                            break;
+
+                    }
+                    
+                }
+                confusionMatrix[predictedClass][classIndex]++;
+
+            }
+   
+
+            diagSum = 0;
+            totalSum = 0;
+            var correctElectr = 0;
+            var correctPion = 0;
+
+            for (int j = 0; j < outputClasses.Length; j++)
+            {
+
+                for (int k = 0; k < outputClasses.Length; k++)
+                {
+                    Console.Write(confusionMatrix[j][k]);
+                    Console.Write("\t");
+                    totalSum += confusionMatrix[j][k];
+                    if (j == k)
+                        diagSum += confusionMatrix[j][k];
+                    if (j < 6 && k < 6 && j > 0 && k > 0)
+                        correctElectr += confusionMatrix[j][k];
+                    if (j >= 7 && k >= 7)
+                        correctPion += confusionMatrix[j][k];
+
+                }
+                Console.WriteLine();
+            }
+            Console.WriteLine("SuccessPercentage is : " + diagSum / (double)totalSum);
+            
         }
         }
 }

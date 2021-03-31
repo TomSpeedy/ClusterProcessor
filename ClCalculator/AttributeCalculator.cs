@@ -23,8 +23,6 @@ namespace ClusterCalculator
             var skeletonizer = partition.Skeletonizer;
 
             var clInfo = partition.Enumerator.Current;
-            //foreach (var clInfo in clusterCollection)
-            //{
 
             var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
             ConvexHull hull = null;
@@ -104,7 +102,7 @@ namespace ClusterCalculator
                         attributePairs[attribute] = branchesCount;
                         break;
                     case ClusterAttribute.MaxEnergy:
-                        double maxEnergy = current.Points.Max(point => EnergyCalculator.ToElectronVolts(point.ToT, point.xCoord, point.yCoord));
+                        double maxEnergy = current.Points.Max(point => point.Energy);
                         attributePairs[attribute] = maxEnergy;
                         break;
                     case ClusterAttribute.Class:
@@ -132,11 +130,11 @@ namespace ClusterCalculator
             ConfigPath = configPath;
             Collection = collection;
             Enumerator = collection.GetEnumerator();
-            CenterFinder = new EnergyCenterFinder(new Calibration(configPath));
+            CenterFinder = new EnergyCenterFinder();
             BranchAnalyzer = new BranchAnalyzer(CenterFinder);
-            EnergyCalc = new EnergyCalculator(new Calibration(configPath));
-            VertexFinder = new VertexFinder(new Calibration(configPath));
-            Skeletonizer = new ThinSkeletonizer(EnergyCalc);
+            EnergyCalc = new EnergyCalculator();
+            VertexFinder = new VertexFinder();
+            Skeletonizer = new ThinSkeletonizer();
         }
     }
     public struct ClusterClassCollection
