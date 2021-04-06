@@ -230,9 +230,9 @@ namespace ClusterClassifier
     }
     class MultiLayeredClassifier
     {
-        NNClassifier NNFrag = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/fragBinary4.jsontrained 0.846.txt");
+        NNClassifier NNFrag = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/BESTtrainFragMulti.jsontrained 0.9566483809893684.txt");
         NNClassifier NNHePrFeLe = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/HePrFeLe_ElMuPi.jsontrainedBEST.txt");
-        NNClassifier NNLead = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/leadBinary.jsontrained0.996BEST.txt");
+        NNClassifier NNLead = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/BESTtrainLeadBinary.jsontrained 0.9813242784380306.txt");
         NNClassifier NNElMuPi = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/ElMuPi.jsontrained 0.73BEST.txt");
         NNInputProcessor preprocessor = new NNInputProcessor();
 
@@ -256,6 +256,10 @@ namespace ClusterClassifier
             resultIndex = NNFrag.ClassifySingle(inputVector);
             if (resultIndex == 0)
                     return 1;
+            if (resultIndex == 1)
+                return 2;
+            if (resultIndex == 2)
+                return 4;
             resultIndex = NNHePrFeLe.ClassifySingle(inputVector);
             switch (resultIndex)
             {
@@ -295,10 +299,10 @@ namespace ClusterClassifier
                  "CrosspointCount",
                  "VertexCount",
                  "RelativeHaloSize",
-                 "BranchCount"
-                // "StdOfEnergy",
-                 //"StdOfArrival",
-                 //"RelLowEnergyPixels"
+                 "BranchCount",
+                 "StdOfEnergy",
+                "StdOfArrival",
+                "RelLowEnergyPixels"
                  };
         static string[] outputClasses = new string[] {
             "lead",
@@ -331,18 +335,29 @@ namespace ClusterClassifier
                 //new Interval[]{ new Interval(0, 9000), new Interval(0, 50), new Interval(0, 500), new Interval(0, 400), new Interval(0, 1),
                                     //   new Interval(0, 150), new Interval(0, 15), new Interval(0, 15), new Interval(0,1), new Interval(0,10) };
 
-            var epochSize = 16;
-            NNClassifier fragClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 16, 16}, new SigmoidFunction(1), commonRareIntervals);
-            //fragClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
-            //fragClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
+            var epochSize = 32;
+            NNClassifier fragClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 13, 13}, new SigmoidFunction(1), commonRareIntervals);
+            double success = 0;
+            success = fragClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
+            if (success > acceptableSuccessRate)
+                return success;
+            success = fragClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
+            if (success > acceptableSuccessRate)
+                return success;
+            success = fragClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
+            if (success > acceptableSuccessRate)
+                return success;
+            success = fragClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
+            if (success > acceptableSuccessRate)
+                return success;
             return fragClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
         }
         static double LearnLead(double acceptableSuccessRate)
         {
             
-            string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/leadBinary.json";
+            string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/trainLeadBinary.json";
             string[] outputClasses = new string[] {
-                 "noLead",
+                 "other",
                  "lead"
              };
 
@@ -350,11 +365,11 @@ namespace ClusterClassifier
             
 
             NNInputProcessor preprocessor = new NNInputProcessor();
-            Interval[] commonRareIntervals = preprocessor.CalculateNormIntervals(jsonFilePath, validFields, outputClasses);//{ new Interval(0, 60000), new Interval(0, 100), new Interval(0, 600), new Interval(0, 1000), new Interval(0, 1),
-                                                                                                                       // new Interval(0, 200), new Interval(0, 50), new Interval(0, 30), new Interval(0,1), new Interval(0,30) };
-                                                                                                               
-            int epochSize = 32;
-            NNClassifier commonRareClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 16, 16 }, new SigmoidFunction(1), commonRareIntervals);
+            Interval[] commonRareIntervals = preprocessor.CalculateNormIntervals(jsonFilePath, validFields, outputClasses);/*{ new Interval(0, 60000), new Interval(0, 100), new Interval(0, 600), new Interval(0, 1000), new Interval(0, 1),
+                                                                                                                        new Interval(0, 200), new Interval(0, 50), new Interval(0, 30), new Interval(0,1), new Interval(0,30), new Interval(0,100), new Interval(0,40), new Interval(0,1) };
+                   */                                                                                            
+            int epochSize = 2;
+            NNClassifier commonRareClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 10, 10}, new SigmoidFunction(1), commonRareIntervals);
             return commonRareClassifier.Learn( epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
         }
         static double LearnHePrFeLe_ElMuPi(double acceptableSuccessRate)
@@ -428,14 +443,14 @@ namespace ClusterClassifier
         static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
-            /*double maxSuccess = 0.75;
+            double maxSuccess = 0.94;
            for (int i = 0; i < 30; i++)
             {
-                double success = LearnAll(maxSuccess);
+                double success = LearnFrag(maxSuccess);
                 if (success > maxSuccess)
                     maxSuccess = success;
             }
-            *//*
+            /*
            var maxSuccess = 0.915;
             for (int i = 0; i < 50; i++)
             {
