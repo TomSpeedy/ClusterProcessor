@@ -23,6 +23,7 @@ namespace ClusterDescriptionGen
         {
             InitializeComponent();
             SelectedInputListView.View = View.Details;
+
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
         }
         public void CopyLastPathButtonClicked(object sender, EventArgs e)
@@ -83,12 +84,12 @@ namespace ClusterDescriptionGen
 
             ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text));
             IClusterReader clusterReader  = new MMClusterReader();
-        string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
+            string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
             string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[0].Text).ToArray();
             //string[] configDirs = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[2].Text).ToArray();
             //string[] pxFiles = new string[iniFiles.Length];
             List <ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
-
+            string allignBy = AllignClassTextBox.Text == "" ? null : AllignClassTextBox.Text;
             NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
 
             for (int i = 0; i < iniFiles.Length; i++ )
@@ -114,58 +115,143 @@ namespace ClusterDescriptionGen
                 attributePairs.Add(attributeName, null);
                 attributesToGet.Add(attributeName);
             }
-            Cluster current;
             int clustersProcessedCount = 0; //remove
-            int maxClusterCount = 1000000;
+            int maxClusterCount = 10000000;
             int minimalClassCount = clusterEnumCollections.Count;
             Random random = new Random();
             IAttributeCalculator attrCalc = new DefaultAttributeCalculator();
+
+            var probabilities = new double[clusterEnumCollections.Count];
+            long totalLength = 0;
+            bool classesProportional = UnevenDistrRadioButton.Checked;
+            for (int i = 0; i < clusterEnumCollections.Count; i++)
+            {
+                totalLength += clusterEnumCollections[i].CalcLength();
+            }
+            for (int i = 0; i < clusterEnumCollections.Count; i++)
+            { 
+                if (i > 0)
+                    probabilities[i] = probabilities[i - 1] + clusterEnumCollections[i].CalcLength() /(double) totalLength;
+                else
+                    probabilities[i] = clusterEnumCollections[i].CalcLength() /(double) totalLength;
+            }
+            //update || allign != null
             while (clustersProcessedCount < maxClusterCount && clusterEnumCollections.Count >= minimalClassCount)
             {
-                var currentIndex = random.Next(0, clusterEnumCollections.Count);
+                var currentProb = random.NextDouble();
+                var currentIndex = 0;
+                if (classesProportional)
+                    for (int i = 0; i < probabilities.Length; i++)
+                    {
+                        if (probabilities[i] >= currentProb)
+                        {
+                            currentIndex = i;
+                            break;
+                        }
+
+                    }
+                else
+                    currentIndex = random.Next(0, clusterEnumCollections.Count);
+
+
+                // currentIndex = random.Next(0, clusterEnumCollections.Count);
                 var clusterEnumCollection = clusterEnumCollections[currentIndex];
-                              
-                if (clusterEnumCollections.SelectNextClusterEnum(ref clusterEnumCollection, ref currentIndex, random))
+                //var progress = clusterEnumCollection.Partitions.Select(partition => partition.Collection.ClFile.BaseStream.Position).Sum() / (double)clusterEnumCollection.CalcLength();
+
+                if (ParallelClasPartProcessRadioButton.Checked)
+                {
+                    if (clusterEnumCollections.SelectNextEtorParallel(ref clusterEnumCollection, ref currentIndex, random, allignBy))
+                        break;
+                }
+                else
+                    if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, ref currentIndex, random, allignBy))
                     break;
+
                 attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
                 clustersProcessedCount++;
-                
-                    ClDescriptionWriter.WriteDescription(attributePairs);
-                    //if (clustersProcessedCount > 1000) break;
-                //}
+                ClDescriptionWriter.WriteDescription(attributePairs);
             }
             ClDescriptionWriter.Close();
         }
+
     }
     static class ClusterClassCollectionExtensions
-        {
-            public static bool SelectNextClusterEnum(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random)
+    {
+        public static bool SelectNextEtorParallel(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy)
         {
             bool done = false;
-            currentClEnumCollection.SetNewCurrentEnumerator();
+            currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly:true);
             clEnumCollections[currentIndex] = currentClEnumCollection;
             while (!currentClEnumCollection.CurrentEnumerator.MoveNext())
             {
-                currentClEnumCollection.CurrentEnumerator.Dispose();
-                if (currentClEnumCollection.RemovePartition())
+                if (allignBy == null || allignBy == currentClEnumCollection.Class)
                 {
+                    currentClEnumCollection.CurrentEnumerator.Dispose();
+                    if (currentClEnumCollection.RemovePartition())
+                    {
+                        clEnumCollections[currentIndex] = currentClEnumCollection;
+                        continue;
+                    }
+                    clEnumCollections.Remove(currentClEnumCollection);
+                    if (clEnumCollections.Count == 0)
+                    {
+                        done = true;
+                        break;
+                    }
+                    currentIndex = random.Next(0, clEnumCollections.Count);
+                    currentClEnumCollection = clEnumCollections[currentIndex];
+                }
+                else
+                {
+                    currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].ResetEtor();
+                    currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: false);
                     clEnumCollections[currentIndex] = currentClEnumCollection;
-                    continue;
                 }
-                clEnumCollections.Remove(currentClEnumCollection);
-                if (clEnumCollections.Count == 0)
-                {
-                    done = true;
-                    break;
-                }
-                currentIndex = random.Next(0, clEnumCollections.Count);
-                currentClEnumCollection = clEnumCollections[currentIndex];
-                //currentClEnumCollection.Enumerator = currentClEnumCollection.Collection.GetEnumerator();
             }
+                
             return done;
         }
+
+        public static bool SelectNextEtorSequential(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy)
+        {
+            bool done = false;
+            while (!currentClEnumCollection.CurrentEnumerator.MoveNext())
+            {
+
+                if (allignBy == null || allignBy == currentClEnumCollection.Class)
+                {
+                    currentClEnumCollection.CurrentEnumerator.Dispose();
+                    if (currentClEnumCollection.RemovePartition(chooseRandomly: false))
+                    {
+                        clEnumCollections[currentIndex] = currentClEnumCollection;
+                        continue;
+                    }
+                    clEnumCollections.Remove(currentClEnumCollection);
+                    if (clEnumCollections.Count == 0)
+                    {
+                        done = true;
+                        break;
+                    }
+                    currentIndex = random.Next(0, clEnumCollections.Count);
+                    currentClEnumCollection = clEnumCollections[currentIndex];
+                }
+                else
+                {
+                    currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].ResetEtor();
+                    currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: false);
+                    clEnumCollections[currentIndex] = currentClEnumCollection;
+                    //currentIndex = random.Next(0, clEnumCollections.Count);
+                    //currentClEnumCollection = clEnumCollections[currentIndex];
+                }
+                //after class removal, chooose the nex class randomly
+
+            }
+
+            return done;
         }
     }
+
+}
 
 
 

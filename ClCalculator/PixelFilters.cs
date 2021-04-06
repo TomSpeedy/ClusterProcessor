@@ -31,9 +31,10 @@ namespace ClusterCalculator
     }
     public class EnergyHaloFilter : PixelFilter
     {
-        const double HaloLimit = 10;
-        public EnergyHaloFilter()
-        {         
+        double HaloLimit { get; }
+        public EnergyHaloFilter(double haloLimit = 12)
+        {
+            HaloLimit = haloLimit;
         }
         public override bool MatchesFilter(PixelPoint pixel)
         {

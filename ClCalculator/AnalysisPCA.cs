@@ -10,13 +10,14 @@ using Accord.Statistics;
 using Accord.Math;
 using Accord.Math.Decompositions;
 //using System.Windows.Forms.DataVisualization.Charting;
-using Accord.Controls;
+//using Accord.Controls;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("ClustersProcessor")]
 
 
 namespace ClusterCalculator
 {
+    
     public class AnalysisPCA
     {
         const int inputDimension = 2;

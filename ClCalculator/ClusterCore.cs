@@ -98,7 +98,7 @@ namespace ClusterCalculator
     }
     public class ClusterInfoCollection : IEnumerable<ClusterInfo>
     {
-        private readonly StreamReader ClFile;
+        public readonly StreamReader ClFile;
         public readonly StreamReader PxFile;
         public ClusterInfoCollection(StreamReader clFile)
         {
@@ -109,9 +109,18 @@ namespace ClusterCalculator
             this.ClFile = clFile;
             this.PxFile = pxFile;
         }
+
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
         public IEnumerator<ClusterInfo> GetEnumerator()
         {
+            this.ClFile.BaseStream.Position = 0;
+            if (this.PxFile != null)
+            {
+                this.PxFile.BaseStream.Position = 0;
+                this.PxFile.DiscardBufferedData();
+            }
+            this.ClFile.DiscardBufferedData();
+            
             while (ClFile.BaseStream.Position < ClFile.BaseStream.Length)
             {
                 string[] tokens = ClFile.ReadLine().Split();
@@ -131,7 +140,7 @@ namespace ClusterCalculator
     {
         TotalEnergy, PixelCount, AverageEnergy, MaxEnergy,
         Convexity, Width, Branches, CrosspointCount,
-        BranchCount, RelativeHaloSize, VertexCount,
+        BranchCount, RelativeHaloSize, VertexCount, StdOfEnergy, StdOfArrival,RelLowEnergyPixels,
         Class
         
     }
