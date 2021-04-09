@@ -231,9 +231,10 @@ namespace ClusterClassifier
     class MultiLayeredClassifier
     {
         NNClassifier NNFrag = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/BESTtrainFragMulti.jsontrained 0.9566483809893684.txt");
-        NNClassifier NNHePrFeLe = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/HePrFeLe_ElMuPi.jsontrainedBEST.txt");
-        NNClassifier NNLead = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/BESTtrainLeadBinary.jsontrained 0.9813242784380306.txt");
-        NNClassifier NNElMuPi = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/ElMuPi.jsontrained 0.73BEST.txt");
+        NNClassifier NNHePrFeLe = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/BESTtrainPrLe_ElMuPi.jsontrained 0.9684101286841013.txt");
+        //NNClassifier NNLead = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/BESTtrainLeadBinary.jsontrained 0.9813242784380306.txt");
+        NNClassifier NNLead = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/leadBinary.jsontrained0.996BEST.txt");
+        NNClassifier NNElMuPi = NNClassifier.LoadFromFile("D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/BESTtrainElMuPi.jsontrained 0.7900390262033079.txt");
         NNInputProcessor preprocessor = new NNInputProcessor();
 
         string[] ValidClasses { get; set; }
@@ -250,7 +251,7 @@ namespace ClusterClassifier
         }
         public int Classify(double[] inputVector)
         {
-            var resultIndex = NNLead.ClassifySingle(inputVector);
+            var resultIndex = NNLead.ClassifySingle(inputVector.Take(inputVector.Length - 3).ToArray());
             if (resultIndex == 1)
                 return 0;
             resultIndex = NNFrag.ClassifySingle(inputVector);
@@ -264,12 +265,8 @@ namespace ClusterClassifier
             switch (resultIndex)
             {
                 case 0:
-                    return 2;
-                case 1:
                     return 3;
                 case 2:
-                    return 4;
-                case 4:
                     return 5;
                 default:
                     break;
@@ -278,9 +275,9 @@ namespace ClusterClassifier
             resultIndex = NNElMuPi.ClassifySingle(inputVector);
             if (resultIndex == 0)
                 return 6;
-            if (resultIndex < 6)
+            if (resultIndex == 1)
                 return 7;
-            if (resultIndex < 9)
+            if (resultIndex == 2)
                 return 8;
 
              return 9;
@@ -310,7 +307,7 @@ namespace ClusterClassifier
             "he",
             "proton",
             "fe",
-            "low_electron",
+            "low_electr",
             "muon",
             "electron",        
             "pion",
@@ -360,7 +357,18 @@ namespace ClusterClassifier
                  "other",
                  "lead"
              };
-
+            string[] validFields = new string[]{
+                 "TotalEnergy",
+                 "AverageEnergy",
+                 "MaxEnergy",
+                 "PixelCount",
+                 "Convexity",
+                 "Width",
+                 "CrosspointCount",
+                 "VertexCount",
+                 "RelativeHaloSize",
+                 "BranchCount"
+                 };
             StreamReader inputStream = new StreamReader(jsonFilePath);
             
 
@@ -368,18 +376,16 @@ namespace ClusterClassifier
             Interval[] commonRareIntervals = preprocessor.CalculateNormIntervals(jsonFilePath, validFields, outputClasses);/*{ new Interval(0, 60000), new Interval(0, 100), new Interval(0, 600), new Interval(0, 1000), new Interval(0, 1),
                                                                                                                         new Interval(0, 200), new Interval(0, 50), new Interval(0, 30), new Interval(0,1), new Interval(0,30), new Interval(0,100), new Interval(0,40), new Interval(0,1) };
                    */                                                                                            
-            int epochSize = 2;
-            NNClassifier commonRareClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 10, 10}, new SigmoidFunction(1), commonRareIntervals);
+            int epochSize = 16;
+            NNClassifier commonRareClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 16, 16}, new SigmoidFunction(1), commonRareIntervals);
             return commonRareClassifier.Learn( epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
         }
-        static double LearnHePrFeLe_ElMuPi(double acceptableSuccessRate)
+        static double LearnPrLe_ElMuPi(double acceptableSuccessRate)
         {
 
-            string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/HePrFeLe_ElMuPi.json";
+            string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/trainPrLe_ElMuPi.json";
             string[] outputClasses = new string[] {
-                 "he",
                  "proton",
-                 "fe",
                  "elMuPi",
                  "low_electr",
 
@@ -399,26 +405,18 @@ namespace ClusterClassifier
         static double LearnElMuPi(double acceptableSuccessRate)
         {
             
-            string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/ElMuPi.json";
+            string jsonFilePath = "../../../../ClusterDescriptionGen/bin/Debug/trainElMuPi.json";
             string[] outputClasses = new string[] {
                  "muon",
-                 "electron15",
-                 "electron30",
-                 "electron45",
-                 "electron60",
-                 "electron75",
-                 "pion22",
-                 "pion45",
-                 "pion60",
+                 "electron",
+                 "pion",
                  "elPi0"
-
-
             };
-            int epochSize = 1;
+            int epochSize = 32;
             NNInputProcessor preprocessor = new NNInputProcessor();
             Interval[] elMuPiIntervals = preprocessor.CalculateNormIntervals(jsonFilePath, validFields, outputClasses);//{ new Interval(0, 500), new Interval(0, 70), new Interval(0, 150), new Interval(0, 120), new Interval(0, 1),
                                                                                                                        //new Interval(0, 70), new Interval(0, 10), new Interval(0, 10), new Interval(0,1), new Interval(0,5) };
-            NNClassifier multiClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 13,13 }, new SigmoidFunction(1), elMuPiIntervals);
+            NNClassifier multiClassifier = new NNClassifier(validFields.Length, outputClasses.Length, new int[] { 16,16 }, new SigmoidFunction(1), elMuPiIntervals);
             return multiClassifier.Learn(epochSize, jsonFilePath, validFields, outputClasses, acceptableSuccessRate);
         }
         static double LearnAll(double acceptableSuccessRate)
@@ -443,14 +441,14 @@ namespace ClusterClassifier
         static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
-            double maxSuccess = 0.94;
+           /* double maxSuccess = 0.79;
            for (int i = 0; i < 30; i++)
             {
-                double success = LearnFrag(maxSuccess);
+                double success = LearnElMuPi(maxSuccess);
                 if (success > maxSuccess)
                     maxSuccess = success;
             }
-            /*
+            
            var maxSuccess = 0.915;
             for (int i = 0; i < 50; i++)
             {
@@ -467,7 +465,7 @@ namespace ClusterClassifier
                     maxSuccess = success;
             }
             */
-            var testJsonPath = "D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/allTestData2.json";
+            var testJsonPath = "../../../../ClusterDescriptionGen/bin/Debug/testAllProportional.json";
             int[][] ConfusionMatrix = ConfusionMatrix = new int[outputClasses.Length][];
             for (int i = 0; i < outputClasses.Length; i++)
             {
@@ -480,11 +478,11 @@ namespace ClusterClassifier
             MultiLayeredClassifier classifier = new MultiLayeredClassifier(outputClasses.Length);
             int[] classesCounts = new int[outputClasses.Length];
             int c = 0;
-            while (inputStream.Peek() != -1 && inputStream.BaseStream.Position < 0.2 * inputStream.BaseStream.Length && c < 3000)
+            while (inputStream.Peek() != -1 && inputStream.BaseStream.Position < 1 * inputStream.BaseStream.Length/* && c < 3000*/)
             {
                 var inputVector = preprocessor.ReadJsonToVector(jsonStream, validFields, outputClasses, out int classIndex);
                 var resultIndex = classifier.Classify(inputVector);
-                if (inputStream.BaseStream.Position < 0.3 * inputStream.BaseStream.Length && classesCounts[classIndex] < 300)
+                if (inputStream.BaseStream.Position > 0.5 * inputStream.BaseStream.Length/* && classesCounts[classIndex] < 300*/)
                 {
                     ConfusionMatrix[classIndex][resultIndex]++;
                     classesCounts[classIndex]++;
@@ -492,6 +490,7 @@ namespace ClusterClassifier
                 }
                 
             }
+            var rowSums = ConfusionMatrix.Select(x => x.Sum()).ToArray();
             var totalSum = 0;
             var diagSum = 0;
             for (int j = 0; j < outputClasses.Length; j++)
@@ -499,7 +498,7 @@ namespace ClusterClassifier
 
                 for (int k = 0; k < outputClasses.Length; k++)
                 {
-                    Console.Write(ConfusionMatrix[j][k]);
+                    Console.Write(Math.Truncate(1000d * ConfusionMatrix[j][k] / (double)rowSums[j])/ 10d);
                     Console.Write("\t");
                     totalSum += ConfusionMatrix[j][k];
                     if (j == k)
