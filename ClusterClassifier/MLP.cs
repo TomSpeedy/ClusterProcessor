@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ClusterClassifier
+namespace ClassifierForClusters
 {
     class MLP
     {

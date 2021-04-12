@@ -342,4 +342,3 @@ healthchecksdb
 data
 *.px
 *.cl
-*.ini

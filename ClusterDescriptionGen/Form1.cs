@@ -80,16 +80,16 @@ namespace ClusterDescriptionGen
         
         public void ProcessButtonClicked(object sender, EventArgs e)
         {
-            
+            Dictionary<ClusterClassPartition, int> writtenCount = new Dictionary<ClusterClassPartition, int>();
 
             ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text));
             IClusterReader clusterReader  = new MMClusterReader();
             string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
-            string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[0].Text).ToArray();
+            string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => '"' + item.SubItems[0].Text + '"').ToArray();
             //string[] configDirs = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[2].Text).ToArray();
             //string[] pxFiles = new string[iniFiles.Length];
             List <ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
-            string allignBy = AllignClassTextBox.Text == "" ? null : AllignClassTextBox.Text;
+            string allignBy = AllignClassTextBox.Text == "" ? null : '"' + AllignClassTextBox.Text + '"';
             NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
 
             for (int i = 0; i < iniFiles.Length; i++ )
@@ -99,6 +99,7 @@ namespace ClusterDescriptionGen
 
                 var existingClEnumCollections = clusterEnumCollections.FindAll(clusterEnColl => (clusterEnColl.Class == classes[i]));
                 var newPartition = new ClusterClassPartition(clCollection, null);
+                writtenCount.Add(newPartition, 0);
                 if (existingClEnumCollections.Count == 0)
                   clusterEnumCollections.Add(new ClusterClassCollection( newPartition, classes[i]));
                 else
@@ -106,7 +107,6 @@ namespace ClusterDescriptionGen
                     existingClEnumCollections[0].Partitions.Add(newPartition);
                 }
             }
-
             var attributePairs = new Dictionary<ClusterAttribute, object>();
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
             foreach (var checkedAttribute in AttributeCheckedList.CheckedItems)
@@ -117,7 +117,7 @@ namespace ClusterDescriptionGen
             }
             int clustersProcessedCount = 0; //remove
             int maxClusterCount = 10000000;
-            int minimalClassCount = clusterEnumCollections.Count;
+            int minimalClassCount = 0;//clusterEnumCollections.Count;
             Random random = new Random();
             IAttributeCalculator attrCalc = new DefaultAttributeCalculator();
 
@@ -166,10 +166,14 @@ namespace ClusterDescriptionGen
                 else
                     if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, ref currentIndex, random, allignBy))
                     break;
-
-                attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
-                clustersProcessedCount++;
-                ClDescriptionWriter.WriteDescription(attributePairs);
+                var currentClFile = clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex].Collection.ClFile;
+                if (currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 300)
+                {
+                    attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
+                    writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]]++;
+                    clustersProcessedCount++;
+                    ClDescriptionWriter.WriteDescription(attributePairs);
+                }
             }
             ClDescriptionWriter.Close();
         }
@@ -180,9 +184,10 @@ namespace ClusterDescriptionGen
         public static bool SelectNextEtorParallel(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy)
         {
             bool done = false;
-            currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly:true);
+            currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: true);
             clEnumCollections[currentIndex] = currentClEnumCollection;
-            while (!currentClEnumCollection.CurrentEnumerator.MoveNext())
+            
+            while (!currentClEnumCollection.CurrentEnumerator.MoveNext() /*|| !currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].CheckPosition()*/)
             {
                 if (allignBy == null || allignBy == currentClEnumCollection.Class)
                 {

@@ -4,7 +4,7 @@ using System.Text;
 using Accord.Neuro.Learning;
 using Accord.Neuro;
 using Accord.Statistics;
-namespace ClusterClassifier
+namespace ClassifierForClusters
 {
     interface ISqueezeFunction
     {

@@ -59,6 +59,9 @@
     <Reference Include="netchartdir, Version=6.4.0.0, Culture=neutral, PublicKeyToken=2db5fc05de12e204, processorArchitecture=MSIL">
       <HintPath>..\packages\ChartDirector.Net.6.4.0\lib\net40\netchartdir.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
@@ -115,6 +118,10 @@
     <Content Include="License-LGPL.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ClassifierForClusters\ClassifierForClusters.csproj">
+      <Project>{6d8f2f2a-9011-4880-a15d-413033b33a34}</Project>
+      <Name>ClassifierForClusters</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ClCalculator\ClusterCalculator.csproj">
       <Project>{ea18b5cf-5e61-45a1-b5c3-3349f93e999d}</Project>
       <Name>ClusterCalculator</Name>

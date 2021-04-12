@@ -66,7 +66,7 @@
             this.NowViewingLabel = new System.Windows.Forms.Label();
             this.ShowBranchesButton = new System.Windows.Forms.Button();
             this.ShowDetailsGroupBox = new System.Windows.Forms.GroupBox();
-            this.ShowCenterButton = new System.Windows.Forms.Button();
+            this.ClassifyButton = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -76,6 +76,7 @@
             this.FindByIndexTextBox = new System.Windows.Forms.TextBox();
             this.ClusterFindIndexLabel = new System.Windows.Forms.Label();
             this.FindByIndexButton = new System.Windows.Forms.Button();
+            this.ClusterClassLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.ViewGroup.SuspendLayout();
@@ -410,7 +411,7 @@
             // 
             // ShowDetailsGroupBox
             // 
-            this.ShowDetailsGroupBox.Controls.Add(this.ShowCenterButton);
+            this.ShowDetailsGroupBox.Controls.Add(this.ClassifyButton);
             this.ShowDetailsGroupBox.Controls.Add(this.button2);
             this.ShowDetailsGroupBox.Controls.Add(this.label1);
             this.ShowDetailsGroupBox.Controls.Add(this.textBox1);
@@ -425,14 +426,15 @@
             this.ShowDetailsGroupBox.TabStop = false;
             this.ShowDetailsGroupBox.Text = "Show Details";
             // 
-            // ShowCenterButton
+            // ClassifyButton
             // 
-            this.ShowCenterButton.Location = new System.Drawing.Point(233, 123);
-            this.ShowCenterButton.Name = "ShowCenterButton";
-            this.ShowCenterButton.Size = new System.Drawing.Size(96, 40);
-            this.ShowCenterButton.TabIndex = 30;
-            this.ShowCenterButton.Text = "Show Center";
-            this.ShowCenterButton.UseVisualStyleBackColor = true;
+            this.ClassifyButton.Location = new System.Drawing.Point(233, 123);
+            this.ClassifyButton.Name = "ClassifyButton";
+            this.ClassifyButton.Size = new System.Drawing.Size(96, 40);
+            this.ClassifyButton.TabIndex = 30;
+            this.ClassifyButton.Text = "Classify";
+            this.ClassifyButton.UseVisualStyleBackColor = true;
+            this.ClassifyButton.Click += new System.EventHandler(this.ClassifyButtonClicked);
             // 
             // button2
             // 
@@ -523,11 +525,20 @@
             this.FindByIndexButton.UseVisualStyleBackColor = true;
             this.FindByIndexButton.Click += new System.EventHandler(this.FindClusterByIndexClicked);
             // 
+            // ClusterClassLabel
+            // 
+            this.ClusterClassLabel.AutoSize = true;
+            this.ClusterClassLabel.Location = new System.Drawing.Point(673, 254);
+            this.ClusterClassLabel.Name = "ClusterClassLabel";
+            this.ClusterClassLabel.Size = new System.Drawing.Size(0, 13);
+            this.ClusterClassLabel.TabIndex = 27;
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.Controls.Add(this.ClusterClassLabel);
             this.Controls.Add(this.ControlGroupBox);
             this.Controls.Add(this.ShowDetailsGroupBox);
             this.Controls.Add(this.NowViewingLabel);
@@ -596,7 +607,7 @@
         private System.Windows.Forms.Label ConfigPathLabel;
         private System.Windows.Forms.GroupBox ShowDetailsGroupBox;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button ShowCenterButton;
+        private System.Windows.Forms.Button ClassifyButton;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox textBox1;
@@ -607,6 +618,7 @@
         private System.Windows.Forms.TextBox FindByIndexTextBox;
         private System.Windows.Forms.Label ClusterFindIndexLabel;
         private System.Windows.Forms.Button FindByIndexButton;
+        private System.Windows.Forms.Label ClusterClassLabel;
     }
 }
 

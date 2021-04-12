@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 
-namespace ClusterClassifier
+namespace ClassifierForClusters
 {
     interface INNLayer
     {

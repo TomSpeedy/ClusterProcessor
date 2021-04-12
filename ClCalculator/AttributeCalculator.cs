@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,19 +13,19 @@ namespace ClusterCalculator
     }
     public class DefaultAttributeCalculator : IAttributeCalculator
     {
+        EnergyCalculator EnergyCalculator { get; set; }
+        ISkeletonizer Skeletonizer { get; set; }
+        EnergyCenterFinder CenterFinder { get; set; }
+        VertexFinder VertexFinder { get; set; }
+        BranchAnalyzer BranchAnalyzer { get; set; }
+        ClusterClassCollection ClassCollection { get; set; }
+
         NeighbourCountFilter NeighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
-        public void Calculate(ClusterClassCollection collection, IList<ClusterAttribute> attributesToGet, ref IClusterReader reader, ref Dictionary<ClusterAttribute, object> attributePairs)
+        private void CalcAttributes(ref Dictionary<ClusterAttribute, object> attributePairs, IList<ClusterAttribute> attributesToGet, Cluster current)
         {
-            var partition = collection.Partitions[collection.PartitionIndex];
-            var centerFinder = partition.CenterFinder;
-            var branchAnalyzer = partition.BranchAnalyzer;
-            var EnergyCalculator = partition.EnergyCalc;
-            var vertexFinder = partition.VertexFinder;
-            var skeletonizer = partition.Skeletonizer;
 
-            var clInfo = partition.Enumerator.Current;
 
-            var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
+            //var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
             ConvexHull hull = null;
             Cluster skeletonizedCluster = null;
             BranchedCluster branchedCluster = null;
@@ -35,13 +36,13 @@ namespace ClusterCalculator
                 switch (attribute)
                 {
                     case ClusterAttribute.PixelCount:
-                        attributePairs[attribute] = clInfo.PixCount;
+                        attributePairs[attribute] = current.PixelCount;
                         break;
                     case ClusterAttribute.TotalEnergy:
                         attributePairs[attribute] = EnergyCalculator.CalcTotalEnergy(current.Points);
                         break;
                     case ClusterAttribute.AverageEnergy:
-                        attributePairs[attribute] = EnergyCalculator.CalcTotalEnergy(current.Points) / (double)clInfo.PixCount;
+                        attributePairs[attribute] = EnergyCalculator.CalcTotalEnergy(current.Points) / (double)current.PixelCount;
                         break;
                     case ClusterAttribute.Width:
                     case ClusterAttribute.Convexity:
@@ -51,25 +52,25 @@ namespace ClusterCalculator
                             hull = new ConvexHull(newPoints.ToList());
                         }
                         if (attribute == ClusterAttribute.Convexity)
-                            attributePairs[attribute] = Math.Min(clInfo.PixCount / (double)hull.CalculateArea(), 1);
+                            attributePairs[attribute] = Math.Min(current.PixelCount / (double)hull.CalculateArea(), 1);
                         else
                             attributePairs[attribute] = hull.CalculateWidth();
                         break;
                     case ClusterAttribute.Branches:
                         if (skeletonizedCluster == null)
                         {
-                            skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            skeletonizedCluster = Skeletonizer.SkeletonizeCluster(current);
                         }
                         if (branchedCluster == null)
                         {
-                            branchedCluster = branchAnalyzer.Analyze(skeletonizedCluster, current);
+                            branchedCluster = BranchAnalyzer.Analyze(skeletonizedCluster, current);
                         }
                         attributePairs[attribute] = branchedCluster.ToDictionaries(EnergyCalculator);
                         break;
                     case ClusterAttribute.CrosspointCount:
                         if (skeletonizedCluster == null)
                         {
-                            skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            skeletonizedCluster = Skeletonizer.SkeletonizeCluster(current);
                         }
                         var crossPoints = NeighbourCountFilter.Process(skeletonizedCluster.Points);
                         attributePairs[attribute] = crossPoints.Count;
@@ -77,25 +78,25 @@ namespace ClusterCalculator
                     case ClusterAttribute.RelativeHaloSize:
                         if (skeletonizedCluster == null)
                         {
-                            skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            skeletonizedCluster = Skeletonizer.SkeletonizeCluster(current);
                         }
                         attributePairs[attribute] = skeletonizedCluster.Points.Length / (double)current.Points.Length;
                         break;
                     case ClusterAttribute.VertexCount:
                         if (skeletonizedCluster == null)
                         {
-                            skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            skeletonizedCluster = Skeletonizer.SkeletonizeCluster(current);
                         }
-                        attributePairs[attribute] = vertexFinder.FindVertices(skeletonizedCluster.Points).Count;
+                        attributePairs[attribute] = VertexFinder.FindVertices(skeletonizedCluster.Points).Count;
                         break;
                     case ClusterAttribute.BranchCount:
                         if (skeletonizedCluster == null)
                         {
-                            skeletonizedCluster = skeletonizer.SkeletonizeCluster(current);
+                            skeletonizedCluster = Skeletonizer.SkeletonizeCluster(current);
                         }
                         if (branchedCluster == null)
                         {
-                            branchedCluster = branchAnalyzer.Analyze(skeletonizedCluster, current);
+                            branchedCluster = BranchAnalyzer.Analyze(skeletonizedCluster, current);
                         }
                         int branchesCount = 0;
                         foreach (var branch in branchedCluster.MainBranches)
@@ -107,7 +108,9 @@ namespace ClusterCalculator
                         attributePairs[attribute] = maxEnergy;
                         break;
                     case ClusterAttribute.Class:
-                        attributePairs[attribute] = collection.Class;
+                        if (ClassCollection == null)
+                            throw new InvalidOperationException("Cannot calculate the class attrribute directly. Please Use Classifier to get the class");
+                        attributePairs[attribute] = ClassCollection.Class;
                         break;
                     case ClusterAttribute.StdOfEnergy:
                         double stdDevOfEnergy = 0;
@@ -119,8 +122,9 @@ namespace ClusterCalculator
                             double avgEnergy = pixelsEnergy.Average();
                             double sumEnergy = pixelsEnergy.Sum(energy => Math.Pow(energy - avgEnergy, 2));
                             stdDevOfEnergy = Math.Sqrt(sumEnergy / (current.PixelCount - 1));
-                            attributePairs[attribute] = stdDevOfEnergy;
+                          
                         }
+                        attributePairs[attribute] = stdDevOfEnergy;
                         break;
                     case ClusterAttribute.StdOfArrival:
                         double stdDevOfArrival = 0;
@@ -132,16 +136,45 @@ namespace ClusterCalculator
                             double avgArrival = pixelsTime.Average();
                             double sumArrival = pixelsTime.Sum(energy => Math.Pow(energy - avgArrival, 2));
                             stdDevOfArrival = Math.Sqrt(sumArrival / (current.PixelCount - 1));
-                            attributePairs[attribute] = stdDevOfArrival;
                         }
+                        attributePairs[attribute] = stdDevOfArrival;
                         break;
                     case ClusterAttribute.RelLowEnergyPixels:
-                        attributePairs[attribute] =  (current.Points.Length - energyFilter.Process(current.Points).Count) / (double)current.Points.Length;
+                        attributePairs[attribute] = (current.Points.Length - energyFilter.Process(current.Points).Count) / (double)current.Points.Length;
                         break;
                     default: throw new ArgumentException("Invalid cluster attribute class - attribute calculation is not implemented");
 
                 }
             }
+        }
+        public void Calculate(ClusterClassCollection collection, IList<ClusterAttribute> attributesToGet, ref IClusterReader reader, ref Dictionary<ClusterAttribute, object> attributePairs)
+        { 
+
+            
+            var partition = collection.Partitions[collection.PartitionIndex];
+            ClassCollection = collection;
+            CenterFinder = partition.CenterFinder;
+            BranchAnalyzer = partition.BranchAnalyzer;
+            EnergyCalculator = partition.EnergyCalc;
+            VertexFinder = partition.VertexFinder;
+            Skeletonizer = partition.Skeletonizer;
+
+            var clInfo = partition.Enumerator.Current;
+
+            var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
+
+            CalcAttributes(ref attributePairs, attributesToGet, current);
+            
+        }
+        public void Calculate(Cluster current,  IList<ClusterAttribute> attributesToGet, ref Dictionary<ClusterAttribute, object> attributePairs)
+        {
+            
+            CenterFinder = new EnergyCenterFinder();
+            BranchAnalyzer = new BranchAnalyzer(CenterFinder);
+            EnergyCalculator = new EnergyCalculator();
+            VertexFinder = new VertexFinder();
+            Skeletonizer = new ThinSkeletonizer();
+            CalcAttributes(ref attributePairs, attributesToGet, current);
         }
 
     }
@@ -171,6 +204,11 @@ namespace ClusterCalculator
         {
             Enumerator = Collection.GetEnumerator();
         }
+        public bool CheckPosition()
+        {
+            const double maxRead = 0.9;
+            return Collection.ClFile.BaseStream.Position < Collection.ClFile.BaseStream.Length * maxRead;
+        }
     }
     public class ClusterClassCollection
     {
@@ -191,6 +229,7 @@ namespace ClusterCalculator
             CurrentEnumerator = Partitions[PartitionIndex].Enumerator;
             random = new Random();
         }
+
         public void SetNewCurrentEnumerator(bool chooseRandomly = true)
         {
             if (Partitions.Count > 0)
@@ -199,7 +238,7 @@ namespace ClusterCalculator
                     PartitionIndex = random.Next(0, Partitions.Count);
                 else
                     PartitionIndex = (PartitionIndex + 1) % Partitions.Count;
-                CurrentEnumerator = Partitions[PartitionIndex].Enumerator;
+                CurrentEnumerator = Partitions[PartitionIndex].Enumerator;               
             }
         }
 

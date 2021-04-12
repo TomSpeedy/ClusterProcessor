@@ -15,7 +15,8 @@ using System.Drawing.Text;
 using ChartDirector;
 using ClusterCalculator;
 using System.Globalization;
-
+using ClassifierForClusters;
+using Newtonsoft.Json;
 
 namespace ClusterUI 
 
@@ -92,8 +93,46 @@ namespace ClusterUI
                     MessageBox.Show("Error, cluster with given index was not found.");
                 }
             }
+        }     
+       static string[] validFields = new string[]{
+                 "TotalEnergy",
+                 "AverageEnergy",
+                 "MaxEnergy",
+                 "PixelCount",
+                 "Convexity",
+                 "Width",
+                 "CrosspointCount",
+                 "VertexCount",
+                 "RelativeHaloSize",
+                 "BranchCount",
+                 "StdOfEnergy",
+                "StdOfArrival",
+                "RelLowEnergyPixels"
+                 };
+
+        public void ClassifyButtonClicked(object sender, EventArgs e)
+        {
+            NNInputProcessor preprocessor = new NNInputProcessor();
+            var attributePairs = new Dictionary<ClusterAttribute, object>();
+            IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
+            foreach (var checkedAttribute in validFields)
+            {
+                var attributeName = ((string)checkedAttribute).ToAttribute();
+                attributePairs.Add(attributeName, null);
+                attributesToGet.Add(attributeName);
+            }
+            DefaultAttributeCalculator attributeCalculator = new DefaultAttributeCalculator();
+            attributeCalculator.Calculate(Current, attributesToGet, ref attributePairs);
+            string jsonString = JsonConvert.SerializeObject(attributePairs, Formatting.Indented);
+            StringReader sReader = new StringReader(jsonString);
+            JsonTextReader jReader = new JsonTextReader(sReader);
+
+            var attrVector = preprocessor.ReadJsonToVector(jReader, validFields);
+            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
+            string className = classifier.ClassifyByName(attrVector);
+            ClusterClassLabel.Text = $"Calculated Class: {className}";
         }
-    public void BrowseViewButtonClicked(object sender, EventArgs e)
+        public void BrowseViewButtonClicked(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
             if (fileDialog.ShowDialog() == DialogResult.OK)
@@ -305,28 +344,6 @@ namespace ClusterUI
             return bitmap;
         }
 
-
-        public void DrawLineInt(Bitmap bmp, ConvexHull hull)
-        {
-
-            bmp.SetPixel(hull.MinPoint.xCoord, hull.MinPoint.yCoord, Color.Blue);
-            for (int i = 0; i < hull.HullPoints.Count; i++)
-            {
-                //bmp.SetPixel(hull.HullPoints[i].xCoord, hull.HullPoints[i].yCoord, Color.Green);
-
-
-                Pen blackPen = new Pen(Color.Green, 3);
-                int x1 = hull.HullPoints[i % hull.HullPoints.Count].xCoord;
-                int y1 = hull.HullPoints[i % hull.HullPoints.Count].yCoord;
-                int x2 = hull.HullPoints[(i + 1) % hull.HullPoints.Count].xCoord;
-                int y2 = hull.HullPoints[(i + 1) % hull.HullPoints.Count].yCoord;
-                using (var graphics = Graphics.FromImage(bmp))
-                {
-                    graphics.DrawLine(blackPen, x1, y1, x2, y2);
-                }
-            }
-
-        }
         private void Form1_Load(object sender, EventArgs e)
         {
 
