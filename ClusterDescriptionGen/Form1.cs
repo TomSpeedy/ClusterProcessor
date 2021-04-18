@@ -16,29 +16,15 @@ namespace ClusterDescriptionGen
 {
     public partial class Form1 : Form
     {
-        private const string configPath = "../../../config/calib_files_fe/";
         private IDescriptionWriter ClDescriptionWriter { get; set; }
-        
+
         public Form1()
         {
             InitializeComponent();
             SelectedInputListView.View = View.Details;
-
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
-        }
-        public void CopyLastPathButtonClicked(object sender, EventArgs e)
-        {
-            for (int i = 0; i < SelectedInputListView.Items.Count; ++i)
-            {
-                if (SelectedInputListView.Items[i].SubItems.Count < 3)
-                {
-                    //TODO check if folder contains a.txt ...
-                    SelectedInputListView.Items[i].SubItems.Add(SelectedInputListView.Items[i - 1].SubItems[2]);
-                    break;
-                }
-
-            }
-        }
+            
+        }       
         public void BrowseProcessButtonClicked(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
@@ -75,19 +61,18 @@ namespace ClusterDescriptionGen
                     }
                 }
              }
-         }
-        
-        
+         }   
         public void ProcessButtonClicked(object sender, EventArgs e)
         {
+            
+           
             Dictionary<ClusterClassPartition, int> writtenCount = new Dictionary<ClusterClassPartition, int>();
 
             ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text));
             IClusterReader clusterReader  = new MMClusterReader();
             string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
             string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => '"' + item.SubItems[0].Text + '"').ToArray();
-            //string[] configDirs = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[2].Text).ToArray();
-            //string[] pxFiles = new string[iniFiles.Length];
+
             List <ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
             string allignBy = AllignClassTextBox.Text == "" ? null : '"' + AllignClassTextBox.Text + '"';
             NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
@@ -117,7 +102,7 @@ namespace ClusterDescriptionGen
             }
             int clustersProcessedCount = 0; //remove
             int maxClusterCount = 10000000;
-            int minimalClassCount = 0;//clusterEnumCollections.Count;
+            //int minimalClassCount = 0;clusterEnumCollections.Count;
             Random random = new Random();
             IAttributeCalculator attrCalc = new DefaultAttributeCalculator();
 
@@ -135,8 +120,7 @@ namespace ClusterDescriptionGen
                 else
                     probabilities[i] = clusterEnumCollections[i].CalcLength() /(double) totalLength;
             }
-            //update || allign != null
-            while (clustersProcessedCount < maxClusterCount && clusterEnumCollections.Count >= minimalClassCount)
+            while (clustersProcessedCount < maxClusterCount )
             {
                 var currentProb = random.NextDouble();
                 var currentIndex = 0;
@@ -157,17 +141,16 @@ namespace ClusterDescriptionGen
                 // currentIndex = random.Next(0, clusterEnumCollections.Count);
                 var clusterEnumCollection = clusterEnumCollections[currentIndex];
                 //var progress = clusterEnumCollection.Partitions.Select(partition => partition.Collection.ClFile.BaseStream.Position).Sum() / (double)clusterEnumCollection.CalcLength();
-
+                var endCond = GetEndCondition();
                 if (ParallelClasPartProcessRadioButton.Checked)
                 {
-                    if (clusterEnumCollections.SelectNextEtorParallel(ref clusterEnumCollection, ref currentIndex, random, allignBy))
+                    if (clusterEnumCollections.SelectNextEtorParallel(ref clusterEnumCollection, ref currentIndex, random, allignBy, endCond))
                         break;
                 }
-                else
-                    if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, ref currentIndex, random, allignBy))
+                else if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, ref currentIndex, random, allignBy, endCond))
                     break;
                 var currentClFile = clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex].Collection.ClFile;
-                if (currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 300)
+                if (/*currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 300*/true)
                 {
                     attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
                     writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]]++;
@@ -177,27 +160,42 @@ namespace ClusterDescriptionGen
             }
             ClDescriptionWriter.Close();
         }
+        private EndCondition GetEndCondition()
+        {
+            var endCond = EndCondition.LastClass;
+            if (FirstClassEndsRadioButton.Checked)
+                endCond = EndCondition.FirstClass;
+            else if (FirstPartitionEndsRadioButton.Checked)
+                endCond = EndCondition.FirstPartition;
+            return endCond;
+        }
 
     }
     static class ClusterClassCollectionExtensions
     {
-        public static bool SelectNextEtorParallel(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy)
+        public static bool SelectNextEtorParallel(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy, EndCondition endCond)
         {
             bool done = false;
             currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: true);
             clEnumCollections[currentIndex] = currentClEnumCollection;
             
-            while (!currentClEnumCollection.CurrentEnumerator.MoveNext() /*|| !currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].CheckPosition()*/)
+            while (!currentClEnumCollection.CurrentEnumerator.MoveNext() || !currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].CheckPosition())
             {
+                if (endCond == EndCondition.FirstPartition)
+                    done = true;
                 if (allignBy == null || allignBy == currentClEnumCollection.Class)
                 {
                     currentClEnumCollection.CurrentEnumerator.Dispose();
+                    
                     if (currentClEnumCollection.RemovePartition())
                     {
                         clEnumCollections[currentIndex] = currentClEnumCollection;
                         continue;
                     }
+
                     clEnumCollections.Remove(currentClEnumCollection);
+                    if (endCond == EndCondition.FirstClass)
+                        done = true;
                     if (clEnumCollections.Count == 0)
                     {
                         done = true;
@@ -217,12 +215,13 @@ namespace ClusterDescriptionGen
             return done;
         }
 
-        public static bool SelectNextEtorSequential(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy)
+        public static bool SelectNextEtorSequential(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy, EndCondition endCond)
         {
             bool done = false;
-            while (!currentClEnumCollection.CurrentEnumerator.MoveNext())
+            while (!currentClEnumCollection.CurrentEnumerator.MoveNext() || !currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].CheckPosition())
             {
-
+                if (endCond == EndCondition.FirstPartition)
+                    done = true;
                 if (allignBy == null || allignBy == currentClEnumCollection.Class)
                 {
                     currentClEnumCollection.CurrentEnumerator.Dispose();
@@ -231,7 +230,10 @@ namespace ClusterDescriptionGen
                         clEnumCollections[currentIndex] = currentClEnumCollection;
                         continue;
                     }
+                    
                     clEnumCollections.Remove(currentClEnumCollection);
+                    if (endCond == EndCondition.FirstClass)
+                        done = true;
                     if (clEnumCollections.Count == 0)
                     {
                         done = true;
@@ -245,7 +247,6 @@ namespace ClusterDescriptionGen
                     currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].ResetEtor();
                     currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: false);
                     clEnumCollections[currentIndex] = currentClEnumCollection;
-                    //currentIndex = random.Next(0, clEnumCollections.Count);
                     //currentClEnumCollection = clEnumCollections[currentIndex];
                 }
                 //after class removal, chooose the nex class randomly
@@ -254,6 +255,10 @@ namespace ClusterDescriptionGen
 
             return done;
         }
+    }
+    public enum EndCondition
+    {
+        FirstClass, FirstPartition, LastClass
     }
 
 }

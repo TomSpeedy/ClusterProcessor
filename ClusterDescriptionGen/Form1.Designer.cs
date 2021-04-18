@@ -29,12 +29,21 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.AddConfigFileButton = new System.Windows.Forms.Button();
+            this.EndingConditionGroupBox = new System.Windows.Forms.GroupBox();
+            this.FirstPartitionEndsRadioButton = new System.Windows.Forms.RadioButton();
+            this.LastClassEndsRadioButton = new System.Windows.Forms.RadioButton();
+            this.FirstClassEndsRadioButton = new System.Windows.Forms.RadioButton();
+            this.SelectAllignLabel = new System.Windows.Forms.Label();
+            this.DistributionGroupBox = new System.Windows.Forms.GroupBox();
+            this.UnevenDistrRadioButton = new System.Windows.Forms.RadioButton();
+            this.EvenDistrRadioButton = new System.Windows.Forms.RadioButton();
+            this.ClassPartDistrGroupBox = new System.Windows.Forms.GroupBox();
+            this.ParallelClasPartProcessRadioButton = new System.Windows.Forms.RadioButton();
+            this.SerialClassPartProcessRadioButton = new System.Windows.Forms.RadioButton();
+            this.AllignClassTextBox = new System.Windows.Forms.TextBox();
             this.SelectedInputListView = new System.Windows.Forms.ListView();
             this.SelectedFilesClassName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SelectedFilesColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ConfigFilesInputColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SelectInputListLabel = new System.Windows.Forms.Label();
             this.AttributeCheckedList = new System.Windows.Forms.CheckedListBox();
             this.ProcessButton = new System.Windows.Forms.Button();
@@ -43,27 +52,19 @@
             this.OutputLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.InputLabel = new System.Windows.Forms.Label();
-            this.EvenDistrRadioButton = new System.Windows.Forms.RadioButton();
-            this.UnevenDistrRadioButton = new System.Windows.Forms.RadioButton();
-            this.DistributionGroupBox = new System.Windows.Forms.GroupBox();
-            this.ClassPartDistrGroupBox = new System.Windows.Forms.GroupBox();
-            this.ParallelClasPartProcessRadioButton = new System.Windows.Forms.RadioButton();
-            this.SerialClassPartProcessRadioButton = new System.Windows.Forms.RadioButton();
-            this.AllignClassTextBox = new System.Windows.Forms.TextBox();
-            this.SelectAllignLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
+            this.EndingConditionGroupBox.SuspendLayout();
             this.DistributionGroupBox.SuspendLayout();
             this.ClassPartDistrGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.EndingConditionGroupBox);
             this.groupBox1.Controls.Add(this.SelectAllignLabel);
             this.groupBox1.Controls.Add(this.DistributionGroupBox);
             this.groupBox1.Controls.Add(this.ClassPartDistrGroupBox);
             this.groupBox1.Controls.Add(this.AllignClassTextBox);
-            this.groupBox1.Controls.Add(this.button1);
-            this.groupBox1.Controls.Add(this.AddConfigFileButton);
             this.groupBox1.Controls.Add(this.SelectedInputListView);
             this.groupBox1.Controls.Add(this.SelectInputListLabel);
             this.groupBox1.Controls.Add(this.AttributeCheckedList);
@@ -80,163 +81,58 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Menu";
             // 
-            // button1
+            // EndingConditionGroupBox
             // 
-            this.button1.Location = new System.Drawing.Point(995, 424);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(105, 37);
-            this.button1.TabIndex = 13;
-            this.button1.Text = "Copy Last Config Path";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.CopyLastPathButtonClicked);
+            this.EndingConditionGroupBox.Controls.Add(this.FirstPartitionEndsRadioButton);
+            this.EndingConditionGroupBox.Controls.Add(this.LastClassEndsRadioButton);
+            this.EndingConditionGroupBox.Controls.Add(this.FirstClassEndsRadioButton);
+            this.EndingConditionGroupBox.Location = new System.Drawing.Point(796, 35);
+            this.EndingConditionGroupBox.Name = "EndingConditionGroupBox";
+            this.EndingConditionGroupBox.Size = new System.Drawing.Size(200, 100);
+            this.EndingConditionGroupBox.TabIndex = 16;
+            this.EndingConditionGroupBox.TabStop = false;
+            this.EndingConditionGroupBox.Text = "Choose ending condition";
             // 
-            // AddConfigFileButton
+            // FirstPartitionEndsRadioButton
             // 
-            this.AddConfigFileButton.Location = new System.Drawing.Point(204, 25);
-            this.AddConfigFileButton.Name = "AddConfigFileButton";
-            this.AddConfigFileButton.Size = new System.Drawing.Size(101, 23);
-            this.AddConfigFileButton.TabIndex = 12;
-            this.AddConfigFileButton.Text = "Add Config File";
-            this.AddConfigFileButton.UseVisualStyleBackColor = true;
-            this.AddConfigFileButton.Click += new System.EventHandler(this.BrowseConfigButtonClicked);
+            this.FirstPartitionEndsRadioButton.AutoSize = true;
+            this.FirstPartitionEndsRadioButton.Location = new System.Drawing.Point(25, 71);
+            this.FirstPartitionEndsRadioButton.Name = "FirstPartitionEndsRadioButton";
+            this.FirstPartitionEndsRadioButton.Size = new System.Drawing.Size(144, 17);
+            this.FirstPartitionEndsRadioButton.TabIndex = 2;
+            this.FirstPartitionEndsRadioButton.Text = "On first partition depletion";
+            this.FirstPartitionEndsRadioButton.UseVisualStyleBackColor = true;
             // 
-            // SelectedInputListView
+            // LastClassEndsRadioButton
             // 
-            this.SelectedInputListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.SelectedFilesClassName,
-            this.SelectedFilesColumnHeader,
-            this.ConfigFilesInputColumn});
-            this.SelectedInputListView.HideSelection = false;
-            this.SelectedInputListView.LabelEdit = true;
-            this.SelectedInputListView.Location = new System.Drawing.Point(297, 179);
-            this.SelectedInputListView.Name = "SelectedInputListView";
-            this.SelectedInputListView.Size = new System.Drawing.Size(977, 209);
-            this.SelectedInputListView.TabIndex = 11;
-            this.SelectedInputListView.UseCompatibleStateImageBehavior = false;
+            this.LastClassEndsRadioButton.AutoSize = true;
+            this.LastClassEndsRadioButton.Location = new System.Drawing.Point(25, 47);
+            this.LastClassEndsRadioButton.Name = "LastClassEndsRadioButton";
+            this.LastClassEndsRadioButton.Size = new System.Drawing.Size(131, 17);
+            this.LastClassEndsRadioButton.TabIndex = 1;
+            this.LastClassEndsRadioButton.Text = "On last class depletion";
+            this.LastClassEndsRadioButton.UseVisualStyleBackColor = true;
             // 
-            // SelectedFilesClassName
+            // FirstClassEndsRadioButton
             // 
-            this.SelectedFilesClassName.Text = "Class Name (optional)";
-            this.SelectedFilesClassName.Width = 100;
+            this.FirstClassEndsRadioButton.AutoSize = true;
+            this.FirstClassEndsRadioButton.Checked = true;
+            this.FirstClassEndsRadioButton.Location = new System.Drawing.Point(25, 23);
+            this.FirstClassEndsRadioButton.Name = "FirstClassEndsRadioButton";
+            this.FirstClassEndsRadioButton.Size = new System.Drawing.Size(131, 17);
+            this.FirstClassEndsRadioButton.TabIndex = 0;
+            this.FirstClassEndsRadioButton.TabStop = true;
+            this.FirstClassEndsRadioButton.Text = "On first class depletion";
+            this.FirstClassEndsRadioButton.UseVisualStyleBackColor = true;
             // 
-            // SelectedFilesColumnHeader
+            // SelectAllignLabel
             // 
-            this.SelectedFilesColumnHeader.Text = "Selected File Path";
-            this.SelectedFilesColumnHeader.Width = 400;
-            // 
-            // ConfigFilesInputColumn
-            // 
-            this.ConfigFilesInputColumn.Text = "Config File Path";
-            this.ConfigFilesInputColumn.Width = 400;
-            // 
-            // SelectInputListLabel
-            // 
-            this.SelectInputListLabel.AutoSize = true;
-            this.SelectInputListLabel.Location = new System.Drawing.Point(306, 154);
-            this.SelectInputListLabel.Name = "SelectInputListLabel";
-            this.SelectInputListLabel.Size = new System.Drawing.Size(76, 13);
-            this.SelectInputListLabel.TabIndex = 10;
-            this.SelectInputListLabel.Text = "Selected Input";
-            // 
-            // AttributeCheckedList
-            // 
-            this.AttributeCheckedList.FormattingEnabled = true;
-            this.AttributeCheckedList.Items.AddRange(new object[] {
-            "TotalEnergy",
-            "AverageEnergy",
-            "MaxEnergy",
-            "PixelCount",
-            "Convexity",
-            "Width",
-            "CrosspointCount",
-            "VertexCount",
-            "RelativeHaloSize",
-            "BranchCount",
-            "StdOfEnergy",
-            "StdOfArrival",
-            "RelLowEnergyPixels",
-            "Class",
-            "Branches"});
-            this.AttributeCheckedList.Location = new System.Drawing.Point(22, 97);
-            this.AttributeCheckedList.Name = "AttributeCheckedList";
-            this.AttributeCheckedList.Size = new System.Drawing.Size(245, 319);
-            this.AttributeCheckedList.TabIndex = 8;
-            // 
-            // ProcessButton
-            // 
-            this.ProcessButton.Location = new System.Drawing.Point(809, 424);
-            this.ProcessButton.Name = "ProcessButton";
-            this.ProcessButton.Size = new System.Drawing.Size(142, 37);
-            this.ProcessButton.TabIndex = 7;
-            this.ProcessButton.Text = "Process";
-            this.ProcessButton.UseVisualStyleBackColor = true;
-            this.ProcessButton.Click += new System.EventHandler(this.ProcessButtonClicked);
-            // 
-            // OutputTextbox
-            // 
-            this.OutputTextbox.Location = new System.Drawing.Point(98, 71);
-            this.OutputTextbox.Name = "OutputTextbox";
-            this.OutputTextbox.Size = new System.Drawing.Size(100, 20);
-            this.OutputTextbox.TabIndex = 5;
-            // 
-            // BrowseButton
-            // 
-            this.BrowseButton.Location = new System.Drawing.Point(91, 25);
-            this.BrowseButton.Name = "BrowseButton";
-            this.BrowseButton.Size = new System.Drawing.Size(107, 23);
-            this.BrowseButton.TabIndex = 4;
-            this.BrowseButton.Text = "Browse and Add...";
-            this.BrowseButton.UseVisualStyleBackColor = true;
-            this.BrowseButton.Click += new System.EventHandler(this.BrowseProcessButtonClicked);
-            // 
-            // OutputLabel
-            // 
-            this.OutputLabel.AutoSize = true;
-            this.OutputLabel.Location = new System.Drawing.Point(19, 74);
-            this.OutputLabel.Name = "OutputLabel";
-            this.OutputLabel.Size = new System.Drawing.Size(73, 13);
-            this.OutputLabel.TabIndex = 3;
-            this.OutputLabel.Text = "Select output:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(187, 74);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(0, 13);
-            this.label2.TabIndex = 1;
-            // 
-            // InputLabel
-            // 
-            this.InputLabel.AutoSize = true;
-            this.InputLabel.Location = new System.Drawing.Point(19, 30);
-            this.InputLabel.Name = "InputLabel";
-            this.InputLabel.Size = new System.Drawing.Size(66, 13);
-            this.InputLabel.TabIndex = 0;
-            this.InputLabel.Text = "Select input:";
-            // 
-            // EvenDistrRadioButton
-            // 
-            this.EvenDistrRadioButton.AutoSize = true;
-            this.EvenDistrRadioButton.Location = new System.Drawing.Point(6, 29);
-            this.EvenDistrRadioButton.Name = "EvenDistrRadioButton";
-            this.EvenDistrRadioButton.Size = new System.Drawing.Size(151, 17);
-            this.EvenDistrRadioButton.TabIndex = 1;
-            this.EvenDistrRadioButton.TabStop = true;
-            this.EvenDistrRadioButton.Text = "Use even class distribution";
-            this.EvenDistrRadioButton.UseVisualStyleBackColor = true;
-            // 
-            // UnevenDistrRadioButton
-            // 
-            this.UnevenDistrRadioButton.AutoSize = true;
-            this.UnevenDistrRadioButton.Checked = true;
-            this.UnevenDistrRadioButton.Location = new System.Drawing.Point(6, 65);
-            this.UnevenDistrRadioButton.Name = "UnevenDistrRadioButton";
-            this.UnevenDistrRadioButton.Size = new System.Drawing.Size(182, 17);
-            this.UnevenDistrRadioButton.TabIndex = 2;
-            this.UnevenDistrRadioButton.TabStop = true;
-            this.UnevenDistrRadioButton.Text = "Use proportional class distribution";
-            this.UnevenDistrRadioButton.UseVisualStyleBackColor = true;
+            this.SelectAllignLabel.AutoSize = true;
+            this.SelectAllignLabel.Location = new System.Drawing.Point(1037, 35);
+            this.SelectAllignLabel.Name = "SelectAllignLabel";
+            this.SelectAllignLabel.Size = new System.Drawing.Size(137, 13);
+            this.SelectAllignLabel.TabIndex = 15;
+            this.SelectAllignLabel.Text = "Select allign class (optional)";
             // 
             // DistributionGroupBox
             // 
@@ -248,6 +144,28 @@
             this.DistributionGroupBox.TabIndex = 3;
             this.DistributionGroupBox.TabStop = false;
             this.DistributionGroupBox.Text = "Choose class distribution";
+            // 
+            // UnevenDistrRadioButton
+            // 
+            this.UnevenDistrRadioButton.AutoSize = true;
+            this.UnevenDistrRadioButton.Location = new System.Drawing.Point(6, 65);
+            this.UnevenDistrRadioButton.Name = "UnevenDistrRadioButton";
+            this.UnevenDistrRadioButton.Size = new System.Drawing.Size(182, 17);
+            this.UnevenDistrRadioButton.TabIndex = 2;
+            this.UnevenDistrRadioButton.Text = "Use proportional class distribution";
+            this.UnevenDistrRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // EvenDistrRadioButton
+            // 
+            this.EvenDistrRadioButton.AutoSize = true;
+            this.EvenDistrRadioButton.Checked = true;
+            this.EvenDistrRadioButton.Location = new System.Drawing.Point(6, 29);
+            this.EvenDistrRadioButton.Name = "EvenDistrRadioButton";
+            this.EvenDistrRadioButton.Size = new System.Drawing.Size(151, 17);
+            this.EvenDistrRadioButton.TabIndex = 1;
+            this.EvenDistrRadioButton.TabStop = true;
+            this.EvenDistrRadioButton.Text = "Use even class distribution";
+            this.EvenDistrRadioButton.UseVisualStyleBackColor = true;
             // 
             // ClassPartDistrGroupBox
             // 
@@ -285,19 +203,119 @@
             // 
             // AllignClassTextBox
             // 
-            this.AllignClassTextBox.Location = new System.Drawing.Point(809, 58);
+            this.AllignClassTextBox.Location = new System.Drawing.Point(1049, 59);
             this.AllignClassTextBox.Name = "AllignClassTextBox";
             this.AllignClassTextBox.Size = new System.Drawing.Size(100, 20);
             this.AllignClassTextBox.TabIndex = 14;
             // 
-            // SelectAllignLabel
+            // SelectedInputListView
             // 
-            this.SelectAllignLabel.AutoSize = true;
-            this.SelectAllignLabel.Location = new System.Drawing.Point(806, 35);
-            this.SelectAllignLabel.Name = "SelectAllignLabel";
-            this.SelectAllignLabel.Size = new System.Drawing.Size(137, 13);
-            this.SelectAllignLabel.TabIndex = 15;
-            this.SelectAllignLabel.Text = "Select allign class (optional)";
+            this.SelectedInputListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.SelectedFilesClassName,
+            this.SelectedFilesColumnHeader});
+            this.SelectedInputListView.HideSelection = false;
+            this.SelectedInputListView.LabelEdit = true;
+            this.SelectedInputListView.Location = new System.Drawing.Point(297, 179);
+            this.SelectedInputListView.Name = "SelectedInputListView";
+            this.SelectedInputListView.Size = new System.Drawing.Size(977, 209);
+            this.SelectedInputListView.TabIndex = 11;
+            this.SelectedInputListView.UseCompatibleStateImageBehavior = false;
+            // 
+            // SelectedFilesClassName
+            // 
+            this.SelectedFilesClassName.Text = "Class Name (optional)";
+            this.SelectedFilesClassName.Width = 200;
+            // 
+            // SelectedFilesColumnHeader
+            // 
+            this.SelectedFilesColumnHeader.Text = "Selected File Path";
+            this.SelectedFilesColumnHeader.Width = 400;
+            // 
+            // SelectInputListLabel
+            // 
+            this.SelectInputListLabel.AutoSize = true;
+            this.SelectInputListLabel.Location = new System.Drawing.Point(306, 154);
+            this.SelectInputListLabel.Name = "SelectInputListLabel";
+            this.SelectInputListLabel.Size = new System.Drawing.Size(76, 13);
+            this.SelectInputListLabel.TabIndex = 10;
+            this.SelectInputListLabel.Text = "Selected Input";
+            // 
+            // AttributeCheckedList
+            // 
+            this.AttributeCheckedList.FormattingEnabled = true;
+            this.AttributeCheckedList.Items.AddRange(new object[] {
+            "TotalEnergy",
+            "AverageEnergy",
+            "MaxEnergy",
+            "PixelCount",
+            "Convexity",
+            "Width",
+            "CrosspointCount",
+            "VertexCount",
+            "RelativeHaloSize",
+            "BranchCount",
+            "StdOfEnergy",
+            "StdOfArrival",
+            "RelLowEnergyPixels",
+            "Class",
+            "Branches"});
+            this.AttributeCheckedList.Location = new System.Drawing.Point(22, 97);
+            this.AttributeCheckedList.Name = "AttributeCheckedList";
+            this.AttributeCheckedList.Size = new System.Drawing.Size(245, 319);
+            this.AttributeCheckedList.TabIndex = 8;
+            // 
+            // ProcessButton
+            // 
+            this.ProcessButton.Location = new System.Drawing.Point(1031, 106);
+            this.ProcessButton.Name = "ProcessButton";
+            this.ProcessButton.Size = new System.Drawing.Size(155, 51);
+            this.ProcessButton.TabIndex = 7;
+            this.ProcessButton.Text = "Process";
+            this.ProcessButton.UseVisualStyleBackColor = true;
+            this.ProcessButton.Click += new System.EventHandler(this.ProcessButtonClicked);
+            // 
+            // OutputTextbox
+            // 
+            this.OutputTextbox.Location = new System.Drawing.Point(98, 71);
+            this.OutputTextbox.Name = "OutputTextbox";
+            this.OutputTextbox.Size = new System.Drawing.Size(100, 20);
+            this.OutputTextbox.TabIndex = 5;
+            // 
+            // BrowseButton
+            // 
+            this.BrowseButton.Location = new System.Drawing.Point(126, 25);
+            this.BrowseButton.Name = "BrowseButton";
+            this.BrowseButton.Size = new System.Drawing.Size(107, 23);
+            this.BrowseButton.TabIndex = 4;
+            this.BrowseButton.Text = "Browse and Add...";
+            this.BrowseButton.UseVisualStyleBackColor = true;
+            this.BrowseButton.Click += new System.EventHandler(this.BrowseProcessButtonClicked);
+            // 
+            // OutputLabel
+            // 
+            this.OutputLabel.AutoSize = true;
+            this.OutputLabel.Location = new System.Drawing.Point(19, 74);
+            this.OutputLabel.Name = "OutputLabel";
+            this.OutputLabel.Size = new System.Drawing.Size(73, 13);
+            this.OutputLabel.TabIndex = 3;
+            this.OutputLabel.Text = "Select output:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(187, 74);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(0, 13);
+            this.label2.TabIndex = 1;
+            // 
+            // InputLabel
+            // 
+            this.InputLabel.AutoSize = true;
+            this.InputLabel.Location = new System.Drawing.Point(19, 30);
+            this.InputLabel.Name = "InputLabel";
+            this.InputLabel.Size = new System.Drawing.Size(101, 13);
+            this.InputLabel.TabIndex = 0;
+            this.InputLabel.Text = "Add input (partition):";
             // 
             // Form1
             // 
@@ -309,6 +327,8 @@
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.EndingConditionGroupBox.ResumeLayout(false);
+            this.EndingConditionGroupBox.PerformLayout();
             this.DistributionGroupBox.ResumeLayout(false);
             this.DistributionGroupBox.PerformLayout();
             this.ClassPartDistrGroupBox.ResumeLayout(false);
@@ -331,9 +351,6 @@
         private System.Windows.Forms.ColumnHeader SelectedFilesClassName;
         private System.Windows.Forms.ColumnHeader SelectedFilesColumnHeader;
         private System.Windows.Forms.Label SelectInputListLabel;
-        private System.Windows.Forms.Button AddConfigFileButton;
-        private System.Windows.Forms.ColumnHeader ConfigFilesInputColumn;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.RadioButton EvenDistrRadioButton;
         private System.Windows.Forms.RadioButton UnevenDistrRadioButton;
         private System.Windows.Forms.GroupBox DistributionGroupBox;
@@ -342,6 +359,10 @@
         private System.Windows.Forms.RadioButton SerialClassPartProcessRadioButton;
         private System.Windows.Forms.Label SelectAllignLabel;
         private System.Windows.Forms.TextBox AllignClassTextBox;
+        private System.Windows.Forms.GroupBox EndingConditionGroupBox;
+        private System.Windows.Forms.RadioButton FirstPartitionEndsRadioButton;
+        private System.Windows.Forms.RadioButton LastClassEndsRadioButton;
+        private System.Windows.Forms.RadioButton FirstClassEndsRadioButton;
     }
 }
 

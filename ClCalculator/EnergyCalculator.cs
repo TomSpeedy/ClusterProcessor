@@ -81,6 +81,61 @@ namespace ClusterCalculator
 
             }
         }
+        public void CalibrateCollection(string iniFile, string newIniFile)
+        {
+            IClusterReader clusterReader = new MMClusterReader();
+            clusterReader.GetTextFileNames(new StreamReader(iniFile), iniFile, out string pxFile, out string clFile);
+            ClusterInfoCollection collection = new ClusterInfoCollection(new StreamReader(clFile), new StreamReader(pxFile));
+            StreamReader PixelFile = new StreamReader(pxFile);
+            StreamWriter newIniStream = new StreamWriter(newIniFile);
+            string newPxFile = newIniFile + "_px_calibrated.txt";
+            string newClFile = newIniFile + "_cl_calibrated.txt";
+            newIniStream.WriteLine("[Measurement]");
+            newIniStream.WriteLine($"PxFile={PathParser.GetSuffixPath(newPxFile)}");
+            newIniStream.WriteLine($"ClFile={PathParser.GetSuffixPath(newClFile)}");
+            newIniStream.Close();
+            long bytesWritten = 0;
+            StreamWriter newPxStream = new StreamWriter(newPxFile);
+            StreamWriter newClStream = new StreamWriter(newClFile);
+            foreach (var clInfo in collection)
+            {
+                PixelFile.DiscardBufferedData();
+
+                PixelFile.BaseStream.Seek((long)clInfo.ByteStart, SeekOrigin.Begin);
+                var points = new List<PixelPoint>();
+                newClStream.WriteLine($"{clInfo.FirstToA} {clInfo.PixCount} {clInfo.LineStart} {bytesWritten}");
+                for (int i = 0; i < clInfo.PixCount; i++)
+                {
+                    var tokens = PixelFile.ReadLine().Split();
+                    if (tokens[0] == "#")
+                    {
+                        if (i == 0)
+                        {
+                            tokens = PixelFile.ReadLine().Split();
+                        }
+                        else
+                            throw new InvalidOperationException();
+
+                    }
+
+                    ushort.TryParse(tokens[0], out ushort x);
+                    ushort.TryParse(tokens[1], out ushort y);
+                    double.TryParse(tokens[2], out double ToA);
+                    double.TryParse(tokens[3], out double ToT);
+                    string outLine = $"{x} {y} {ToA} {ToElectronVolts(ToT, x, y)}\n";
+                    newPxStream.Write(outLine);
+                    bytesWritten += System.Text.UTF8Encoding.ASCII.GetByteCount(outLine);
+                    
+                }
+                newPxStream.Write("#\n");
+                bytesWritten += System.Text.UTF8Encoding.ASCII.GetByteCount("#\n");
+            }
+            newPxStream.Close();
+            newIniStream.Close();
+            newClStream.Close();
+
+        }
+
     }
     public struct Calibration
     {

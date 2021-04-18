@@ -164,7 +164,6 @@ namespace ClusterFilter
             PixelFile.DiscardBufferedData();
           
             PixelFile.BaseStream.Seek((long)clInfo.ByteStart, SeekOrigin.Begin);
-            //TODO add cluster reder method readPixel
 
 
             var points = new List<PixelPoint>();
@@ -258,6 +257,7 @@ namespace ClusterFilter
             return VertexFinder.FindVertices(points).Count >= MinVertexCount;
         }
     }
+    //TODO add more filters
     
     
 

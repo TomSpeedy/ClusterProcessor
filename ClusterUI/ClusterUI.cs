@@ -33,7 +33,6 @@ namespace ClusterUI
         private ScatterChart ScatterChart { get; set; }
 
         private IClusterReader ClusterReader { get; }
-        private EnergyCalculator EnergyCalculator {get; set;}
         public ClusterUI()
         {
             InitializeComponent();
@@ -94,30 +93,17 @@ namespace ClusterUI
                 }
             }
         }     
-       static string[] validFields = new string[]{
-                 "TotalEnergy",
-                 "AverageEnergy",
-                 "MaxEnergy",
-                 "PixelCount",
-                 "Convexity",
-                 "Width",
-                 "CrosspointCount",
-                 "VertexCount",
-                 "RelativeHaloSize",
-                 "BranchCount",
-                 "StdOfEnergy",
-                "StdOfArrival",
-                "RelLowEnergyPixels"
-                 };
-
+       
         public void ClassifyButtonClicked(object sender, EventArgs e)
         {
             NNInputProcessor preprocessor = new NNInputProcessor();
             var attributePairs = new Dictionary<ClusterAttribute, object>();
+            IClassifier classifier = new MultiLayeredClassifier();
+            classifier.Load();
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
-            foreach (var checkedAttribute in validFields)
+            foreach (var checkedAttribute in classifier.ValidFields)
             {
-                var attributeName = ((string)checkedAttribute).ToAttribute();
+                var attributeName = checkedAttribute;
                 attributePairs.Add(attributeName, null);
                 attributesToGet.Add(attributeName);
             }
@@ -126,11 +112,9 @@ namespace ClusterUI
             string jsonString = JsonConvert.SerializeObject(attributePairs, Formatting.Indented);
             StringReader sReader = new StringReader(jsonString);
             JsonTextReader jReader = new JsonTextReader(sReader);
-
-            var attrVector = preprocessor.ReadJsonToVector(jReader, validFields);
-            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
-            string className = classifier.ClassifyByName(attrVector);
-            ClusterClassLabel.Text = $"Calculated Class: {className}";
+            var attrVector = preprocessor.ReadJsonToVector(jReader, classifier.ValidFields);
+            var classInfo = classifier.Classify(attrVector);
+            ClusterClassLabel.Text = $"Calculated Class: {classInfo.MostProbableClassName}";
         }
         public void BrowseViewButtonClicked(object sender, EventArgs e)
         {
@@ -157,7 +141,6 @@ namespace ClusterUI
                 configPath = ConfigDirTextBox.Text + "\\";
                 ClusterReader.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
                 Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
-                EnergyCalculator = new EnergyCalculator(new Calibration(configPath));
 
                 if (cluster != null)
                 {
@@ -275,8 +258,7 @@ namespace ClusterUI
             PictureBox.Image = GetClusterImage(point => point.Energy, currentSkelet);
 
         }
-
-        #endregion
+   
         public void ViewBranchButtonClicked(object sender, EventArgs e)
         {
             var skeletonizer = new ThinSkeletonizer();
@@ -296,6 +278,7 @@ namespace ClusterUI
             ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.White);
             //PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
         }
+        #endregion
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
         {
             const int bitmapSize = 256;
@@ -344,10 +327,6 @@ namespace ClusterUI
             return bitmap;
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
         private Point3D[] ToPoints3D(PointD3[] points)
         {
             var newPoints = new Point3D[points.Length];

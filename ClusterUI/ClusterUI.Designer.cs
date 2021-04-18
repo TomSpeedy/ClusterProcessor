@@ -558,7 +558,6 @@
             this.Controls.Add(this.ClusterHistogram);
             this.Name = "ClusterUI";
             this.Text = "ClusterViewer";
-            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).EndInit();
             this.ViewGroup.ResumeLayout(false);

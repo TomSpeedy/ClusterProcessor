@@ -58,7 +58,8 @@ namespace ClusterFilter
             output.Close();
         }
         private void ProcessFilter()
-        { 
+        {
+            const string doneMessage = "Filtering successfully completed";
             try
             {
                 const int minVertexCount = 3;
@@ -103,7 +104,7 @@ namespace ClusterFilter
                 multiFilter.Process(new StreamReader(clFile), filteredOut);
 
                 filteredOut.Close();
-                MessageBox.Show("Done");
+                MessageBox.Show(doneMessage);
             }
             catch (IOException)
             {
@@ -116,27 +117,7 @@ namespace ClusterFilter
                 return;
             }
         }
-        public void DrawLineInt(Bitmap bmp, ConvexHull hull)
-        {
-
-            bmp.SetPixel(hull.MinPoint.xCoord, hull.MinPoint.yCoord, Color.Blue);
-            for (int i = 0; i < hull.HullPoints.Count; i++)
-            {
-                //bmp.SetPixel(hull.HullPoints[i].xCoord, hull.HullPoints[i].yCoord, Color.Green);
-
-
-                Pen blackPen = new Pen(Color.Green, 3);
-                int x1 = hull.HullPoints[i % hull.HullPoints.Count].xCoord;
-                int y1 = hull.HullPoints[i % hull.HullPoints.Count].yCoord;
-                int x2 = hull.HullPoints[(i + 1) % hull.HullPoints.Count].xCoord;
-                int y2 = hull.HullPoints[(i + 1) % hull.HullPoints.Count].yCoord;
-                using (var graphics = Graphics.FromImage(bmp))
-                {
-                    graphics.DrawLine(blackPen, x1, y1, x2, y2);
-                }
-            }
-
-        }
+        
         private void Form1_Load(object sender, EventArgs e)
         {
 
