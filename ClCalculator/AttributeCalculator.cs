@@ -80,7 +80,7 @@ namespace ClusterCalculator
                         {
                             skeletonizedCluster = Skeletonizer.SkeletonizeCluster(current);
                         }
-                        attributePairs[attribute] = skeletonizedCluster.Points.Length / (double)current.Points.Length;
+                        attributePairs[attribute] = (current.Points.Length - skeletonizedCluster.Points.Length) / (double)current.Points.Length;
                         break;
                     case ClusterAttribute.VertexCount:
                         if (skeletonizedCluster == null)

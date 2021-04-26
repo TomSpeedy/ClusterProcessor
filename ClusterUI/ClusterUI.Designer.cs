@@ -42,10 +42,6 @@
             this.HideHistogramButton = new System.Windows.Forms.Button();
             this.ViewClusters = new System.Windows.Forms.Button();
             this.ViewGroup = new System.Windows.Forms.GroupBox();
-            this.ConfigBrowseButton = new System.Windows.Forms.Button();
-            this.ConfigOrLabel = new System.Windows.Forms.Label();
-            this.ConfigDirTextBox = new System.Windows.Forms.TextBox();
-            this.ConfigPathLabel = new System.Windows.Forms.Label();
             this.BrowseViewButton = new System.Windows.Forms.Button();
             this.OrLabel = new System.Windows.Forms.Label();
             this.InViewFilePathBox = new System.Windows.Forms.TextBox();
@@ -67,11 +63,7 @@
             this.ShowBranchesButton = new System.Windows.Forms.Button();
             this.ShowDetailsGroupBox = new System.Windows.Forms.GroupBox();
             this.ClassifyButton = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.ShowAttributesButton = new System.Windows.Forms.Button();
             this.ControlGroupBox = new System.Windows.Forms.GroupBox();
             this.FindByIndexTextBox = new System.Windows.Forms.TextBox();
             this.ClusterFindIndexLabel = new System.Windows.Forms.Label();
@@ -115,7 +107,7 @@
             // 
             // PreviousButton
             // 
-            this.PreviousButton.Location = new System.Drawing.Point(6, 146);
+            this.PreviousButton.Location = new System.Drawing.Point(5, 131);
             this.PreviousButton.Name = "PreviousButton";
             this.PreviousButton.Size = new System.Drawing.Size(78, 32);
             this.PreviousButton.TabIndex = 2;
@@ -125,7 +117,7 @@
             // 
             // NextButton
             // 
-            this.NextButton.Location = new System.Drawing.Point(93, 146);
+            this.NextButton.Location = new System.Drawing.Point(99, 131);
             this.NextButton.Name = "NextButton";
             this.NextButton.Size = new System.Drawing.Size(89, 32);
             this.NextButton.TabIndex = 3;
@@ -136,7 +128,7 @@
             // PictureBox
             // 
             this.PictureBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.PictureBox.Location = new System.Drawing.Point(9, 217);
+            this.PictureBox.Location = new System.Drawing.Point(-13, 213);
             this.PictureBox.Name = "PictureBox";
             this.PictureBox.Size = new System.Drawing.Size(610, 653);
             this.PictureBox.TabIndex = 4;
@@ -155,7 +147,7 @@
             // 
             // ViewClusters
             // 
-            this.ViewClusters.Location = new System.Drawing.Point(0, 121);
+            this.ViewClusters.Location = new System.Drawing.Point(7, 94);
             this.ViewClusters.Margin = new System.Windows.Forms.Padding(2);
             this.ViewClusters.Name = "ViewClusters";
             this.ViewClusters.Size = new System.Drawing.Size(381, 32);
@@ -166,10 +158,6 @@
             // 
             // ViewGroup
             // 
-            this.ViewGroup.Controls.Add(this.ConfigBrowseButton);
-            this.ViewGroup.Controls.Add(this.ConfigOrLabel);
-            this.ViewGroup.Controls.Add(this.ConfigDirTextBox);
-            this.ViewGroup.Controls.Add(this.ConfigPathLabel);
             this.ViewGroup.Controls.Add(this.BrowseViewButton);
             this.ViewGroup.Controls.Add(this.OrLabel);
             this.ViewGroup.Controls.Add(this.InViewFilePathBox);
@@ -179,48 +167,10 @@
             this.ViewGroup.Margin = new System.Windows.Forms.Padding(2);
             this.ViewGroup.Name = "ViewGroup";
             this.ViewGroup.Padding = new System.Windows.Forms.Padding(2);
-            this.ViewGroup.Size = new System.Drawing.Size(395, 202);
+            this.ViewGroup.Size = new System.Drawing.Size(395, 180);
             this.ViewGroup.TabIndex = 10;
             this.ViewGroup.TabStop = false;
             this.ViewGroup.Text = "Select file to view";
-            // 
-            // ConfigBrowseButton
-            // 
-            this.ConfigBrowseButton.Location = new System.Drawing.Point(300, 82);
-            this.ConfigBrowseButton.Margin = new System.Windows.Forms.Padding(2);
-            this.ConfigBrowseButton.Name = "ConfigBrowseButton";
-            this.ConfigBrowseButton.Size = new System.Drawing.Size(81, 20);
-            this.ConfigBrowseButton.TabIndex = 17;
-            this.ConfigBrowseButton.Text = "Browse...";
-            this.ConfigBrowseButton.UseVisualStyleBackColor = true;
-            this.ConfigBrowseButton.Click += new System.EventHandler(this.BrowseConfigButtonClicked);
-            // 
-            // ConfigOrLabel
-            // 
-            this.ConfigOrLabel.AutoSize = true;
-            this.ConfigOrLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
-            this.ConfigOrLabel.Location = new System.Drawing.Point(271, 85);
-            this.ConfigOrLabel.Name = "ConfigOrLabel";
-            this.ConfigOrLabel.Size = new System.Drawing.Size(24, 17);
-            this.ConfigOrLabel.TabIndex = 16;
-            this.ConfigOrLabel.Text = "Or";
-            // 
-            // ConfigDirTextBox
-            // 
-            this.ConfigDirTextBox.Location = new System.Drawing.Point(109, 82);
-            this.ConfigDirTextBox.Name = "ConfigDirTextBox";
-            this.ConfigDirTextBox.Size = new System.Drawing.Size(141, 20);
-            this.ConfigDirTextBox.TabIndex = 15;
-            // 
-            // ConfigPathLabel
-            // 
-            this.ConfigPathLabel.AutoSize = true;
-            this.ConfigPathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
-            this.ConfigPathLabel.Location = new System.Drawing.Point(3, 82);
-            this.ConfigPathLabel.Name = "ConfigPathLabel";
-            this.ConfigPathLabel.Size = new System.Drawing.Size(107, 17);
-            this.ConfigPathLabel.TabIndex = 14;
-            this.ConfigPathLabel.Text = "Config Dir Path:";
             // 
             // BrowseViewButton
             // 
@@ -285,7 +235,7 @@
             // 
             // skeletonizeButton
             // 
-            this.skeletonizeButton.Location = new System.Drawing.Point(6, 123);
+            this.skeletonizeButton.Location = new System.Drawing.Point(16, 123);
             this.skeletonizeButton.Name = "skeletonizeButton";
             this.skeletonizeButton.Size = new System.Drawing.Size(115, 40);
             this.skeletonizeButton.TabIndex = 11;
@@ -401,7 +351,7 @@
             // 
             // ShowBranchesButton
             // 
-            this.ShowBranchesButton.Location = new System.Drawing.Point(127, 123);
+            this.ShowBranchesButton.Location = new System.Drawing.Point(147, 123);
             this.ShowBranchesButton.Name = "ShowBranchesButton";
             this.ShowBranchesButton.Size = new System.Drawing.Size(100, 40);
             this.ShowBranchesButton.TabIndex = 24;
@@ -412,11 +362,7 @@
             // ShowDetailsGroupBox
             // 
             this.ShowDetailsGroupBox.Controls.Add(this.ClassifyButton);
-            this.ShowDetailsGroupBox.Controls.Add(this.button2);
-            this.ShowDetailsGroupBox.Controls.Add(this.label1);
-            this.ShowDetailsGroupBox.Controls.Add(this.textBox1);
-            this.ShowDetailsGroupBox.Controls.Add(this.label2);
-            this.ShowDetailsGroupBox.Controls.Add(this.button1);
+            this.ShowDetailsGroupBox.Controls.Add(this.ShowAttributesButton);
             this.ShowDetailsGroupBox.Controls.Add(this.ShowBranchesButton);
             this.ShowDetailsGroupBox.Controls.Add(this.skeletonizeButton);
             this.ShowDetailsGroupBox.Location = new System.Drawing.Point(597, 12);
@@ -428,7 +374,7 @@
             // 
             // ClassifyButton
             // 
-            this.ClassifyButton.Location = new System.Drawing.Point(233, 123);
+            this.ClassifyButton.Location = new System.Drawing.Point(270, 123);
             this.ClassifyButton.Name = "ClassifyButton";
             this.ClassifyButton.Size = new System.Drawing.Size(96, 40);
             this.ClassifyButton.TabIndex = 30;
@@ -436,51 +382,15 @@
             this.ClassifyButton.UseVisualStyleBackColor = true;
             this.ClassifyButton.Click += new System.EventHandler(this.ClassifyButtonClicked);
             // 
-            // button2
+            // ShowAttributesButton
             // 
-            this.button2.Location = new System.Drawing.Point(303, 35);
-            this.button2.Margin = new System.Windows.Forms.Padding(2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(81, 20);
-            this.button2.TabIndex = 29;
-            this.button2.Text = "Browse...";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
-            this.label1.Location = new System.Drawing.Point(274, 38);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(24, 17);
-            this.label1.TabIndex = 28;
-            this.label1.Text = "Or";
-            // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(112, 35);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(141, 20);
-            this.textBox1.TabIndex = 27;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
-            this.label2.Location = new System.Drawing.Point(6, 35);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(105, 17);
-            this.label2.TabIndex = 26;
-            this.label2.Text = "Description file:";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(0, 65);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(384, 32);
-            this.button1.TabIndex = 25;
-            this.button1.Text = "Load Description File";
-            this.button1.UseVisualStyleBackColor = true;
+            this.ShowAttributesButton.Location = new System.Drawing.Point(0, 65);
+            this.ShowAttributesButton.Name = "ShowAttributesButton";
+            this.ShowAttributesButton.Size = new System.Drawing.Size(384, 32);
+            this.ShowAttributesButton.TabIndex = 25;
+            this.ShowAttributesButton.Text = "Show Attributes";
+            this.ShowAttributesButton.UseVisualStyleBackColor = true;
+            this.ShowAttributesButton.Click += new System.EventHandler(this.ShowAttributesClicked);
             // 
             // ControlGroupBox
             // 
@@ -565,7 +475,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).EndInit();
             this.ShowDetailsGroupBox.ResumeLayout(false);
-            this.ShowDetailsGroupBox.PerformLayout();
             this.ControlGroupBox.ResumeLayout(false);
             this.ControlGroupBox.PerformLayout();
             this.ResumeLayout(false);
@@ -600,17 +509,9 @@
         private System.Windows.Forms.Button RotateRightButton;
         private System.Windows.Forms.Label NowViewingLabel;
         private System.Windows.Forms.Button ShowBranchesButton;
-        private System.Windows.Forms.Button ConfigBrowseButton;
-        private System.Windows.Forms.Label ConfigOrLabel;
-        private System.Windows.Forms.TextBox ConfigDirTextBox;
-        private System.Windows.Forms.Label ConfigPathLabel;
         private System.Windows.Forms.GroupBox ShowDetailsGroupBox;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button ShowAttributesButton;
         private System.Windows.Forms.Button ClassifyButton;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label ClusterIndexValueLabel;
         private System.Windows.Forms.Label ClusterIndexLabel;
         private System.Windows.Forms.GroupBox ControlGroupBox;

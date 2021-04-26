@@ -39,7 +39,6 @@ namespace ClusterUI
             ClusterHistogram.Visible = false;
             ClusterPixHistogram.Visible = false;
             ClusterReader = new MMClusterReader();
-            ConfigDirTextBox.Text = configPath;
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
 
         }
@@ -96,10 +95,17 @@ namespace ClusterUI
        
         public void ClassifyButtonClicked(object sender, EventArgs e)
         {
+            const string NNFragHeFe = "../../../ClassifierForClusters/trained_models/trainFragHeFeNew.json_trained 0.961.txt";
+            const string NNPrLe = "../../../ClassifierForClusters/trained_models/trainPrLe_ElMuPi.json_trained 0.966.txt";
+            const string NNLead = "../../../ClassifierForClusters/trained_models/trainLeadMulti.json_trained 0.909.txt";
+            const string NNElMuPi = "../../../ClassifierForClusters/trained_models/trainElMuPi.json_trained 0.801.txt";
+            
+
+
             NNInputProcessor preprocessor = new NNInputProcessor();
             var attributePairs = new Dictionary<ClusterAttribute, object>();
             IClassifier classifier = new MultiLayeredClassifier();
-            classifier.Load();
+            classifier.Load(new string[] { NNLead, NNFragHeFe, NNPrLe, NNElMuPi });
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
             foreach (var checkedAttribute in classifier.ValidFields)
             {
@@ -124,21 +130,12 @@ namespace ClusterUI
                 InViewFilePathBox.Text = fileDialog.FileName;
             }
         }
-        public void BrowseConfigButtonClicked(object sender, EventArgs e)
-        {
-            using (var dialog = new FolderBrowserDialog())
-            {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    ConfigDirTextBox.Text = dialog.SelectedPath;
-                }
-            }
-        }
+
         public void LoadClustersClicked(object sender, EventArgs e)
         {
             try
             {
-                configPath = ConfigDirTextBox.Text + "\\";
+
                 ClusterReader.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
                 Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
 
@@ -277,6 +274,40 @@ namespace ClusterUI
                 PictureBox.Image = DrawBranches(mainBranches[i], branchColors[i % branchColors.Length]);
             ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.White);
             //PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
+        }
+        public void ShowAttributesClicked(object sender, EventArgs e)
+        {
+            IClassifier classifier = new MultiLayeredClassifier();
+            var attributePairs = new Dictionary<ClusterAttribute, object>();
+            IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
+            foreach (var checkedAttribute in classifier.ValidFields)
+            {
+                var attributeName = checkedAttribute;
+                attributePairs.Add(attributeName, null);
+                attributesToGet.Add(attributeName);
+            }
+            attributePairs.Add(ClusterAttribute.Branches, null);
+            attributesToGet.Add(ClusterAttribute.Branches);
+            DefaultAttributeCalculator attributeCalculator = new DefaultAttributeCalculator();
+            attributeCalculator.Calculate(Current, attributesToGet, ref attributePairs);
+            Form attributeForm = new Form()
+            {
+                Width = 300,
+                Height = 500,
+
+
+            };
+            System.Windows.Forms.TextBox attributeTextBox = new System.Windows.Forms.TextBox()
+            {
+                Parent = attributeForm,
+                Width = 300,
+                Height = 500,
+                Multiline = true,
+                Text = JsonConvert.SerializeObject(attributePairs, Formatting.Indented)
+
+            }; 
+            attributeForm.Controls.Add(attributeTextBox);
+            attributeForm.Show();
         }
         #endregion
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)

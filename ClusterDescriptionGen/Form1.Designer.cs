@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ProcessedCountLabel = new System.Windows.Forms.Label();
             this.EndingConditionGroupBox = new System.Windows.Forms.GroupBox();
             this.FirstPartitionEndsRadioButton = new System.Windows.Forms.RadioButton();
             this.LastClassEndsRadioButton = new System.Windows.Forms.RadioButton();
@@ -60,6 +61,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.ProcessedCountLabel);
             this.groupBox1.Controls.Add(this.EndingConditionGroupBox);
             this.groupBox1.Controls.Add(this.SelectAllignLabel);
             this.groupBox1.Controls.Add(this.DistributionGroupBox);
@@ -80,6 +82,14 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Menu";
+            // 
+            // ProcessedCountLabel
+            // 
+            this.ProcessedCountLabel.AutoSize = true;
+            this.ProcessedCountLabel.Location = new System.Drawing.Point(294, 413);
+            this.ProcessedCountLabel.Name = "ProcessedCountLabel";
+            this.ProcessedCountLabel.Size = new System.Drawing.Size(0, 13);
+            this.ProcessedCountLabel.TabIndex = 17;
             // 
             // EndingConditionGroupBox
             // 
@@ -363,6 +373,7 @@
         private System.Windows.Forms.RadioButton FirstPartitionEndsRadioButton;
         private System.Windows.Forms.RadioButton LastClassEndsRadioButton;
         private System.Windows.Forms.RadioButton FirstClassEndsRadioButton;
+        private System.Windows.Forms.Label ProcessedCountLabel;
     }
 }
 

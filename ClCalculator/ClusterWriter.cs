@@ -27,7 +27,7 @@ namespace ClusterCalculator
     }
     public interface IDescriptionWriter
     {
-        void WriteDescription(Dictionary<ClusterAttribute, object> attrtibutes);
+        void WriteDescription(Dictionary<ClusterAttribute, object> attrtibutes, long id = 0);
         void Close();
     }
 
@@ -41,17 +41,19 @@ namespace ClusterCalculator
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
             outputStream.WriteLine("[");
         }
-        public void WriteDescription(Dictionary<ClusterAttribute, object> attributes)
+        public void WriteDescription(Dictionary<ClusterAttribute, object> attributes, long id = 0)
         {
 
             if (WrittenCount > 0)
             {
                 OutputStream.Write(',');
                 OutputStream.WriteLine();
-            }
+            }        
             ++WrittenCount;
+            if (id == 0)
+                id = WrittenCount;
             OutputStream.WriteLine('{');
-            OutputStream.WriteLine($"\t\"id\":{WrittenCount},");
+            OutputStream.WriteLine($"\t\"id\":{id},");
             int depth = 1;
             int attributeProcessed = 0;
             foreach (var attribute in attributes)

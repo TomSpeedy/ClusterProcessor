@@ -16,6 +16,12 @@ namespace ClusterDescriptionGen
 {
     public partial class Form1 : Form
     {
+        long ProcessedCount = 0;
+        System.Windows.Forms.Timer CheckProgressTimer = new System.Windows.Forms.Timer();
+        public void TimerTicked(object sender, EventArgs e)
+        {
+            ProcessedCountLabel.Text = "Clusters processed: " + ProcessedCount.ToString();
+        }
         private IDescriptionWriter ClDescriptionWriter { get; set; }
 
         public Form1()
@@ -64,29 +70,46 @@ namespace ClusterDescriptionGen
          }   
         public void ProcessButtonClicked(object sender, EventArgs e)
         {
+
+            string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
+            string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => '"' + item.SubItems[0].Text + '"').ToArray();
+            bool classesProportional = UnevenDistrRadioButton.Checked;
+            var endCond = GetEndCondition();
+            bool parallelProcessing = ParallelClasPartProcessRadioButton.Checked;
+            string allignBy = AllignClassTextBox.Text == "" ? null : '"' + AllignClassTextBox.Text + '"';
+            IList<ClusterAttribute> attributes = new List<ClusterAttribute>();
+            foreach (var checkedAttribute in AttributeCheckedList.CheckedItems)
+            {
+               attributes.Add(((string)checkedAttribute).ToAttribute());
+            }
+            Thread processingThread = new Thread(() =>  GenerateDescription(ref ProcessedCount, iniFiles, classes, classesProportional, endCond, allignBy, parallelProcessing, attributes) );
+            CheckProgressTimer.Interval = 1000;
+            CheckProgressTimer.Tick += TimerTicked;
+            CheckProgressTimer.Start();
+            processingThread.Start();
             
-           
+            
+        }
+        private void GenerateDescription(ref long processedCount, string[] iniFiles, string[] classes, bool classesProportional, EndCondition endCond, string allignBy, bool parallelProcessing, IList<ClusterAttribute> attributes)
+        {
             Dictionary<ClusterClassPartition, int> writtenCount = new Dictionary<ClusterClassPartition, int>();
 
             ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text));
-            IClusterReader clusterReader  = new MMClusterReader();
-            string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
-            string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => '"' + item.SubItems[0].Text + '"').ToArray();
+            IClusterReader clusterReader = new MMClusterReader();
 
-            List <ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
-            string allignBy = AllignClassTextBox.Text == "" ? null : '"' + AllignClassTextBox.Text + '"';
+            List<ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
+            
             NeighbourCountFilter neighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
 
-            for (int i = 0; i < iniFiles.Length; i++ )
+            for (int i = 0; i < iniFiles.Length; i++)
             {
                 clusterReader.GetTextFileNames(new StreamReader(iniFiles[i]), iniFiles[i], out string pxFile, out string clFile);
                 var clCollection = new ClusterInfoCollection(new StreamReader(clFile), new StreamReader(pxFile));
-
                 var existingClEnumCollections = clusterEnumCollections.FindAll(clusterEnColl => (clusterEnColl.Class == classes[i]));
                 var newPartition = new ClusterClassPartition(clCollection, null);
                 writtenCount.Add(newPartition, 0);
                 if (existingClEnumCollections.Count == 0)
-                  clusterEnumCollections.Add(new ClusterClassCollection( newPartition, classes[i]));
+                    clusterEnumCollections.Add(new ClusterClassCollection(newPartition, classes[i]));
                 else
                 {
                     existingClEnumCollections[0].Partitions.Add(newPartition);
@@ -94,11 +117,10 @@ namespace ClusterDescriptionGen
             }
             var attributePairs = new Dictionary<ClusterAttribute, object>();
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
-            foreach (var checkedAttribute in AttributeCheckedList.CheckedItems)
+            foreach (var attribute in attributes)
             {
-                var attributeName = ((string)checkedAttribute).ToAttribute();
-                attributePairs.Add(attributeName, null);
-                attributesToGet.Add(attributeName);
+                attributePairs.Add(attribute, null);
+                attributesToGet.Add(attribute);
             }
             int clustersProcessedCount = 0; //remove
             int maxClusterCount = 10000000;
@@ -108,20 +130,21 @@ namespace ClusterDescriptionGen
 
             var probabilities = new double[clusterEnumCollections.Count];
             long totalLength = 0;
-            bool classesProportional = UnevenDistrRadioButton.Checked;
+            
             for (int i = 0; i < clusterEnumCollections.Count; i++)
             {
                 totalLength += clusterEnumCollections[i].CalcLength();
             }
             for (int i = 0; i < clusterEnumCollections.Count; i++)
-            { 
-                if (i > 0)
-                    probabilities[i] = probabilities[i - 1] + clusterEnumCollections[i].CalcLength() /(double) totalLength;
-                else
-                    probabilities[i] = clusterEnumCollections[i].CalcLength() /(double) totalLength;
-            }
-            while (clustersProcessedCount < maxClusterCount )
             {
+                if (i > 0)
+                    probabilities[i] = probabilities[i - 1] + clusterEnumCollections[i].CalcLength() / (double)totalLength;
+                else
+                    probabilities[i] = clusterEnumCollections[i].CalcLength() / (double)totalLength;
+            }
+            while (clustersProcessedCount < maxClusterCount)
+            {
+                processedCount++;
                 var currentProb = random.NextDouble();
                 var currentIndex = 0;
                 if (classesProportional)
@@ -141,8 +164,8 @@ namespace ClusterDescriptionGen
                 // currentIndex = random.Next(0, clusterEnumCollections.Count);
                 var clusterEnumCollection = clusterEnumCollections[currentIndex];
                 //var progress = clusterEnumCollection.Partitions.Select(partition => partition.Collection.ClFile.BaseStream.Position).Sum() / (double)clusterEnumCollection.CalcLength();
-                var endCond = GetEndCondition();
-                if (ParallelClasPartProcessRadioButton.Checked)
+                
+                if (parallelProcessing)
                 {
                     if (clusterEnumCollections.SelectNextEtorParallel(ref clusterEnumCollection, ref currentIndex, random, allignBy, endCond))
                         break;
@@ -150,7 +173,7 @@ namespace ClusterDescriptionGen
                 else if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, ref currentIndex, random, allignBy, endCond))
                     break;
                 var currentClFile = clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex].Collection.ClFile;
-                if (/*currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 300*/true)
+                if (currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 3000)
                 {
                     attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
                     writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]]++;
