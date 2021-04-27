@@ -173,7 +173,7 @@ namespace ClusterDescriptionGen
                 else if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, ref currentIndex, random, allignBy, endCond))
                     break;
                 var currentClFile = clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex].Collection.ClFile;
-                if (currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 3000)
+                if (/*currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 3000*/true)
                 {
                     attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
                     writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]]++;

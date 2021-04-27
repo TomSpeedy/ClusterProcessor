@@ -165,7 +165,7 @@ namespace ClassificationExperiment
             ExpectedValues.Add("elMuPi", accuraciesElMuPi);
         }
     }
-    class TestAllWithSingleClassifier
+    //class TestAllWithSingleClassifier
     static class DefaultLearner
     {
         public static ClusterAttribute[] ValidFields { get; } = new MultiLayeredClassifier().ValidFields;
