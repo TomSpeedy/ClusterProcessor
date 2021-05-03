@@ -61,13 +61,15 @@ namespace ClusterCalculator
                     if (preserveEnergy)
                     {
                         var currentEnergy = actualVal.Energy;
-                    for (int j = 0; j < neighboursTemp.Count; j++)
-                    {
-                        pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
-                        var neighbourEnergy = actualNeighbour.Energy;
-                        actualNeighbour.SetEnergy(neighbourEnergy
-                            + (currentEnergy / neighboursTemp.Count));
-                    }
+                        for (int j = 0; j < neighboursTemp.Count; j++)
+                        {
+                            pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
+                            var neighbourEnergy = actualNeighbour.Energy;
+                            pointsHash.Remove(actualNeighbour);
+                            actualNeighbour.SetEnergy(neighbourEnergy + (currentEnergy / neighboursTemp.Count));
+                            pointsHash.Add(actualNeighbour);
+
+                        }
                     }
 
                     pointsHash.Remove(toDelete[i]);
@@ -95,15 +97,15 @@ namespace ClusterCalculator
                     if (preserveEnergy)
                     {
                         var currentEnergy = actualVal.Energy;
-                    for (int j = 0; j < neighboursTemp.Count; j++)
-                    {
+                        for (int j = 0; j < neighboursTemp.Count; j++)
+                        {
                         
                             pointsHash.TryGetValue(neighboursTemp[j], out PixelPoint actualNeighbour);
-                        var neighbourEnergy = actualNeighbour.Energy;
-                        actualNeighbour.SetEnergy(neighbourEnergy
-                            + (currentEnergy / neighboursTemp.Count));
-                        
-                    }
+                            var neighbourEnergy = actualNeighbour.Energy;
+                            pointsHash.Remove(actualNeighbour);
+                            actualNeighbour.SetEnergy(neighbourEnergy + (currentEnergy / neighboursTemp.Count));
+                            pointsHash.Add(actualNeighbour);
+                        }
                     }
                     //----
                     pointsHash.Remove(toDelete[i]);

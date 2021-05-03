@@ -84,7 +84,7 @@
             this.ClusterHistogram.ChartAreas.Add(chartArea1);
             legend1.Name = "Legend1";
             this.ClusterHistogram.Legends.Add(legend1);
-            this.ClusterHistogram.Location = new System.Drawing.Point(687, 467);
+            this.ClusterHistogram.Location = new System.Drawing.Point(615, 481);
             this.ClusterHistogram.Name = "ClusterHistogram";
             series1.ChartArea = "ChartArea1";
             series1.Legend = "Legend1";
@@ -97,7 +97,8 @@
             // 
             // showHistogram
             // 
-            this.showHistogram.Location = new System.Drawing.Point(687, 436);
+            this.showHistogram.Enabled = false;
+            this.showHistogram.Location = new System.Drawing.Point(615, 431);
             this.showHistogram.Name = "showHistogram";
             this.showHistogram.Size = new System.Drawing.Size(168, 25);
             this.showHistogram.TabIndex = 1;
@@ -107,6 +108,7 @@
             // 
             // PreviousButton
             // 
+            this.PreviousButton.Enabled = false;
             this.PreviousButton.Location = new System.Drawing.Point(5, 131);
             this.PreviousButton.Name = "PreviousButton";
             this.PreviousButton.Size = new System.Drawing.Size(78, 32);
@@ -117,7 +119,8 @@
             // 
             // NextButton
             // 
-            this.NextButton.Location = new System.Drawing.Point(99, 131);
+            this.NextButton.Enabled = false;
+            this.NextButton.Location = new System.Drawing.Point(89, 131);
             this.NextButton.Name = "NextButton";
             this.NextButton.Size = new System.Drawing.Size(89, 32);
             this.NextButton.TabIndex = 3;
@@ -136,10 +139,11 @@
             // 
             // HideHistogramButton
             // 
-            this.HideHistogramButton.Location = new System.Drawing.Point(855, 436);
+            this.HideHistogramButton.Enabled = false;
+            this.HideHistogramButton.Location = new System.Drawing.Point(788, 431);
             this.HideHistogramButton.Margin = new System.Windows.Forms.Padding(2);
             this.HideHistogramButton.Name = "HideHistogramButton";
-            this.HideHistogramButton.Size = new System.Drawing.Size(154, 25);
+            this.HideHistogramButton.Size = new System.Drawing.Size(142, 25);
             this.HideHistogramButton.TabIndex = 7;
             this.HideHistogramButton.Text = "Hide Collection Histogram";
             this.HideHistogramButton.UseVisualStyleBackColor = true;
@@ -150,7 +154,7 @@
             this.ViewClusters.Location = new System.Drawing.Point(7, 94);
             this.ViewClusters.Margin = new System.Windows.Forms.Padding(2);
             this.ViewClusters.Name = "ViewClusters";
-            this.ViewClusters.Size = new System.Drawing.Size(381, 32);
+            this.ViewClusters.Size = new System.Drawing.Size(381, 62);
             this.ViewClusters.TabIndex = 9;
             this.ViewClusters.Text = "Load Clusters";
             this.ViewClusters.UseVisualStyleBackColor = true;
@@ -167,14 +171,14 @@
             this.ViewGroup.Margin = new System.Windows.Forms.Padding(2);
             this.ViewGroup.Name = "ViewGroup";
             this.ViewGroup.Padding = new System.Windows.Forms.Padding(2);
-            this.ViewGroup.Size = new System.Drawing.Size(395, 180);
+            this.ViewGroup.Size = new System.Drawing.Size(395, 197);
             this.ViewGroup.TabIndex = 10;
             this.ViewGroup.TabStop = false;
             this.ViewGroup.Text = "Select file to view";
             // 
             // BrowseViewButton
             // 
-            this.BrowseViewButton.Location = new System.Drawing.Point(300, 40);
+            this.BrowseViewButton.Location = new System.Drawing.Point(291, 46);
             this.BrowseViewButton.Margin = new System.Windows.Forms.Padding(2);
             this.BrowseViewButton.Name = "BrowseViewButton";
             this.BrowseViewButton.Size = new System.Drawing.Size(81, 20);
@@ -187,7 +191,7 @@
             // 
             this.OrLabel.AutoSize = true;
             this.OrLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.OrLabel.Location = new System.Drawing.Point(271, 40);
+            this.OrLabel.Location = new System.Drawing.Point(263, 47);
             this.OrLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.OrLabel.Name = "OrLabel";
             this.OrLabel.Size = new System.Drawing.Size(24, 17);
@@ -196,7 +200,7 @@
             // 
             // InViewFilePathBox
             // 
-            this.InViewFilePathBox.Location = new System.Drawing.Point(109, 37);
+            this.InViewFilePathBox.Location = new System.Drawing.Point(118, 47);
             this.InViewFilePathBox.Margin = new System.Windows.Forms.Padding(2);
             this.InViewFilePathBox.Name = "InViewFilePathBox";
             this.InViewFilePathBox.Size = new System.Drawing.Size(141, 20);
@@ -206,12 +210,12 @@
             // 
             this.FilePathLabel.AutoSize = true;
             this.FilePathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.FilePathLabel.Location = new System.Drawing.Point(4, 41);
+            this.FilePathLabel.Location = new System.Drawing.Point(20, 47);
             this.FilePathLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.FilePathLabel.Name = "FilePathLabel";
-            this.FilePathLabel.Size = new System.Drawing.Size(66, 17);
+            this.FilePathLabel.Size = new System.Drawing.Size(94, 17);
             this.FilePathLabel.TabIndex = 10;
-            this.FilePathLabel.Text = "File path:";
+            this.FilePathLabel.Text = "File path(.ini):";
             // 
             // ClusterIndexValueLabel
             // 
@@ -235,9 +239,10 @@
             // 
             // skeletonizeButton
             // 
-            this.skeletonizeButton.Location = new System.Drawing.Point(16, 123);
+            this.skeletonizeButton.Enabled = false;
+            this.skeletonizeButton.Location = new System.Drawing.Point(26, 85);
             this.skeletonizeButton.Name = "skeletonizeButton";
-            this.skeletonizeButton.Size = new System.Drawing.Size(115, 40);
+            this.skeletonizeButton.Size = new System.Drawing.Size(181, 46);
             this.skeletonizeButton.TabIndex = 11;
             this.skeletonizeButton.Text = "Skeletonize";
             this.skeletonizeButton.UseVisualStyleBackColor = true;
@@ -245,7 +250,8 @@
             // 
             // showPixHistogramButton
             // 
-            this.showPixHistogramButton.Location = new System.Drawing.Point(687, 712);
+            this.showPixHistogramButton.Enabled = false;
+            this.showPixHistogramButton.Location = new System.Drawing.Point(623, 723);
             this.showPixHistogramButton.Name = "showPixHistogramButton";
             this.showPixHistogramButton.Size = new System.Drawing.Size(168, 25);
             this.showPixHistogramButton.TabIndex = 13;
@@ -255,7 +261,8 @@
             // 
             // hidePixHistogramButton
             // 
-            this.hidePixHistogramButton.Location = new System.Drawing.Point(917, 712);
+            this.hidePixHistogramButton.Enabled = false;
+            this.hidePixHistogramButton.Location = new System.Drawing.Point(797, 723);
             this.hidePixHistogramButton.Name = "hidePixHistogramButton";
             this.hidePixHistogramButton.Size = new System.Drawing.Size(168, 25);
             this.hidePixHistogramButton.TabIndex = 14;
@@ -269,20 +276,20 @@
             this.ClusterPixHistogram.ChartAreas.Add(chartArea2);
             legend2.Name = "Legend1";
             this.ClusterPixHistogram.Legends.Add(legend2);
-            this.ClusterPixHistogram.Location = new System.Drawing.Point(687, 743);
+            this.ClusterPixHistogram.Location = new System.Drawing.Point(623, 754);
             this.ClusterPixHistogram.Name = "ClusterPixHistogram";
             this.ClusterPixHistogram.RightToLeft = System.Windows.Forms.RightToLeft.No;
             series2.ChartArea = "ChartArea1";
             series2.Legend = "Legend1";
             series2.Name = "Series1";
             this.ClusterPixHistogram.Series.Add(series2);
-            this.ClusterPixHistogram.Size = new System.Drawing.Size(632, 220);
+            this.ClusterPixHistogram.Size = new System.Drawing.Size(632, 205);
             this.ClusterPixHistogram.TabIndex = 15;
             this.ClusterPixHistogram.Visible = false;
             // 
             // winChartViewer
             // 
-            this.winChartViewer.Location = new System.Drawing.Point(999, 10);
+            this.winChartViewer.Location = new System.Drawing.Point(947, 84);
             this.winChartViewer.Name = "winChartViewer";
             this.winChartViewer.Size = new System.Drawing.Size(415, 389);
             this.winChartViewer.TabIndex = 16;
@@ -290,7 +297,8 @@
             // 
             // View3DButton
             // 
-            this.View3DButton.Location = new System.Drawing.Point(999, 399);
+            this.View3DButton.Enabled = false;
+            this.View3DButton.Location = new System.Drawing.Point(947, 12);
             this.View3DButton.Name = "View3DButton";
             this.View3DButton.Size = new System.Drawing.Size(115, 41);
             this.View3DButton.TabIndex = 17;
@@ -300,43 +308,55 @@
             // 
             // RotateUpButton
             // 
-            this.RotateUpButton.Location = new System.Drawing.Point(1272, 397);
+            this.RotateUpButton.Enabled = false;
+            this.RotateUpButton.Location = new System.Drawing.Point(1118, 12);
             this.RotateUpButton.Name = "RotateUpButton";
-            this.RotateUpButton.Size = new System.Drawing.Size(47, 23);
+            this.RotateUpButton.Size = new System.Drawing.Size(47, 22);
             this.RotateUpButton.TabIndex = 19;
             this.RotateUpButton.Text = "Up";
             this.RotateUpButton.UseVisualStyleBackColor = true;
             this.RotateUpButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            this.RotateUpButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldDown);
+            this.RotateUpButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldUp);
             // 
             // RotateDownButton
             // 
-            this.RotateDownButton.Location = new System.Drawing.Point(1272, 438);
+            this.RotateDownButton.Enabled = false;
+            this.RotateDownButton.Location = new System.Drawing.Point(1118, 53);
             this.RotateDownButton.Name = "RotateDownButton";
-            this.RotateDownButton.Size = new System.Drawing.Size(47, 23);
+            this.RotateDownButton.Size = new System.Drawing.Size(47, 22);
             this.RotateDownButton.TabIndex = 20;
             this.RotateDownButton.Text = "Down";
             this.RotateDownButton.UseVisualStyleBackColor = true;
             this.RotateDownButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            this.RotateDownButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldDown);
+            this.RotateDownButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldUp);
             // 
             // RotateLeftButton
             // 
-            this.RotateLeftButton.Location = new System.Drawing.Point(1236, 415);
+            this.RotateLeftButton.Enabled = false;
+            this.RotateLeftButton.Location = new System.Drawing.Point(1082, 30);
             this.RotateLeftButton.Name = "RotateLeftButton";
-            this.RotateLeftButton.Size = new System.Drawing.Size(39, 25);
+            this.RotateLeftButton.Size = new System.Drawing.Size(39, 24);
             this.RotateLeftButton.TabIndex = 21;
             this.RotateLeftButton.Text = "Left";
             this.RotateLeftButton.UseVisualStyleBackColor = true;
             this.RotateLeftButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            this.RotateLeftButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldDown);
+            this.RotateLeftButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldUp);
             // 
             // RotateRightButton
             // 
-            this.RotateRightButton.Location = new System.Drawing.Point(1316, 417);
+            this.RotateRightButton.Enabled = false;
+            this.RotateRightButton.Location = new System.Drawing.Point(1162, 32);
             this.RotateRightButton.Name = "RotateRightButton";
-            this.RotateRightButton.Size = new System.Drawing.Size(43, 23);
+            this.RotateRightButton.Size = new System.Drawing.Size(43, 22);
             this.RotateRightButton.TabIndex = 22;
             this.RotateRightButton.Text = "Right";
             this.RotateRightButton.UseVisualStyleBackColor = true;
             this.RotateRightButton.Click += new System.EventHandler(this.Rotate3DPlot);
+            this.RotateRightButton.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldDown);
+            this.RotateRightButton.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Rotate3DPlotHoldUp);
             // 
             // NowViewingLabel
             // 
@@ -351,9 +371,10 @@
             // 
             // ShowBranchesButton
             // 
-            this.ShowBranchesButton.Location = new System.Drawing.Point(147, 123);
+            this.ShowBranchesButton.Enabled = false;
+            this.ShowBranchesButton.Location = new System.Drawing.Point(26, 201);
             this.ShowBranchesButton.Name = "ShowBranchesButton";
-            this.ShowBranchesButton.Size = new System.Drawing.Size(100, 40);
+            this.ShowBranchesButton.Size = new System.Drawing.Size(181, 54);
             this.ShowBranchesButton.TabIndex = 24;
             this.ShowBranchesButton.Text = "Show Branches";
             this.ShowBranchesButton.UseVisualStyleBackColor = true;
@@ -367,16 +388,17 @@
             this.ShowDetailsGroupBox.Controls.Add(this.skeletonizeButton);
             this.ShowDetailsGroupBox.Location = new System.Drawing.Point(597, 12);
             this.ShowDetailsGroupBox.Name = "ShowDetailsGroupBox";
-            this.ShowDetailsGroupBox.Size = new System.Drawing.Size(396, 200);
+            this.ShowDetailsGroupBox.Size = new System.Drawing.Size(313, 395);
             this.ShowDetailsGroupBox.TabIndex = 25;
             this.ShowDetailsGroupBox.TabStop = false;
             this.ShowDetailsGroupBox.Text = "Show Details";
             // 
             // ClassifyButton
             // 
-            this.ClassifyButton.Location = new System.Drawing.Point(270, 123);
+            this.ClassifyButton.Enabled = false;
+            this.ClassifyButton.Location = new System.Drawing.Point(26, 137);
             this.ClassifyButton.Name = "ClassifyButton";
-            this.ClassifyButton.Size = new System.Drawing.Size(96, 40);
+            this.ClassifyButton.Size = new System.Drawing.Size(181, 51);
             this.ClassifyButton.TabIndex = 30;
             this.ClassifyButton.Text = "Classify";
             this.ClassifyButton.UseVisualStyleBackColor = true;
@@ -384,9 +406,10 @@
             // 
             // ShowAttributesButton
             // 
-            this.ShowAttributesButton.Location = new System.Drawing.Point(0, 65);
+            this.ShowAttributesButton.Enabled = false;
+            this.ShowAttributesButton.Location = new System.Drawing.Point(26, 24);
             this.ShowAttributesButton.Name = "ShowAttributesButton";
-            this.ShowAttributesButton.Size = new System.Drawing.Size(384, 32);
+            this.ShowAttributesButton.Size = new System.Drawing.Size(181, 48);
             this.ShowAttributesButton.TabIndex = 25;
             this.ShowAttributesButton.Text = "Show Attributes";
             this.ShowAttributesButton.UseVisualStyleBackColor = true;
@@ -410,7 +433,7 @@
             // 
             // FindByIndexTextBox
             // 
-            this.FindByIndexTextBox.Location = new System.Drawing.Point(49, 71);
+            this.FindByIndexTextBox.Location = new System.Drawing.Point(57, 71);
             this.FindByIndexTextBox.Name = "FindByIndexTextBox";
             this.FindByIndexTextBox.Size = new System.Drawing.Size(52, 20);
             this.FindByIndexTextBox.TabIndex = 22;
@@ -419,7 +442,7 @@
             // 
             this.ClusterFindIndexLabel.AutoSize = true;
             this.ClusterFindIndexLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.ClusterFindIndexLabel.Location = new System.Drawing.Point(2, 73);
+            this.ClusterFindIndexLabel.Location = new System.Drawing.Point(6, 72);
             this.ClusterFindIndexLabel.Name = "ClusterFindIndexLabel";
             this.ClusterFindIndexLabel.Size = new System.Drawing.Size(45, 17);
             this.ClusterFindIndexLabel.TabIndex = 21;
@@ -427,9 +450,10 @@
             // 
             // FindByIndexButton
             // 
-            this.FindByIndexButton.Location = new System.Drawing.Point(107, 69);
+            this.FindByIndexButton.Enabled = false;
+            this.FindByIndexButton.Location = new System.Drawing.Point(115, 69);
             this.FindByIndexButton.Name = "FindByIndexButton";
-            this.FindByIndexButton.Size = new System.Drawing.Size(75, 23);
+            this.FindByIndexButton.Size = new System.Drawing.Size(67, 23);
             this.FindByIndexButton.TabIndex = 20;
             this.FindByIndexButton.Text = "Find";
             this.FindByIndexButton.UseVisualStyleBackColor = true;
@@ -447,7 +471,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1426, 962);
+            this.ClientSize = new System.Drawing.Size(1484, 962);
             this.Controls.Add(this.ClusterClassLabel);
             this.Controls.Add(this.ControlGroupBox);
             this.Controls.Add(this.ShowDetailsGroupBox);

@@ -19,7 +19,6 @@ using ClassifierForClusters;
 using Newtonsoft.Json;
 
 namespace ClusterUI 
-
 {
     public partial class ClusterUI : Form
     {
@@ -30,7 +29,9 @@ namespace ClusterUI
         private HistogramPoint[] HistogramPoints { get; set; }
         private HistogramPoint[] HistogramPixPoints { get; set; }
         private Cluster Current { get; set; }
-        private ScatterChart ScatterChart { get; set; }
+        private System.Windows.Forms.Timer RotationTimer { get; set; }
+        private Button CurrentlyPressedRotateButton { get; set; }
+        private ScatterChart ScatterPlotChart { get; set; }
 
         private IClusterReader ClusterReader { get; }
         public ClusterUI()
@@ -122,6 +123,7 @@ namespace ClusterUI
             var classInfo = classifier.Classify(attrVector);
             ClusterClassLabel.Text = $"Calculated Class: {classInfo.MostProbableClassName}";
         }
+
         public void BrowseViewButtonClicked(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
@@ -149,6 +151,7 @@ namespace ClusterUI
                 Current = cluster;
                 ClusterIndexValueLabel.Text = clusterNumber.ToString();
                 NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
+                EnableButtons();
             }
             catch 
             {
@@ -161,9 +164,11 @@ namespace ClusterUI
             if (Current == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();
-           /*Point3D[] points3D = ToPoints3D(anal.Transform(Current.Points))*/ var points3D = ToPoints3D(zCalculator.TransformPoints(Current));
+           /*Point3D[] points3D = ToPoints3D(anal.Transform(Current.Points))*/ 
+            var points3D = ToPoints3D(zCalculator.TransformPoints(Current));
             ScatterChart chart = new ScatterChart(winChartViewer, points3D);
-            ScatterChart = chart;
+            ScatterPlotChart = chart;
+            EnableRotateButtons();
         }
         public void HideHistogramClicked(object sender, EventArgs e)
         {
@@ -173,11 +178,17 @@ namespace ClusterUI
         {
             ClusterPixHistogram.Visible = false;
         }
-        public void ShowHistogramClicked(object sender, EventArgs e)
+        public async void ShowHistogramClicked(object sender, EventArgs e)
         {
             //if (HistogramPoints == null)
-               // return;
-            HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points;
+            // return;
+            HistogramPoint[] HistogramPoints = null;
+            Thread histogramCalculationThread = new Thread(() => { HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points; });
+
+            await Task.Factory.StartNew(() => { HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points; },
+                                        TaskCreationOptions.LongRunning);
+
+            HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points;         
             ClusterHistogram.Visible = true;
             ClusterHistogram.Series.Clear();
             ClusterHistogram.Palette = ChartColorPalette.BrightPastel;
@@ -207,17 +218,17 @@ namespace ClusterUI
             ClusterPixHistogram.Palette = ChartColorPalette.BrightPastel;
             if (ClusterPixHistogram.Titles.Count == 0)
             {
-                ClusterPixHistogram.Titles.Add("Cluster Collection Histogram");
+                ClusterPixHistogram.Titles.Add("Pixel Histogram - Current Cluster");
             }
             var chartArea = new ChartArea();
             ClusterPixHistogram.ChartAreas.Clear();
             ClusterPixHistogram.ChartAreas.Add(new ChartArea());
-            ClusterPixHistogram.ChartAreas[0].AxisX.Title = "ToT";
+            ClusterPixHistogram.ChartAreas[0].AxisX.Title = "Energy in keV";
             ClusterPixHistogram.ChartAreas[0].AxisY.Title = "Pixel Count";
 
 
 
-            Series series = ClusterPixHistogram.Series.Add("Number of pixels with given ToT");
+            Series series = ClusterPixHistogram.Series.Add("Number of pixels with given Energy");
             for (int i = 0; i < HistogramPixPoints.Length; i++)
             {
                 series.Points.AddXY(HistogramPixPoints[i].X, HistogramPixPoints[i].Y);
@@ -229,18 +240,38 @@ namespace ClusterUI
         {
             var button = sender as Button;
             if (button == RotateUpButton)
-                ScatterChart.angleVert += 10;
+                ScatterPlotChart.angleVert += 5;
             else if (button == RotateDownButton)
-                ScatterChart.angleVert -= 10;
+                ScatterPlotChart.angleVert -= 5;
             else if (button == RotateLeftButton)
-                ScatterChart.angleHoriz += 10;
+                ScatterPlotChart.angleHoriz += 5;
             else if (button == RotateRightButton)
-                ScatterChart.angleHoriz -= 10;
-            ScatterChart.angleVert %= 360;
-            ScatterChart.angleHoriz %= 360;
-            winChartViewer.Chart = ScatterChart.RotateChart(ScatterChart.angleVert, ScatterChart.angleHoriz);
+                ScatterPlotChart.angleHoriz -= 5;
+            ScatterPlotChart.angleVert %= 360;
+            ScatterPlotChart.angleHoriz %= 360;
+            winChartViewer.Chart = ScatterPlotChart.RotateChart(ScatterPlotChart.angleVert, ScatterPlotChart.angleHoriz);
                 
 
+        }
+        public void Rotate3DPlotHoldDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            var button = sender as Button;
+            if(RotationTimer == null)
+            {
+                RotationTimer = new System.Windows.Forms.Timer();
+                RotationTimer.Interval = 100;
+                RotationTimer.Tick += Rotate3DPlotTimerTick;
+            }
+            CurrentlyPressedRotateButton = button;
+            RotationTimer.Start();
+        }
+        public void Rotate3DPlotTimerTick(object sender, EventArgs e)
+        {
+            Rotate3DPlot(CurrentlyPressedRotateButton, e);
+        }
+        public void Rotate3DPlotHoldUp(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+                RotationTimer.Stop();             
         }
         public void SkeletonizeButtonClicked(object sender, EventArgs e)
         {
@@ -262,6 +293,7 @@ namespace ClusterUI
             var skeletCluster = new Cluster(Current.FirstToA, Current.PixelCount, Current.ByteStart);
             skeletCluster.Points = skeletonizer.SkeletonizePoints(Current.Points);
             //Current.Points = skeletonizer.SkeletonizePoints(Current.Points);
+            var NeighCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
             var centerCalc = new EnergyCenterFinder();
             var center = centerCalc.CalcCenterPoint(skeletCluster, Current.Points);
             var branchAnalyzer = new BranchAnalyzer(centerCalc);
@@ -273,6 +305,8 @@ namespace ClusterUI
             for (int i = 0; i < mainBranches.Count; i++)
                 PictureBox.Image = DrawBranches(mainBranches[i], branchColors[i % branchColors.Length]);
             ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.White);
+            foreach(var pix in NeighCountFilter.Process(skeletCluster.Points))
+                ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.Pink);
             //PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
         }
         public void ShowAttributesClicked(object sender, EventArgs e)
@@ -367,8 +401,41 @@ namespace ClusterUI
             }
             return newPoints;
         }
-    }
+        private void EnableButtons()
+        {
+            foreach (Control control in Controls)
+            {
+                Button button = control as Button;
+                if (button != null)
+                {
+                    button.Enabled = true;
+                }
+                GroupBox groupBox = control as GroupBox;
+                if(groupBox != null)
+                    foreach(Control controlInGroupBox in groupBox.Controls)
+                    {
+                        Button buttonInGroupBox = controlInGroupBox as Button;
+                        if (buttonInGroupBox != null)
+                        {
+                        buttonInGroupBox.Enabled = true;
+                        }
+                    }
+            }
+            RotateLeftButton.Enabled = false;
+            RotateRightButton.Enabled = false;
+            RotateUpButton.Enabled = false;
+            RotateDownButton.Enabled = false;
+                
+        }
 
+        private void EnableRotateButtons()
+        {
+            RotateLeftButton.Enabled = true;
+            RotateRightButton.Enabled = true;
+            RotateUpButton.Enabled = true;
+            RotateDownButton.Enabled = true;
+        }
+    }
     struct HistogramPoint
     {
         public double X { get; set; }
@@ -531,5 +598,5 @@ namespace ClusterUI
             chart.zAxis().setTitle("Z-Axis", AxisLabelFont, AxisFontSize);
         }
     }
-
+    
 }

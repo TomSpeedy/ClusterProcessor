@@ -49,7 +49,7 @@ namespace ClusterDescriptionGen
                     
             }
         }
-         public void BrowseConfigButtonClicked(object sender, EventArgs e)
+        public void BrowseConfigButtonClicked(object sender, EventArgs e)
          {
              using (var dialog = new FolderBrowserDialog())
              {
@@ -68,6 +68,13 @@ namespace ClusterDescriptionGen
                 }
              }
          }   
+        
+        public void RemoveSelectedButtonClicked(object sender, EventArgs e)
+        {
+
+                for (int i = SelectedInputListView.SelectedItems.Count - 1; i >= 0; i--)
+                    SelectedInputListView.Items.Remove(SelectedInputListView.SelectedItems[i]);
+        }
         public void ProcessButtonClicked(object sender, EventArgs e)
         {
 
@@ -124,7 +131,6 @@ namespace ClusterDescriptionGen
             }
             int clustersProcessedCount = 0; //remove
             int maxClusterCount = 10000000;
-            //int minimalClassCount = 0;clusterEnumCollections.Count;
             Random random = new Random();
             IAttributeCalculator attrCalc = new DefaultAttributeCalculator();
 
@@ -159,9 +165,6 @@ namespace ClusterDescriptionGen
                     }
                 else
                     currentIndex = random.Next(0, clusterEnumCollections.Count);
-
-
-                // currentIndex = random.Next(0, clusterEnumCollections.Count);
                 var clusterEnumCollection = clusterEnumCollections[currentIndex];
                 //var progress = clusterEnumCollection.Partitions.Select(partition => partition.Collection.ClFile.BaseStream.Position).Sum() / (double)clusterEnumCollection.CalcLength();
                 
@@ -192,6 +195,7 @@ namespace ClusterDescriptionGen
                 endCond = EndCondition.FirstPartition;
             return endCond;
         }
+
 
     }
     static class ClusterClassCollectionExtensions

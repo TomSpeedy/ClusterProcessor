@@ -27,14 +27,13 @@ namespace ClusterCalculator
             List<Branch> mainBranches = new List<Branch>();
             var usablePoints = skeletCluster.Points.ToHashSetPixPoints();
             var center = EnCenterFinder.CalcCenterPoint(skeletCluster, originCluster.Points);
-            var crossPoints = NeighCountFilter.Process(skeletCluster.Points);
+            var crossPoints = NeighCountFilter.Process(usablePoints.ToList());
             Branch mainBranch = GetCoreBranch(usablePoints, center, crossPoints, maxDepth);
-
             var currentBranch = mainBranch;
+            maxbranchCount = 30;
             usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
             while (currentBranch.Points.Count > trivialBranchLength || mainBranches.Count == 0)
             {
-                maxbranchCount = 30;
                 mainBranches.Add(currentBranch);
                 currentBranch = GetCoreBranch(usablePoints, center, crossPoints, maxDepth);
                 usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
@@ -50,7 +49,7 @@ namespace ClusterCalculator
                 else
                     return 0;
             });
-
+            
             const int epsilonBranchDist = 4;
             var branchesToCheck = new Dictionary<Branch, List<Branch>>();
             foreach (var mainBr in mainBranches)
@@ -142,7 +141,8 @@ namespace ClusterCalculator
             maxbranchCount--;
             var localCrossPoints = crossPoints.Where(branchPoint => mainBranch.Points.Contains(branchPoint) && !branchPoint.Equals(startBranchPoint));
             var nonUsablePoints = mainBranch.Points.Except(localCrossPoints);
-            nonUsablePoints.Append(startBranchPoint);
+            var closeToStartPoints = usablePoints.Where(point => startBranchPoint.GetDistance(point) == 1 && !localCrossPoints.Contains(point)).ToList();
+            nonUsablePoints = nonUsablePoints.Append(startBranchPoint).Union(closeToStartPoints);
             var subBranchUsablePoints = usablePoints.Except(nonUsablePoints).ToHashSet();
             if (depth > 0 && maxbranchCount > 0)
             foreach (var localBranchPoint in localCrossPoints)
