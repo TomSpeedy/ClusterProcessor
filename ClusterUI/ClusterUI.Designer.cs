@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ClusterHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.showHistogram = new System.Windows.Forms.Button();
             this.PreviousButton = new System.Windows.Forms.Button();
@@ -69,6 +69,7 @@
             this.ClusterFindIndexLabel = new System.Windows.Forms.Label();
             this.FindByIndexButton = new System.Windows.Forms.Button();
             this.ClusterClassLabel = new System.Windows.Forms.Label();
+            this.ZoomLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.ViewGroup.SuspendLayout();
@@ -80,16 +81,16 @@
             // 
             // ClusterHistogram
             // 
-            chartArea1.Name = "ChartArea1";
-            this.ClusterHistogram.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.ClusterHistogram.Legends.Add(legend1);
+            chartArea3.Name = "ChartArea1";
+            this.ClusterHistogram.ChartAreas.Add(chartArea3);
+            legend3.Name = "Legend1";
+            this.ClusterHistogram.Legends.Add(legend3);
             this.ClusterHistogram.Location = new System.Drawing.Point(615, 481);
             this.ClusterHistogram.Name = "ClusterHistogram";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.ClusterHistogram.Series.Add(series1);
+            series3.ChartArea = "ChartArea1";
+            series3.Legend = "Legend1";
+            series3.Name = "Series1";
+            this.ClusterHistogram.Series.Add(series3);
             this.ClusterHistogram.Size = new System.Drawing.Size(632, 253);
             this.ClusterHistogram.TabIndex = 0;
             this.ClusterHistogram.Text = "Collection Histogram";
@@ -98,7 +99,7 @@
             // showHistogram
             // 
             this.showHistogram.Enabled = false;
-            this.showHistogram.Location = new System.Drawing.Point(615, 431);
+            this.showHistogram.Location = new System.Drawing.Point(623, 431);
             this.showHistogram.Name = "showHistogram";
             this.showHistogram.Size = new System.Drawing.Size(168, 25);
             this.showHistogram.TabIndex = 1;
@@ -131,7 +132,7 @@
             // PictureBox
             // 
             this.PictureBox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.PictureBox.Location = new System.Drawing.Point(-13, 213);
+            this.PictureBox.Location = new System.Drawing.Point(7, 212);
             this.PictureBox.Name = "PictureBox";
             this.PictureBox.Size = new System.Drawing.Size(610, 653);
             this.PictureBox.TabIndex = 4;
@@ -140,7 +141,7 @@
             // HideHistogramButton
             // 
             this.HideHistogramButton.Enabled = false;
-            this.HideHistogramButton.Location = new System.Drawing.Point(788, 431);
+            this.HideHistogramButton.Location = new System.Drawing.Point(800, 431);
             this.HideHistogramButton.Margin = new System.Windows.Forms.Padding(2);
             this.HideHistogramButton.Name = "HideHistogramButton";
             this.HideHistogramButton.Size = new System.Drawing.Size(142, 25);
@@ -272,17 +273,17 @@
             // 
             // ClusterPixHistogram
             // 
-            chartArea2.Name = "ChartArea1";
-            this.ClusterPixHistogram.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.ClusterPixHistogram.Legends.Add(legend2);
+            chartArea4.Name = "ChartArea1";
+            this.ClusterPixHistogram.ChartAreas.Add(chartArea4);
+            legend4.Name = "Legend1";
+            this.ClusterPixHistogram.Legends.Add(legend4);
             this.ClusterPixHistogram.Location = new System.Drawing.Point(623, 754);
             this.ClusterPixHistogram.Name = "ClusterPixHistogram";
             this.ClusterPixHistogram.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.ClusterPixHistogram.Series.Add(series2);
+            series4.ChartArea = "ChartArea1";
+            series4.Legend = "Legend1";
+            series4.Name = "Series1";
+            this.ClusterPixHistogram.Series.Add(series4);
             this.ClusterPixHistogram.Size = new System.Drawing.Size(632, 205);
             this.ClusterPixHistogram.TabIndex = 15;
             this.ClusterPixHistogram.Visible = false;
@@ -386,9 +387,9 @@
             this.ShowDetailsGroupBox.Controls.Add(this.ShowAttributesButton);
             this.ShowDetailsGroupBox.Controls.Add(this.ShowBranchesButton);
             this.ShowDetailsGroupBox.Controls.Add(this.skeletonizeButton);
-            this.ShowDetailsGroupBox.Location = new System.Drawing.Point(597, 12);
+            this.ShowDetailsGroupBox.Location = new System.Drawing.Point(623, 12);
             this.ShowDetailsGroupBox.Name = "ShowDetailsGroupBox";
-            this.ShowDetailsGroupBox.Size = new System.Drawing.Size(313, 395);
+            this.ShowDetailsGroupBox.Size = new System.Drawing.Size(287, 395);
             this.ShowDetailsGroupBox.TabIndex = 25;
             this.ShowDetailsGroupBox.TabStop = false;
             this.ShowDetailsGroupBox.Text = "Show Details";
@@ -467,11 +468,22 @@
             this.ClusterClassLabel.Size = new System.Drawing.Size(0, 13);
             this.ClusterClassLabel.TabIndex = 27;
             // 
+            // ZoomLabel
+            // 
+            this.ZoomLabel.AutoSize = true;
+            this.ZoomLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.ZoomLabel.Location = new System.Drawing.Point(451, 878);
+            this.ZoomLabel.Name = "ZoomLabel";
+            this.ZoomLabel.Size = new System.Drawing.Size(74, 20);
+            this.ZoomLabel.TabIndex = 28;
+            this.ZoomLabel.Text = "Zoom: 1x";
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1484, 962);
+            this.Controls.Add(this.ZoomLabel);
             this.Controls.Add(this.ClusterClassLabel);
             this.Controls.Add(this.ControlGroupBox);
             this.Controls.Add(this.ShowDetailsGroupBox);
@@ -543,6 +555,7 @@
         private System.Windows.Forms.Label ClusterFindIndexLabel;
         private System.Windows.Forms.Button FindByIndexButton;
         private System.Windows.Forms.Label ClusterClassLabel;
+        private System.Windows.Forms.Label ZoomLabel;
     }
 }
 

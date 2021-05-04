@@ -28,8 +28,9 @@ namespace ClusterUI
         private string clFile;
         private HistogramPoint[] HistogramPoints { get; set; }
         private HistogramPoint[] HistogramPixPoints { get; set; }
-        private Cluster Current { get; set; }
-        private System.Windows.Forms.Timer RotationTimer { get; set; }
+        private Cluster CurrentBase { get; set; }
+        private Dictionary<PixelPoint, Color> CurrentImage { get; set; }
+    private System.Windows.Forms.Timer RotationTimer { get; set; }
         private Button CurrentlyPressedRotateButton { get; set; }
         private ScatterChart ScatterPlotChart { get; set; }
 
@@ -50,7 +51,7 @@ namespace ClusterUI
             Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             if (cluster != null)
             {
-                Current = cluster;
+                CurrentBase = cluster;
                 HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
                 PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
             }
@@ -68,7 +69,7 @@ namespace ClusterUI
             Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
             if (cluster != null)
             {
-                Current = cluster;
+                CurrentBase = cluster;
                 HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
                 PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
             }
@@ -82,7 +83,7 @@ namespace ClusterUI
                 Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), result);
                 if (cluster != null)
                 {
-                    Current = cluster;
+                    CurrentBase = cluster;
                     HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
                     PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
                     clusterNumber = result;
@@ -115,7 +116,7 @@ namespace ClusterUI
                 attributesToGet.Add(attributeName);
             }
             DefaultAttributeCalculator attributeCalculator = new DefaultAttributeCalculator();
-            attributeCalculator.Calculate(Current, attributesToGet, ref attributePairs);
+            attributeCalculator.Calculate(CurrentBase, attributesToGet, ref attributePairs);
             string jsonString = JsonConvert.SerializeObject(attributePairs, Formatting.Indented);
             StringReader sReader = new StringReader(jsonString);
             JsonTextReader jReader = new JsonTextReader(sReader);
@@ -147,8 +148,7 @@ namespace ClusterUI
                     PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
                     PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
                 }
-
-                Current = cluster;
+                CurrentBase = cluster;
                 ClusterIndexValueLabel.Text = clusterNumber.ToString();
                 NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
                 EnableButtons();
@@ -161,11 +161,11 @@ namespace ClusterUI
         public void View3DClicked(object sender, EventArgs e)
         {
             //AnalysisPCA anal = new AnalysisPCA();
-            if (Current == null)
+            if (CurrentBase == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();
            /*Point3D[] points3D = ToPoints3D(anal.Transform(Current.Points))*/ 
-            var points3D = ToPoints3D(zCalculator.TransformPoints(Current));
+            var points3D = ToPoints3D(zCalculator.TransformPoints(CurrentBase));
             ScatterChart chart = new ScatterChart(winChartViewer, points3D);
             ScatterPlotChart = chart;
             EnableRotateButtons();
@@ -273,40 +273,96 @@ namespace ClusterUI
         {
                 RotationTimer.Stop();             
         }
+        double ZoomFactor = -10;
+        double CenterImageX = 0.5;
+        double CenterImageY = 0.5;
+        int CurrentZoom = 1;
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            if (e.Delta != 0)
+            {
+                if (e.Delta <= 0)
+                {
+                    //set minimum size to zoom
+                    if (PictureBox.Width < 50)
+                        // lbl_Zoom.Text = pictureBox1.Image.Size; 
+                        return;
+                }
+                else
+                {
+                    //set maximum size to zoom
+                    if (PictureBox.Width > 1000)
+                        return;
+                }
+                ZoomFactor += e.Delta / (double)100;
+                ZoomFactor = Math.Min(Math.Max(-10, ZoomFactor), 10);
+                int realZoom = (int)Math.Round(0.5 * (ZoomFactor + 10) + 1);
+                if (realZoom == 1)
+                {
+                    CenterImageY = 0.5;
+                    CenterImageX = 0.5;
+                }
+                else
+                {
+                    CenterImageX = (((1 / (double)CurrentZoom) * (e.X - PictureBox.Location.X) / (double)PictureBox.Width) + CenterImageX - (1 / (double)(CurrentZoom * 2)));
+                    CenterImageY = (((1 / (double)CurrentZoom) * (e.Y - PictureBox.Location.Y) / (double)PictureBox.Height) + CenterImageY - (1 / (double)(CurrentZoom * 2)));
+                }
+                Bitmap zoomedImage = (Bitmap)PictureBoxZoom(PictureBox.Image, realZoom, CenterImageX ,CenterImageY);
+                PictureBox.Image = zoomedImage;
+                PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+                CurrentZoom = realZoom;
+                ZoomLabel.Text = $"Zoom: {CurrentZoom}x";
+            }
+        }
+        public Image PictureBoxZoom(Image img, int size, double centerX, double centerY)
+        {
+            return GetClusterImage(point => point.Energy, CurrentBase, false,size) ;
+
+            //grap.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+        }
+        public void PictureBoxHover(MouseEventArgs e)
+        {
+            PictureBox.Focus();
+        }
         public void SkeletonizeButtonClicked(object sender, EventArgs e)
         {
-            if (Current == null)
+            if (CurrentBase == null)
                 return;
             PixelFilter haloFilter = new EnergyHaloFilter();
             ISkeletonizer skeletonizer = new ThinSkeletonizer();
-            //opt 1 Current.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
-            //opt2
-            var currentSkelet = new Cluster(Current.FirstToA, Current.PixelCount, Current.ByteStart);
-            currentSkelet.Points = skeletonizer.SkeletonizePoints(Current.Points).ToArray();
-            PictureBox.Image = GetClusterImage(point => point.Energy, currentSkelet);
+            Cluster skeleton = skeletonizer.SkeletonizeCluster(CurrentBase);
+            PictureBox.Image = GetClusterImage(point => point.Energy, skeleton);
 
         }
    
         public void ViewBranchButtonClicked(object sender, EventArgs e)
         {
+            CurrentImage = new Dictionary<PixelPoint, Color>();
             var skeletonizer = new ThinSkeletonizer();
-            var skeletCluster = new Cluster(Current.FirstToA, Current.PixelCount, Current.ByteStart);
-            skeletCluster.Points = skeletonizer.SkeletonizePoints(Current.Points);
+            var skeletCluster = new Cluster(CurrentBase.FirstToA, CurrentBase.PixelCount, CurrentBase.ByteStart);
+            skeletCluster.Points = skeletonizer.SkeletonizePoints(CurrentBase.Points);
             //Current.Points = skeletonizer.SkeletonizePoints(Current.Points);
             var NeighCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
             var centerCalc = new EnergyCenterFinder();
-            var center = centerCalc.CalcCenterPoint(skeletCluster, Current.Points);
+            var center = centerCalc.CalcCenterPoint(skeletCluster, CurrentBase.Points);
             var branchAnalyzer = new BranchAnalyzer(centerCalc);
-            var analyzedCluster = branchAnalyzer.Analyze(skeletCluster, Current);
+            var analyzedCluster = branchAnalyzer.Analyze(skeletCluster, CurrentBase);
             var mainBranches = analyzedCluster.MainBranches;
             Color[] branchColors = { Color.Blue, Color.Green, Color.Red, Color.Yellow };
             foreach (var pixel in skeletCluster.Points)
-                ((Bitmap)PictureBox.Image).SetPixel(pixel.xCoord, pixel.yCoord, Color.Black);
+            {
+                ((Bitmap)PictureBox.Image).SetPixel(pixel.xCoord, pixel.yCoord, Color.Black);                
+            }
             for (int i = 0; i < mainBranches.Count; i++)
                 PictureBox.Image = DrawBranches(mainBranches[i], branchColors[i % branchColors.Length]);
             ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.White);
-            foreach(var pix in NeighCountFilter.Process(skeletCluster.Points))
-                ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.Pink);
+            CurrentImage.InsertOrAssign(analyzedCluster.Center, Color.White);
+            foreach (var pix in NeighCountFilter.Process(skeletCluster.Points))
+            {
+               // ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.Pink);
+                //CurrentImage.InsertOrAssign(pix, Color.Pink);
+            }
             //PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
         }
         public void ShowAttributesClicked(object sender, EventArgs e)
@@ -323,7 +379,7 @@ namespace ClusterUI
             attributePairs.Add(ClusterAttribute.Branches, null);
             attributesToGet.Add(ClusterAttribute.Branches);
             DefaultAttributeCalculator attributeCalculator = new DefaultAttributeCalculator();
-            attributeCalculator.Calculate(Current, attributesToGet, ref attributePairs);
+            attributeCalculator.Calculate(CurrentBase, attributesToGet, ref attributePairs);
             Form attributeForm = new Form()
             {
                 Width = 300,
@@ -344,26 +400,37 @@ namespace ClusterUI
             attributeForm.Show();
         }
         #endregion
-        public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster)
+        public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster,bool storePixels = true, int zoom = 1)
         {
             const int bitmapSize = 256;
             var centerCalc = new EnergyCenterFinder();
-            //var center = centerCalc.CalcCenterPoint(cluster.Points);
-
             var vertexFinder = new VertexFinder();
-
-            //var possibleCentersFinder = new NeighbourCountFilter(neighBourCount => neighBourCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
-            //var vertices = vertexFinder.FindVertices(cluster.Points);
-            //var centers = possibleCentersFinder.Process(cluster.Points);
-
-            var pixels = new Bitmap(bitmapSize, bitmapSize);
-            for (int i = 0; i < bitmapSize; i++)
-                for (int j = 0; j < bitmapSize; j++)
-                    pixels.SetPixel(i, j, Color.Black);
-            foreach (var pixel in cluster.Points)
+            //var center = centerCalc.CalcCenterPoint(cluster.Points);
+            if (storePixels)
             {
-                pixels.SetPixel(pixel.xCoord, pixel.yCoord, cluster.ToColor(Math.Max(Math.Min(6 * Math.Log(attributeGetter(pixel), 1.16) / 256, 1), 0)));
+                CurrentImage = new Dictionary<PixelPoint, Color>();
 
+                foreach (var pixel in cluster.Points)
+                {
+                    CurrentImage.Add(pixel, cluster.ToColor(Math.Max(Math.Min(6 * Math.Log(attributeGetter(pixel), 1.16) / 256, 1), 0)));
+                }
+            }
+            var pixels = new Bitmap(bitmapSize, bitmapSize);
+            for (int i = 0; i < 255; i++)
+                for (int j = 0; j < 255; j++)
+                    pixels.SetPixel(i, j, Color.Black);
+            var upperLeftX = (int)(CenterImageX* bitmapSize * zoom) - 128;
+            var upperLeftY = (int)(CenterImageY * bitmapSize * zoom) - 128;
+            foreach (var pixel in CurrentImage.Keys)
+            {
+                for (int zoomI = 0; zoomI < zoom; zoomI++)
+                    for (int zoomJ = 0; zoomJ < zoom; zoomJ++)
+                    {
+                        var scaledX = pixel.xCoord * zoom + zoomI;
+                        var scaledY = pixel.yCoord * zoom + zoomJ;
+                        if (scaledX >= upperLeftX && scaledX < upperLeftX + 256 && scaledY >= upperLeftY && scaledY < upperLeftY + 256)
+                            pixels.SetPixel(scaledX - upperLeftX, scaledY - upperLeftY, CurrentImage[pixel]);
+                    }
                 /*if (pixel.GetDistance(center) <= 1)
                     pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Blue);
                 else if (vertices.Contains(pixel))
@@ -384,6 +451,7 @@ namespace ClusterUI
             for (int i = 0; i < branch.Points.Count; ++i)
             {               
                 bitmap.SetPixel(branchListPoints[i].xCoord, branchListPoints[i].yCoord, color);
+                CurrentImage.InsertOrAssign(new PixelPoint(branchListPoints[i].xCoord, branchListPoints[i].yCoord), color);
             }
             foreach (var subBranch in branch.SubBranches)
             {
@@ -599,4 +667,13 @@ namespace ClusterUI
         }
     }
     
+}public static class DictionaryExtensions
+{
+    public static void InsertOrAssign<Tkey, TVal>(this Dictionary<Tkey, TVal> dict, Tkey key, TVal value)
+    {
+        if (dict.ContainsKey(key))
+            dict[key] = value;
+        else
+            dict.Add(key, value);
+    }
 }
