@@ -12,7 +12,7 @@ namespace ClusterCalculator
         readonly (int x, int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
         NeighbourCountFilter NeighCountFilter { get; }
         EnergyCenterFinder EnCenterFinder { get; }
-        const int trivialBranchLength = 3;
+        const int trivialBranchLength = 2;
         int maxDepth = 4; //changes in analyze method
         int maxbranchCount = 20;
         public BranchAnalyzer(EnergyCenterFinder centerFinder)

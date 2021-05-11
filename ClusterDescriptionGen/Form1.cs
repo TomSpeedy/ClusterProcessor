@@ -97,6 +97,13 @@ namespace ClusterDescriptionGen
             
             
         }
+        public void CheckAllBoxesClicked(object sender, EventArgs e)
+        {
+            for (int i = 0; i < AttributeCheckedList.Items.Count; i++)
+            {
+                AttributeCheckedList.SetItemChecked(i, true);
+            }
+        }
         private void GenerateDescription(ref long processedCount, string[] iniFiles, string[] classes, bool classesProportional, EndCondition endCond, string allignBy, bool parallelProcessing, IList<ClusterAttribute> attributes)
         {
             Dictionary<ClusterClassPartition, int> writtenCount = new Dictionary<ClusterClassPartition, int>();

@@ -17,20 +17,27 @@ using ClusterCalculator;
 using System.Globalization;
 using ClassifierForClusters;
 using Newtonsoft.Json;
-
-namespace ClusterUI 
+using Newtonsoft.Json.Linq;
+namespace ClusterUI
 {
     public partial class ClusterUI : Form
     {
-        private string configPath = "../../../config/";
+
         private int clusterNumber = 1;
         private string pxFile;
         private string clFile;
+        const int defaultMouseZoomFactor = -10;
+        double MouseZoomFactor { get; set; }
+        double CenterImageX {get; set;} = 0.5;
+        double CenterImageY { get; set; } = 0.5;
+        int CurrentZoom { get; set; } = 1;
+        private IClassifier Classifier { get; set; }
         private HistogramPoint[] HistogramPoints { get; set; }
         private HistogramPoint[] HistogramPixPoints { get; set; }
+        private InputType InputType { get; set; }
         private Cluster CurrentBase { get; set; }
         private Dictionary<PixelPoint, Color> CurrentImage { get; set; }
-    private System.Windows.Forms.Timer RotationTimer { get; set; }
+        private System.Windows.Forms.Timer RotationTimer { get; set; }
         private Button CurrentlyPressedRotateButton { get; set; }
         private ScatterChart ScatterPlotChart { get; set; }
 
@@ -47,37 +54,131 @@ namespace ClusterUI
         #region Event Handlers
         public void NextButtonClicked(object sender, EventArgs e)
         {
+            RestoreZoom();
             clusterNumber++;
-            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
-            if (cluster != null)
+            if (InputType == InputType.Ini)
             {
-                CurrentBase = cluster;
-                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
-                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                //load from ini file
+                Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
+                if (cluster != null)
+                {
+                    CurrentBase = cluster;
+                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                    PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                }
+                else
+                {
+                    clusterNumber--;
+                }
+                ClusterIndexValueLabel.Text = clusterNumber.ToString();
             }
             else
             {
-                clusterNumber--;
+                //load from json file
+                int clIndex;
+                string clFile, pxFile;
+                try
+                {
+                    using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+                    {
+                        using (JsonTextReader jReader = new JsonTextReader(sReader))
+                        {
+                            jReader.Read();
+                            for (int i = 0; i < clusterNumber - 1; i++)
+                            {
+                                jReader.Read();
+                                jReader.Skip();
+                            }
+                            jReader.Read();
+                            var jObject = JObject.Load(jReader);
+                            if (!GetBaseClusterInfoFromJson(jObject, out clFile, out pxFile, out clIndex))
+                                return;
+                            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clIndex);
+                            if (cluster != null)
+                            {
+                                CurrentBase = cluster;
+                                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                                this.pxFile = pxFile;
+                                this.clFile = clFile;
+                            }
+                            else
+                            {
+                                clusterNumber--;
+                            }
+                            ClusterIndexValueLabel.Text = clusterNumber.ToString();
+                        }
+                    }
+                }
+                catch 
+                {
+                    clusterNumber--;
+                }
             }
-            ClusterIndexValueLabel.Text = clusterNumber.ToString();
 
         }
         public void PrevButtonClicked(object sender, EventArgs e)
         {
+            RestoreZoom();
             if (clusterNumber >= 2)
                 clusterNumber--;
-            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
-            if (cluster != null)
+            if (InputType == InputType.Ini)
             {
-                CurrentBase = cluster;
-                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
-                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
+                if (cluster != null)
+                {
+                    CurrentBase = cluster;
+                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                    PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                }
             }
+           
+            else
+            {
+                //load from json file
+                int clIndex;
+                string clFile, pxFile;
+                try
+                {
+                    using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+                    {
+                        using (JsonTextReader jReader = new JsonTextReader(sReader))
+                        {
+                            jReader.Read();
+                            for (int i = 0; i < clusterNumber - 1; i++)
+                            {
+                                jReader.Read();
+                                jReader.Skip();
+                            }
+                            jReader.Read();
+
+                            if (!GetBaseClusterInfoFromJson(JObject.Load(jReader), out clFile, out pxFile, out clIndex))
+                                return;
+                            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clIndex);
+                            if (cluster != null)
+                            {
+                                CurrentBase = cluster;
+                                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                                this.pxFile = pxFile;
+                                this.clFile = clFile;
+                            }
+                            ClusterIndexValueLabel.Text = clusterNumber.ToString();
+                        }
+                    }
+                }
+                catch
+                {
+                    clusterNumber++;
+                }
+            }
+            
             ClusterIndexValueLabel.Text = clusterNumber.ToString();
 
         }
         public void FindClusterByIndexClicked(object sender, EventArgs e)
         {
+            RestoreZoom();
             if (int.TryParse(FindByIndexTextBox.Text, out int result))
             {
                 Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), result);
@@ -87,29 +188,34 @@ namespace ClusterUI
                     HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
                     PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
                     clusterNumber = result;
+                    ClusterIndexValueLabel.Text = clusterNumber.ToString();
                 }
                 else
                 {
                     MessageBox.Show("Error, cluster with given index was not found.");
                 }
             }
-        }     
-       
+        }
+        public void LoadClassifierClicked(object sender, EventArgs e)
+        {
+            Classifier = new MultiLayeredClassifier();
+            try
+            {
+               Classifier.LoadFromFile(ClassifierTextBox.Text);
+            }
+            catch 
+            {
+                Classifier = new NNClassifier();
+                Classifier.LoadFromFile(ClassifierTextBox.Text);
+            }
+            ClassifyButton.Enabled = true;
+        }
         public void ClassifyButtonClicked(object sender, EventArgs e)
         {
-            const string NNFragHeFe = "../../../ClassifierForClusters/trained_models/trainFragHeFeNew.json_trained 0.961.txt";
-            const string NNPrLe = "../../../ClassifierForClusters/trained_models/trainPrLe_ElMuPi.json_trained 0.966.txt";
-            const string NNLead = "../../../ClassifierForClusters/trained_models/trainLeadMulti.json_trained 0.909.txt";
-            const string NNElMuPi = "../../../ClassifierForClusters/trained_models/trainElMuPi.json_trained 0.801.txt";
-            
-
-
             NNInputProcessor preprocessor = new NNInputProcessor();
             var attributePairs = new Dictionary<ClusterAttribute, object>();
-            IClassifier classifier = new MultiLayeredClassifier();
-            classifier.Load(new string[] { NNLead, NNFragHeFe, NNPrLe, NNElMuPi });
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
-            foreach (var checkedAttribute in classifier.ValidFields)
+            foreach (var checkedAttribute in Classifier.ValidFields)
             {
                 var attributeName = checkedAttribute;
                 attributePairs.Add(attributeName, null);
@@ -120,25 +226,36 @@ namespace ClusterUI
             string jsonString = JsonConvert.SerializeObject(attributePairs, Formatting.Indented);
             StringReader sReader = new StringReader(jsonString);
             JsonTextReader jReader = new JsonTextReader(sReader);
-            var attrVector = preprocessor.ReadJsonToVector(jReader, classifier.ValidFields);
-            var classInfo = classifier.Classify(attrVector);
+            var attrVector = preprocessor.ReadJsonToVector(jReader, Classifier.ValidFields);
+            var classInfo = Classifier.Classify(attrVector);
             ClusterClassLabel.Text = $"Calculated Class: {classInfo.MostProbableClassName}";
         }
-
+        public void BrowseClassifierClicked(object sender, EventArgs e)
+        {
+            var fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Classifier files (*.csf)|*.csf";
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                ClassifierTextBox.Text = fileDialog.FileName;
+            }
+        }
         public void BrowseViewButtonClicked(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "ini files (*.ini), json files(*.json)|*.ini;*.json";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 InViewFilePathBox.Text = fileDialog.FileName;
             }
         }
-
-        public void LoadClustersClicked(object sender, EventArgs e)
+        private void LoadClustersFromIni()
         {
             try
             {
-
+                RestoreZoom();
+                bool isDisplayingCluster = false;
+                if (CurrentBase != null)
+                    isDisplayingCluster = true;
                 ClusterReader.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
                 Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
 
@@ -151,11 +268,98 @@ namespace ClusterUI
                 CurrentBase = cluster;
                 ClusterIndexValueLabel.Text = clusterNumber.ToString();
                 NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
-                EnableButtons();
+                if (!isDisplayingCluster)
+                    EnableButtons();
+                InputType = InputType.Ini;
             }
-            catch 
+            catch
             {
                 MessageBox.Show("File was not load because of an error. Please check format of the file");
+            }
+        }
+        private bool GetBaseClusterInfoFromJson(JObject jsonRecord, out string clFile, out string pxFile, out int clIndex)
+        {
+            clFile = null;
+            pxFile = null;
+            clIndex = -1;
+            if (!jsonRecord.ContainsKey(ClusterAttribute.ClFile.ToString()))
+
+            {
+                MessageBox.Show("Error - attribute ClFile is missing from loaded JSON object");
+                return false;
+            }
+            if (!jsonRecord.ContainsKey(ClusterAttribute.PxFile.ToString()))
+
+            {
+                MessageBox.Show("Error - attribute PxFile is missing from loaded JSON object");
+                return false;
+            }
+            if (!jsonRecord.ContainsKey(ClusterAttribute.ClIndex.ToString()))
+
+            {
+                MessageBox.Show("Error - attribute ClIndex is missing from loaded JSON object");
+                return false;
+            }
+            try
+            {
+                clFile = (string)jsonRecord.Property(ClusterAttribute.ClFile.ToString()).Value;
+                pxFile = (string)jsonRecord.Property(ClusterAttribute.PxFile.ToString()).Value;
+                clIndex = (int)jsonRecord.Property(ClusterAttribute.ClIndex.ToString()).Value;
+            }
+            catch
+            {
+                MessageBox.Show("Error - Invalid value of one of the attributes ClIndex, ClFile or PxFile");
+                return false;
+            }
+            return true;
+        }
+        private void LoadClustersFromJson()
+        {
+            int clIndex;
+            using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+            {
+                using (JsonTextReader jReader = new JsonTextReader(sReader))
+                {
+                    jReader.Read();
+                    jReader.Read();
+                    if (!GetBaseClusterInfoFromJson(JObject.Load(jReader), out clFile, out pxFile, out clIndex))
+                        return;
+                }
+            }
+            bool isDisplayingCluster = false;
+            if (CurrentBase != null)
+                isDisplayingCluster = true;
+            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clIndex);
+
+            if (cluster != null)
+            {
+                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+            }
+            CurrentBase = cluster;
+            ClusterIndexValueLabel.Text = clusterNumber.ToString();
+
+            NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
+            if (!isDisplayingCluster)
+                EnableButtons();
+            clusterNumber = 1;
+            InputType = InputType.Json;
+        
+        }
+        public void LoadClustersClicked(object sender, EventArgs e)
+        {
+            if (InViewFilePathBox.Text.EndsWith(".ini"))
+            {
+                LoadClustersFromIni();
+            }
+            else if (InViewFilePathBox.Text.EndsWith(".json"))
+            {
+                LoadClustersFromJson();
+            }
+            else 
+            {
+                MessageBox.Show("Error - file to load from must have suffix .ini or .json");
             }
         }
         public void View3DClicked(object sender, EventArgs e)
@@ -273,10 +477,7 @@ namespace ClusterUI
         {
                 RotationTimer.Stop();             
         }
-        double ZoomFactor = -10;
-        double CenterImageX = 0.5;
-        double CenterImageY = 0.5;
-        int CurrentZoom = 1;
+        
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             if (e.Delta != 0)
@@ -294,9 +495,9 @@ namespace ClusterUI
                     if (PictureBox.Width > 1000)
                         return;
                 }
-                ZoomFactor += e.Delta / (double)100;
-                ZoomFactor = Math.Min(Math.Max(-10, ZoomFactor), 10);
-                int realZoom = (int)Math.Round(0.5 * (ZoomFactor + 10) + 1);
+                MouseZoomFactor += e.Delta / (double)100;
+                MouseZoomFactor = Math.Min(Math.Max(-10, MouseZoomFactor), 10);
+                int realZoom = (int)Math.Round(0.5 * (MouseZoomFactor + 10) + 1);
                 if (realZoom == 1)
                 {
                     CenterImageY = 0.5;
@@ -307,14 +508,14 @@ namespace ClusterUI
                     CenterImageX = (((1 / (double)CurrentZoom) * (e.X - PictureBox.Location.X) / (double)PictureBox.Width) + CenterImageX - (1 / (double)(CurrentZoom * 2)));
                     CenterImageY = (((1 / (double)CurrentZoom) * (e.Y - PictureBox.Location.Y) / (double)PictureBox.Height) + CenterImageY - (1 / (double)(CurrentZoom * 2)));
                 }
-                Bitmap zoomedImage = (Bitmap)PictureBoxZoom(PictureBox.Image, realZoom, CenterImageX ,CenterImageY);
+                Bitmap zoomedImage = (Bitmap)PictureBoxZoom(realZoom);
                 PictureBox.Image = zoomedImage;
                 PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
                 CurrentZoom = realZoom;
                 ZoomLabel.Text = $"Zoom: {CurrentZoom}x";
             }
         }
-        public Image PictureBoxZoom(Image img, int size, double centerX, double centerY)
+        public Image PictureBoxZoom( int size)
         {
             return GetClusterImage(point => point.Energy, CurrentBase, false,size) ;
 
@@ -327,6 +528,7 @@ namespace ClusterUI
         }
         public void SkeletonizeButtonClicked(object sender, EventArgs e)
         {
+            RestoreZoom();
             if (CurrentBase == null)
                 return;
             PixelFilter haloFilter = new EnergyHaloFilter();
@@ -338,6 +540,7 @@ namespace ClusterUI
    
         public void ViewBranchButtonClicked(object sender, EventArgs e)
         {
+            RestoreZoom();
             CurrentImage = new Dictionary<PixelPoint, Color>();
             var skeletonizer = new ThinSkeletonizer();
             var skeletCluster = new Cluster(CurrentBase.FirstToA, CurrentBase.PixelCount, CurrentBase.ByteStart);
@@ -360,24 +563,38 @@ namespace ClusterUI
             CurrentImage.InsertOrAssign(analyzedCluster.Center, Color.White);
             foreach (var pix in NeighCountFilter.Process(skeletCluster.Points))
             {
-               // ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.Pink);
-                //CurrentImage.InsertOrAssign(pix, Color.Pink);
+                ((Bitmap)PictureBox.Image).SetPixel(analyzedCluster.Center.xCoord, analyzedCluster.Center.yCoord, Color.Pink);
+                CurrentImage.InsertOrAssign(pix, Color.Pink);
             }
             //PictureBox.Image = GetClusterImage(pix => pix.ToT, Current);
         }
         public void ShowAttributesClicked(object sender, EventArgs e)
         {
-            IClassifier classifier = new MultiLayeredClassifier();
+            List<ClusterAttribute> ValidFields = new List<ClusterAttribute>(new ClusterAttribute[] {
+                ClusterAttribute.PixelCount,
+                ClusterAttribute.TotalEnergy,
+                ClusterAttribute.AverageEnergy,
+                ClusterAttribute.Width,
+                ClusterAttribute.Convexity,
+                ClusterAttribute.BranchCount,
+                ClusterAttribute.Convexity,
+                ClusterAttribute.CrosspointCount,
+                ClusterAttribute.MaxEnergy,
+                ClusterAttribute.RelativeHaloSize,
+                ClusterAttribute.RelLowEnergyPixels,
+                ClusterAttribute.StdOfArrival,
+                ClusterAttribute.StdOfEnergy,
+                ClusterAttribute.BranchCount
+            });
             var attributePairs = new Dictionary<ClusterAttribute, object>();
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
-            foreach (var checkedAttribute in classifier.ValidFields)
+            
+            foreach (var checkedAttribute in ValidFields)
             {
                 var attributeName = checkedAttribute;
                 attributePairs.Add(attributeName, null);
                 attributesToGet.Add(attributeName);
             }
-            attributePairs.Add(ClusterAttribute.Branches, null);
-            attributesToGet.Add(ClusterAttribute.Branches);
             DefaultAttributeCalculator attributeCalculator = new DefaultAttributeCalculator();
             attributeCalculator.Calculate(CurrentBase, attributesToGet, ref attributePairs);
             Form attributeForm = new Form()
@@ -493,6 +710,7 @@ namespace ClusterUI
             RotateRightButton.Enabled = false;
             RotateUpButton.Enabled = false;
             RotateDownButton.Enabled = false;
+            ClassifyButton.Enabled = false;
                 
         }
 
@@ -502,6 +720,18 @@ namespace ClusterUI
             RotateRightButton.Enabled = true;
             RotateUpButton.Enabled = true;
             RotateDownButton.Enabled = true;
+        }
+        private void RestoreZoom()
+        {
+            MouseZoomFactor = defaultMouseZoomFactor;
+            CurrentZoom = 1;
+            CenterImageX = 0.5;
+            CenterImageY = 0.5;
+            ZoomLabel.Text = $"Zoom: {CurrentZoom}x";
+            if(PictureBox.Image != null)
+            for (int i = 0; i < 255; i++)
+                for (int j = 0; j < 255; j++)
+                    ((Bitmap)(PictureBox.Image)).SetPixel(i, j, Color.Black);
         }
     }
     struct HistogramPoint
@@ -667,7 +897,12 @@ namespace ClusterUI
         }
     }
     
-}public static class DictionaryExtensions
+}
+enum InputType
+{ 
+    Ini, Json
+}
+public static class DictionaryExtensions
 {
     public static void InsertOrAssign<Tkey, TVal>(this Dictionary<Tkey, TVal> dict, Tkey key, TVal value)
     {

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterCalculator", "ClCalc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassificationExperiment", "ClassificationExperiment\ClassificationExperiment.csproj", "{A2C734B8-5632-4F93-BB22-B093F7710B74}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassificatorUI", "ClassificatorUI\ClassificatorUI.csproj", "{0927DC29-C723-45A2-9862-04CED24D5680}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{A2C734B8-5632-4F93-BB22-B093F7710B74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2C734B8-5632-4F93-BB22-B093F7710B74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2C734B8-5632-4F93-BB22-B093F7710B74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0927DC29-C723-45A2-9862-04CED24D5680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0927DC29-C723-45A2-9862-04CED24D5680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0927DC29-C723-45A2-9862-04CED24D5680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0927DC29-C723-45A2-9862-04CED24D5680}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

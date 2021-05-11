@@ -14,7 +14,7 @@ namespace ClusterCalculator
         public VertexFinder()
         {
             Skeletonizer = new ThinSkeletonizer();
-            NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount == VertexNeighbourCount, NeighbourCountOption.WithAllDiagonalNeighbours); //we also count diagonal neighbours
+            NeighbourFilter = new NeighbourCountFilter(neighbourCount => neighbourCount <= VertexNeighbourCount, NeighbourCountOption.Base); //we also count diagonal neighbours
         }
 
         public List<PixelPoint> FindVertices(IList<PixelPoint> pixelPoints)

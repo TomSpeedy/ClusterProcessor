@@ -119,6 +119,16 @@ namespace ClusterCalculator
             }
             OutputStream.Write(prefix + '}');
         }
+        public void Write(string clusterRecord)
+        {           
+            if (WrittenCount > 0)
+            {
+                OutputStream.Write(',');
+                OutputStream.WriteLine();
+            }
+            OutputStream.Write(clusterRecord);
+            WrittenCount++;
+        }
         public void Close()
         {
             OutputStream.WriteLine();

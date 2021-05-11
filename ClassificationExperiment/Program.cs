@@ -75,7 +75,7 @@ namespace ClassificationExperiment
             classifiers.Add(DefaultLearner.LearnFragHeFe().classifier);
             classifiers.Add(DefaultLearner.LearnPrLe().classifier);
             classifiers.Add(DefaultLearner.LearnElMuPi().classifier);
-            MultiLayeredClassifier multiClassifier = new MultiLayeredClassifier(classifiers);
+            MultiLayeredClassifier multiClassifier = null;// new MultiLayeredClassifier(classifiers);
             Classifiers[indexToAdd] = multiClassifier;
         }
 
@@ -105,30 +105,30 @@ namespace ClassificationExperiment
         public void PrepareData()
         {
             NNInputProcessor preprocessor = new NNInputProcessor();
-            Interval[] intervalsLead = preprocessor.CalculateNormIntervals(dataLearnLead, DefaultLearner.ValidFields);
-            Interval[] intervalsFragHeFe = preprocessor.CalculateNormIntervals(dataLearnFragHeFe, DefaultLearner.ValidFields);
-            Interval[] intervalsPrLe = preprocessor.CalculateNormIntervals(dataLearnPrLe, DefaultLearner.ValidFields);
-            Interval[] intervalsElMuPi = preprocessor.CalculateNormIntervals(dataLearnElMuPi, DefaultLearner.ValidFields);
+            Interval[] intervalsLead;//= preprocessor.CalculateNormIntervals(dataLearnLead, DefaultLearner.ValidFields);
+            Interval[] intervalsFragHeFe ;//= preprocessor.CalculateNormIntervals(dataLearnFragHeFe, DefaultLearner.ValidFields);
+            Interval[] intervalsPrLe ;// preprocessor.CalculateNormIntervals(dataLearnPrLe, DefaultLearner.ValidFields);
+            Interval[] intervalsElMuPi;//= preprocessor.CalculateNormIntervals(dataLearnElMuPi, DefaultLearner.ValidFields);
 
             for (int i = 0; i < LeadClassifiers.Length; i++)
             {
                 
                 string name = "lead";
                 string[] outputClasses = DefaultLearner.OutputClasses[name];
-                LeadClassifiers[i] = new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsLead, outputClasses, name);
+                LeadClassifiers[i] =null;//new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsLead, outputClasses, name);
                 LeadClassifiers[i].TrainInterval = new Interval(0, 0.8);
 
                 name = "fragHeFe";
                 outputClasses = DefaultLearner.OutputClasses[name];
-                FragHeFeClassifiers[i] = new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsFragHeFe, outputClasses, name);
+                FragHeFeClassifiers[i] = null;// new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsFragHeFe, outputClasses, name);
 
                 name = "prLe";
                 outputClasses = DefaultLearner.OutputClasses[name];
-                PrLeClassifiers[i] = new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsPrLe, outputClasses, name);
+                PrLeClassifiers[i] = null;// new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsPrLe, outputClasses, name);
 
                 name = "elMuPi";
                 outputClasses = DefaultLearner.OutputClasses[name];
-                ElMuPiClassifiers[i] = new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsElMuPi, outputClasses, name);
+                ElMuPiClassifiers[i] = null;//new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsElMuPi, outputClasses, name);
 
 
             }
@@ -208,13 +208,13 @@ namespace ClassificationExperiment
             NNInputProcessor preprocessor = new NNInputProcessor();
             var intervals = preprocessor.CalculateNormIntervals(dataLearnFrag, ValidFields);
                         const int epochSize = 8;
-            NNClassifier fragClassifier = new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
+            NNClassifier fragClassifier = null; //= new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
             const int learnIterations = 4;
             double success = 0;
             for (int i = 0; i < learnIterations; i++)
             {
-                if(i == learnIterations - 1)
-                    success = fragClassifier.Learn(epochSize, dataLearnFrag, ValidFields, 0, eval: false);
+                //if(i == learnIterations - 1)
+                 //   success = fragClassifier.Learn(epochSize, dataLearnFrag, ValidFields, 0, eval: false);
 
             };
             return (fragClassifier, success);
@@ -225,10 +225,10 @@ namespace ClassificationExperiment
             string[] outputClasses = OutputClasses[name];
                   
             NNInputProcessor preprocessor = new NNInputProcessor();
-            Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnLead, ValidFields);
+           // Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnLead, ValidFields);
             int epochSize = 32;
-            NNClassifier nnClassifier = new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
-            var success = nnClassifier.Learn(epochSize, dataLearnLead, ValidFields, 0, eval: false);
+            NNClassifier nnClassifier = null;// = new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
+            var success = nnClassifier.Learn("",0);
             return (nnClassifier, success);
         }
         public static (NNClassifier classifier, double success) LearnPrLe()
@@ -236,10 +236,10 @@ namespace ClassificationExperiment
             const string name = "prLe";
             string[] outputClasses = OutputClasses[name];
             NNInputProcessor preprocessor = new NNInputProcessor();
-            Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnPrLe, ValidFields);
+            //Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnPrLe, ValidFields);
             int epochSize = 6;
-            NNClassifier multiClassifier = new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
-            var success = multiClassifier.Learn(epochSize, dataLearnPrLe, ValidFields, 0, eval: false);
+            NNClassifier multiClassifier = null;//new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
+            var success = multiClassifier.Learn("", 0);
             return (multiClassifier, success);
         }
         public static (NNClassifier classifier, double success) LearnElMuPi()
@@ -247,11 +247,11 @@ namespace ClassificationExperiment
             const string name = "elMuPi";
             string[] outputClasses = OutputClasses[name];
             int epochSize = 8;
-            NNInputProcessor preprocessor = new NNInputProcessor();          
-            Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnElMuPi, ValidFields);
-            NNClassifier multiClassifier = new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
-            multiClassifier.Learn(epochSize, dataLearnElMuPi, ValidFields, 0, eval: false);
-            var success = multiClassifier.Learn(epochSize, dataLearnElMuPi, ValidFields, 0, eval: false);
+            NNInputProcessor preprocessor = new NNInputProcessor();
+            //Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnElMuPi, ValidFields);
+            NNClassifier multiClassifier = null;//new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
+           // multiClassifier.Learn(epochSize, dataLearnElMuPi, ValidFields, 0, eval: false);
+            var success = multiClassifier.Learn("", 0);
             return (multiClassifier, success);
         }       
     }

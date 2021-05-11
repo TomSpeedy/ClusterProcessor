@@ -100,6 +100,7 @@ namespace ClusterCalculator
     {
         public readonly StreamReader ClFile;
         public readonly StreamReader PxFile;
+        public int CurrentIndex { get; private set; } = 0;
         public ClusterInfoCollection(StreamReader clFile)
         {
             this.ClFile = clFile;
@@ -131,6 +132,7 @@ namespace ClusterCalculator
                     LineStart = ulong.Parse(tokens[2]),
                     ByteStart = ulong.Parse(tokens[3])
                 };
+                CurrentIndex++;
                 yield return clInfo;
             }
         }
@@ -141,7 +143,7 @@ namespace ClusterCalculator
         TotalEnergy, PixelCount, AverageEnergy, MaxEnergy,
         Convexity, Width, Branches, CrosspointCount,
         BranchCount, RelativeHaloSize, VertexCount, StdOfEnergy, StdOfArrival,RelLowEnergyPixels,
-        Class
+        Class, ClFile, PxFile, ClIndex
         
     }
     public enum BranchAttribute

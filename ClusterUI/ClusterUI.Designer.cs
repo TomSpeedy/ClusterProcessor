@@ -62,14 +62,19 @@
             this.NowViewingLabel = new System.Windows.Forms.Label();
             this.ShowBranchesButton = new System.Windows.Forms.Button();
             this.ShowDetailsGroupBox = new System.Windows.Forms.GroupBox();
-            this.ClassifyButton = new System.Windows.Forms.Button();
             this.ShowAttributesButton = new System.Windows.Forms.Button();
+            this.ClassifyButton = new System.Windows.Forms.Button();
             this.ControlGroupBox = new System.Windows.Forms.GroupBox();
             this.FindByIndexTextBox = new System.Windows.Forms.TextBox();
             this.ClusterFindIndexLabel = new System.Windows.Forms.Label();
             this.FindByIndexButton = new System.Windows.Forms.Button();
-            this.ClusterClassLabel = new System.Windows.Forms.Label();
             this.ZoomLabel = new System.Windows.Forms.Label();
+            this.ClassificationGroupBox = new System.Windows.Forms.GroupBox();
+            this.ClusterClassLabel = new System.Windows.Forms.Label();
+            this.BrowseClassifierButton = new System.Windows.Forms.Button();
+            this.LoadClassifierButton = new System.Windows.Forms.Button();
+            this.ClassifierLabel = new System.Windows.Forms.Label();
+            this.ClassifierTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).BeginInit();
             this.ViewGroup.SuspendLayout();
@@ -77,6 +82,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).BeginInit();
             this.ShowDetailsGroupBox.SuspendLayout();
             this.ControlGroupBox.SuspendLayout();
+            this.ClassificationGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // ClusterHistogram
@@ -99,7 +105,7 @@
             // showHistogram
             // 
             this.showHistogram.Enabled = false;
-            this.showHistogram.Location = new System.Drawing.Point(623, 431);
+            this.showHistogram.Location = new System.Drawing.Point(623, 448);
             this.showHistogram.Name = "showHistogram";
             this.showHistogram.Size = new System.Drawing.Size(168, 25);
             this.showHistogram.TabIndex = 1;
@@ -141,7 +147,7 @@
             // HideHistogramButton
             // 
             this.HideHistogramButton.Enabled = false;
-            this.HideHistogramButton.Location = new System.Drawing.Point(800, 431);
+            this.HideHistogramButton.Location = new System.Drawing.Point(799, 448);
             this.HideHistogramButton.Margin = new System.Windows.Forms.Padding(2);
             this.HideHistogramButton.Name = "HideHistogramButton";
             this.HideHistogramButton.Size = new System.Drawing.Size(142, 25);
@@ -373,9 +379,9 @@
             // ShowBranchesButton
             // 
             this.ShowBranchesButton.Enabled = false;
-            this.ShowBranchesButton.Location = new System.Drawing.Point(26, 201);
+            this.ShowBranchesButton.Location = new System.Drawing.Point(26, 150);
             this.ShowBranchesButton.Name = "ShowBranchesButton";
-            this.ShowBranchesButton.Size = new System.Drawing.Size(181, 54);
+            this.ShowBranchesButton.Size = new System.Drawing.Size(181, 45);
             this.ShowBranchesButton.TabIndex = 24;
             this.ShowBranchesButton.Text = "Show Branches";
             this.ShowBranchesButton.UseVisualStyleBackColor = true;
@@ -383,27 +389,15 @@
             // 
             // ShowDetailsGroupBox
             // 
-            this.ShowDetailsGroupBox.Controls.Add(this.ClassifyButton);
             this.ShowDetailsGroupBox.Controls.Add(this.ShowAttributesButton);
             this.ShowDetailsGroupBox.Controls.Add(this.ShowBranchesButton);
             this.ShowDetailsGroupBox.Controls.Add(this.skeletonizeButton);
             this.ShowDetailsGroupBox.Location = new System.Drawing.Point(623, 12);
             this.ShowDetailsGroupBox.Name = "ShowDetailsGroupBox";
-            this.ShowDetailsGroupBox.Size = new System.Drawing.Size(287, 395);
+            this.ShowDetailsGroupBox.Size = new System.Drawing.Size(319, 239);
             this.ShowDetailsGroupBox.TabIndex = 25;
             this.ShowDetailsGroupBox.TabStop = false;
             this.ShowDetailsGroupBox.Text = "Show Details";
-            // 
-            // ClassifyButton
-            // 
-            this.ClassifyButton.Enabled = false;
-            this.ClassifyButton.Location = new System.Drawing.Point(26, 137);
-            this.ClassifyButton.Name = "ClassifyButton";
-            this.ClassifyButton.Size = new System.Drawing.Size(181, 51);
-            this.ClassifyButton.TabIndex = 30;
-            this.ClassifyButton.Text = "Classify";
-            this.ClassifyButton.UseVisualStyleBackColor = true;
-            this.ClassifyButton.Click += new System.EventHandler(this.ClassifyButtonClicked);
             // 
             // ShowAttributesButton
             // 
@@ -415,6 +409,17 @@
             this.ShowAttributesButton.Text = "Show Attributes";
             this.ShowAttributesButton.UseVisualStyleBackColor = true;
             this.ShowAttributesButton.Click += new System.EventHandler(this.ShowAttributesClicked);
+            // 
+            // ClassifyButton
+            // 
+            this.ClassifyButton.Enabled = false;
+            this.ClassifyButton.Location = new System.Drawing.Point(164, 70);
+            this.ClassifyButton.Name = "ClassifyButton";
+            this.ClassifyButton.Size = new System.Drawing.Size(115, 48);
+            this.ClassifyButton.TabIndex = 30;
+            this.ClassifyButton.Text = "Classify";
+            this.ClassifyButton.UseVisualStyleBackColor = true;
+            this.ClassifyButton.Click += new System.EventHandler(this.ClassifyButtonClicked);
             // 
             // ControlGroupBox
             // 
@@ -460,14 +465,6 @@
             this.FindByIndexButton.UseVisualStyleBackColor = true;
             this.FindByIndexButton.Click += new System.EventHandler(this.FindClusterByIndexClicked);
             // 
-            // ClusterClassLabel
-            // 
-            this.ClusterClassLabel.AutoSize = true;
-            this.ClusterClassLabel.Location = new System.Drawing.Point(673, 254);
-            this.ClusterClassLabel.Name = "ClusterClassLabel";
-            this.ClusterClassLabel.Size = new System.Drawing.Size(0, 13);
-            this.ClusterClassLabel.TabIndex = 27;
-            // 
             // ZoomLabel
             // 
             this.ZoomLabel.AutoSize = true;
@@ -478,13 +475,76 @@
             this.ZoomLabel.TabIndex = 28;
             this.ZoomLabel.Text = "Zoom: 1x";
             // 
+            // ClassificationGroupBox
+            // 
+            this.ClassificationGroupBox.Controls.Add(this.ClusterClassLabel);
+            this.ClassificationGroupBox.Controls.Add(this.BrowseClassifierButton);
+            this.ClassificationGroupBox.Controls.Add(this.LoadClassifierButton);
+            this.ClassificationGroupBox.Controls.Add(this.ClassifierLabel);
+            this.ClassificationGroupBox.Controls.Add(this.ClassifierTextBox);
+            this.ClassificationGroupBox.Controls.Add(this.ClassifyButton);
+            this.ClassificationGroupBox.Location = new System.Drawing.Point(623, 270);
+            this.ClassificationGroupBox.Name = "ClassificationGroupBox";
+            this.ClassificationGroupBox.Size = new System.Drawing.Size(318, 172);
+            this.ClassificationGroupBox.TabIndex = 31;
+            this.ClassificationGroupBox.TabStop = false;
+            this.ClassificationGroupBox.Text = "Classification";
+            // 
+            // ClusterClassLabel
+            // 
+            this.ClusterClassLabel.AutoSize = true;
+            this.ClusterClassLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.ClusterClassLabel.Location = new System.Drawing.Point(23, 137);
+            this.ClusterClassLabel.Name = "ClusterClassLabel";
+            this.ClusterClassLabel.Size = new System.Drawing.Size(123, 18);
+            this.ClusterClassLabel.TabIndex = 35;
+            this.ClusterClassLabel.Text = "Calculated Class:";
+            // 
+            // BrowseClassifierButton
+            // 
+            this.BrowseClassifierButton.Enabled = false;
+            this.BrowseClassifierButton.Location = new System.Drawing.Point(227, 25);
+            this.BrowseClassifierButton.Name = "BrowseClassifierButton";
+            this.BrowseClassifierButton.Size = new System.Drawing.Size(75, 22);
+            this.BrowseClassifierButton.TabIndex = 34;
+            this.BrowseClassifierButton.Text = "Browse";
+            this.BrowseClassifierButton.UseVisualStyleBackColor = true;
+            this.BrowseClassifierButton.Click += new System.EventHandler(this.BrowseClassifierClicked);
+            // 
+            // LoadClassifierButton
+            // 
+            this.LoadClassifierButton.Enabled = false;
+            this.LoadClassifierButton.Location = new System.Drawing.Point(16, 70);
+            this.LoadClassifierButton.Name = "LoadClassifierButton";
+            this.LoadClassifierButton.Size = new System.Drawing.Size(134, 48);
+            this.LoadClassifierButton.TabIndex = 33;
+            this.LoadClassifierButton.Text = "Load Classifier";
+            this.LoadClassifierButton.UseVisualStyleBackColor = true;
+            this.LoadClassifierButton.Click += new System.EventHandler(this.LoadClassifierClicked);
+            // 
+            // ClassifierLabel
+            // 
+            this.ClassifierLabel.AutoSize = true;
+            this.ClassifierLabel.Location = new System.Drawing.Point(13, 28);
+            this.ClassifierLabel.Name = "ClassifierLabel";
+            this.ClassifierLabel.Size = new System.Drawing.Size(86, 13);
+            this.ClassifierLabel.TabIndex = 32;
+            this.ClassifierLabel.Text = "Choose classifier";
+            // 
+            // ClassifierTextBox
+            // 
+            this.ClassifierTextBox.Location = new System.Drawing.Point(115, 25);
+            this.ClassifierTextBox.Name = "ClassifierTextBox";
+            this.ClassifierTextBox.Size = new System.Drawing.Size(100, 20);
+            this.ClassifierTextBox.TabIndex = 31;
+            // 
             // ClusterUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1484, 962);
             this.Controls.Add(this.ZoomLabel);
-            this.Controls.Add(this.ClusterClassLabel);
+            this.Controls.Add(this.ClassificationGroupBox);
             this.Controls.Add(this.ControlGroupBox);
             this.Controls.Add(this.ShowDetailsGroupBox);
             this.Controls.Add(this.NowViewingLabel);
@@ -513,6 +573,8 @@
             this.ShowDetailsGroupBox.ResumeLayout(false);
             this.ControlGroupBox.ResumeLayout(false);
             this.ControlGroupBox.PerformLayout();
+            this.ClassificationGroupBox.ResumeLayout(false);
+            this.ClassificationGroupBox.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -554,8 +616,14 @@
         private System.Windows.Forms.TextBox FindByIndexTextBox;
         private System.Windows.Forms.Label ClusterFindIndexLabel;
         private System.Windows.Forms.Button FindByIndexButton;
-        private System.Windows.Forms.Label ClusterClassLabel;
+        //private System.Windows.Forms.Label ClusterClassLabel;
         private System.Windows.Forms.Label ZoomLabel;
+        private System.Windows.Forms.GroupBox ClassificationGroupBox;
+        private System.Windows.Forms.Label ClassifierLabel;
+        private System.Windows.Forms.TextBox ClassifierTextBox;
+        private System.Windows.Forms.Button BrowseClassifierButton;
+        private System.Windows.Forms.Button LoadClassifierButton;
+        private System.Windows.Forms.Label ClusterClassLabel;
     }
 }
 

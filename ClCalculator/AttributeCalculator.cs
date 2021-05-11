@@ -23,8 +23,6 @@ namespace ClusterCalculator
         NeighbourCountFilter NeighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
         private void CalcAttributes(ref Dictionary<ClusterAttribute, object> attributePairs, IList<ClusterAttribute> attributesToGet, Cluster current)
         {
-
-
             //var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
             ConvexHull hull = null;
             Cluster skeletonizedCluster = null;
@@ -142,15 +140,32 @@ namespace ClusterCalculator
                     case ClusterAttribute.RelLowEnergyPixels:
                         attributePairs[attribute] = (current.Points.Length - energyFilter.Process(current.Points).Count) / (double)current.Points.Length;
                         break;
+                    case ClusterAttribute.ClFile:                       
+                        string absPath =  
+                            ((FileStream)ClassCollection.Partitions[ClassCollection.PartitionIndex].Collection.ClFile.BaseStream)
+                            .Name.Replace('\\', '/');
+                        Uri absPathUri = new Uri(absPath);
+                        Uri relativeUri = new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(absPathUri);
+                        attributePairs[attribute] = "\"" +  relativeUri.ToString() + "\"";
+                        break;
+                    case ClusterAttribute.PxFile:
+                        absPath =
+                            ((FileStream)ClassCollection.Partitions[ClassCollection.PartitionIndex].Collection.PxFile.BaseStream)
+                            .Name.Replace('\\','/');
+                        absPathUri = new Uri(absPath);
+                        relativeUri = new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(absPathUri);
+                        attributePairs[attribute] = "\"" + relativeUri.ToString() + "\"";
+                        break;
+                    case ClusterAttribute.ClIndex:
+                        attributePairs[attribute] = ClassCollection.Partitions[ClassCollection.PartitionIndex].Collection.CurrentIndex;
+                        break;
                     default: throw new ArgumentException("Invalid cluster attribute class - attribute calculation is not implemented");
 
                 }
             }
         }
         public void Calculate(ClusterClassCollection collection, IList<ClusterAttribute> attributesToGet, ref IClusterReader reader, ref Dictionary<ClusterAttribute, object> attributePairs)
-        { 
-
-            
+        {       
             var partition = collection.Partitions[collection.PartitionIndex];
             ClassCollection = collection;
             CenterFinder = partition.CenterFinder;
@@ -158,13 +173,9 @@ namespace ClusterCalculator
             EnergyCalculator = partition.EnergyCalc;
             VertexFinder = partition.VertexFinder;
             Skeletonizer = partition.Skeletonizer;
-
             var clInfo = partition.Enumerator.Current;
-
             var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
-
-            CalcAttributes(ref attributePairs, attributesToGet, current);
-            
+            CalcAttributes(ref attributePairs, attributesToGet, current);       
         }
         public void Calculate(Cluster current,  IList<ClusterAttribute> attributesToGet, ref Dictionary<ClusterAttribute, object> attributePairs)
         {
