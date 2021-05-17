@@ -181,18 +181,65 @@ namespace ClusterUI
             RestoreZoom();
             if (int.TryParse(FindByIndexTextBox.Text, out int result))
             {
-                Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), result);
-                if (cluster != null)
+                if (InputType == InputType.Ini)
                 {
-                    CurrentBase = cluster;
-                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
-                    PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
-                    clusterNumber = result;
-                    ClusterIndexValueLabel.Text = clusterNumber.ToString();
+                    Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), result);
+                    if (cluster != null)
+                    {
+                        CurrentBase = cluster;
+                        HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                        PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                        clusterNumber = result;
+                        ClusterIndexValueLabel.Text = clusterNumber.ToString();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error, cluster with given index was not found.");
+                    }
                 }
-                else
+                else 
                 {
-                    MessageBox.Show("Error, cluster with given index was not found.");
+                    int clIndex;
+                    string clFile, pxFile;
+                    try
+                    {
+                        using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+                        {
+                            using (JsonTextReader jReader = new JsonTextReader(sReader))
+                            {
+                                jReader.Read();
+                                for (int i = 0; i < result - 1; i++)
+                                {
+                                    jReader.Read();
+                                    jReader.Skip();
+                                }
+                                jReader.Read();
+                                var jObject = JObject.Load(jReader);
+                                if (!GetBaseClusterInfoFromJson(jObject, out clFile, out pxFile, out clIndex))
+                                    return;
+                                Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clIndex);
+                                if (cluster != null)
+                                {
+                                    CurrentBase = cluster;
+                                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                                    PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                                    this.pxFile = pxFile;
+                                    this.clFile = clFile;
+                                    clusterNumber = result;
+                                    ClusterIndexValueLabel.Text = clusterNumber.ToString();
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Error, cluster with given index was not found.");
+                                }                               
+                            }
+                        }
+                    }
+                    catch 
+                    {
+                        MessageBox.Show("Error, cluster with given index was not found.");
+                    }
+
                 }
             }
         }
@@ -338,17 +385,18 @@ namespace ClusterUI
                 PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
             }
             CurrentBase = cluster;
-            ClusterIndexValueLabel.Text = clusterNumber.ToString();
 
             NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
             if (!isDisplayingCluster)
                 EnableButtons();
             clusterNumber = 1;
             InputType = InputType.Json;
-        
+            ClusterIndexValueLabel.Text = clusterNumber.ToString();
+
         }
         public void LoadClustersClicked(object sender, EventArgs e)
         {
+            clusterNumber = 1;
             if (InViewFilePathBox.Text.EndsWith(".ini"))
             {
                 LoadClustersFromIni();
@@ -577,14 +625,14 @@ namespace ClusterUI
                 ClusterAttribute.Width,
                 ClusterAttribute.Convexity,
                 ClusterAttribute.BranchCount,
-                ClusterAttribute.Convexity,
+                ClusterAttribute.VertexCount,
                 ClusterAttribute.CrosspointCount,
                 ClusterAttribute.MaxEnergy,
                 ClusterAttribute.RelativeHaloSize,
                 ClusterAttribute.RelLowEnergyPixels,
                 ClusterAttribute.StdOfArrival,
                 ClusterAttribute.StdOfEnergy,
-                ClusterAttribute.BranchCount
+                ClusterAttribute.Branches
             });
             var attributePairs = new Dictionary<ClusterAttribute, object>();
             IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();

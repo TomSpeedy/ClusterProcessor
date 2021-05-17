@@ -21,7 +21,7 @@ namespace ClusterCalculator
         ClusterClassCollection ClassCollection { get; set; }
 
         NeighbourCountFilter NeighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
-        private void CalcAttributes(ref Dictionary<ClusterAttribute, object> attributePairs, IList<ClusterAttribute> attributesToGet, Cluster current)
+        public virtual void CalcAttributes(ref Dictionary<ClusterAttribute, object> attributePairs, IList<ClusterAttribute> attributesToGet, Cluster current)
         {
             //var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
             ConvexHull hull = null;
@@ -199,6 +199,7 @@ namespace ClusterCalculator
         public BranchAnalyzer BranchAnalyzer { get; }
         public VertexFinder VertexFinder { get; }
         public ISkeletonizer Skeletonizer { get; }
+        public double MaxRead { get; set; } = 1;
 
         public ClusterClassPartition(ClusterInfoCollection collection, string configPath)
         {
@@ -217,8 +218,7 @@ namespace ClusterCalculator
         }
         public bool CheckPosition()
         {
-            const double maxRead = 0.9;
-            return Collection.ClFile.BaseStream.Position < Collection.ClFile.BaseStream.Length * maxRead;
+            return Collection.ClFile.BaseStream.Position < Collection.ClFile.BaseStream.Length * MaxRead;
         }
     }
     public class ClusterClassCollection

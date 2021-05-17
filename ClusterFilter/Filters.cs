@@ -17,9 +17,42 @@ namespace ClusterFilter
 
     public abstract class ClusterFilter //works with text files
     {
+        protected StreamReader PixelFile { get; set; }
         public int ProcessedCount { get; protected set; } = 0;
         public int FilterSuccessCount { get; protected set; } = 0;
         public abstract bool MatchesFilter(ClusterInfo clInfo);
+        public List<PixelPoint> GetPixels(ClusterInfo clInfo)
+        {
+            PixelFile.DiscardBufferedData();
+            PixelFile.BaseStream.Seek((long)clInfo.ByteStart, SeekOrigin.Begin);
+            List<PixelPoint> points = new List<PixelPoint>();
+            for (int i = 0; i < clInfo.PixCount; i++)
+            {
+                var tokens = PixelFile.ReadLine().Split();
+                if (tokens[0] == "#")
+                    tokens = PixelFile.ReadLine().Split();
+
+
+                if (tokens.Length == 5)
+                {
+
+                    ushort.TryParse(tokens[0], out ushort x);
+                    ushort.TryParse(tokens[1], out ushort y);
+                    double.TryParse(tokens[2], out double ToA);
+                    double.TryParse(tokens[3], out double Energy);
+
+                    if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1)
+                    {
+
+                        points.Add(new PixelPoint(x, y, ToA, Energy));
+
+                    }
+
+                }
+            }
+            return points;
+
+        }
         public void Process(StreamReader inputCLFile, StreamWriter outputCLFile)
         {
             IClusterWriter clusterWriter = new MMClusterWriter(outputCLFile);
@@ -51,7 +84,6 @@ namespace ClusterFilter
     public class EnergyFilter : ClusterFilter
     {
         
-        private StreamReader PixelFile { get; set; }
         private EnergyCalculator EnergyCalculator { get; set; }
 
         private bool NeedsCalibration = false;
@@ -97,9 +129,6 @@ namespace ClusterFilter
                     totalEnergy += Energy;
                    
                 }
-                else
-                {
-                }
             }
             if ((totalEnergy >= LowerBound) && (totalEnergy <= UpperBound))
             {
@@ -111,7 +140,6 @@ namespace ClusterFilter
     }
     public class PixelCountFilter : ClusterFilter
     {
-        private StreamReader PixelFile { get; }
         private double LowerBound { get; }
         private double UpperBound { get; }
 
@@ -137,11 +165,10 @@ namespace ClusterFilter
     }
     public class ConvexityFilter : ClusterFilter
     {
-        private StreamReader PixelFile { get; }
         private double LowerBound { get; }
         private double UpperBound { get; }
         private EnergyCalculator EnergyCalculator {get;}
-        bool useSkelet { get; }
+        bool UseSkelet { get; }
         bool NeedsCalibration = false;
 
         public ConvexityFilter(StreamReader pixelFile, Calibration calib, int lowerBound, int upperBound, bool useSkelet = false)
@@ -151,6 +178,7 @@ namespace ClusterFilter
             this.UpperBound = upperBound;
             EnergyCalculator = new EnergyCalculator(calib);
             NeedsCalibration = true;
+            UseSkelet = useSkelet;
         }
         public ConvexityFilter(StreamReader pixelFile, int lowerBound, int upperBound, bool useSkelet = false)
         {
@@ -158,6 +186,7 @@ namespace ClusterFilter
             this.LowerBound = lowerBound;
             this.UpperBound = upperBound;
             EnergyCalculator = new EnergyCalculator();
+            UseSkelet = useSkelet;
         }
         public override bool MatchesFilter(ClusterInfo clInfo)
         {
@@ -178,12 +207,11 @@ namespace ClusterFilter
                         throw new InvalidOperationException();
 
                 }
-
                 ushort.TryParse(tokens[0], out ushort x);
                 ushort.TryParse(tokens[1], out ushort y);
                 double.TryParse(tokens[2], out double ToA);
                 double.TryParse(tokens[3], out double ToT);
-                if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1) //we didnt read the same pixel twice, If we did, then just ignore it
+                if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1) 
                 {
 
                     points.Add(new PixelPoint(x, y, ToA, NeedsCalibration ? EnergyCalculator.ToElectronVolts(ToT, x, y) : ToT));
@@ -195,7 +223,7 @@ namespace ClusterFilter
                 area = points.Count;
             else
             {
-                if(useSkelet)
+                if(UseSkelet)
                 {
                     ISkeletonizer skeletonizer = new ThinSkeletonizer();
                     var hull = new ConvexHull(skeletonizer.SkeletonizePoints(points));
@@ -206,10 +234,9 @@ namespace ClusterFilter
                     var hull = new ConvexHull(points);
                     area = hull.CalculateArea();
                 }
-                //CalculateWidth(hull);
             }
             
-            double convexityPercentage = 100 * clInfo.PixCount / (double)area;
+            double convexityPercentage = clInfo.PixCount / (double)area;
             if (convexityPercentage >= LowerBound && convexityPercentage <= UpperBound)
                 return true;
             return false;
@@ -224,7 +251,6 @@ namespace ClusterFilter
     public class VertexCountFilter : ClusterFilter
     {
         private VertexFinder VertexFinder { get; }
-        private StreamReader PixelFile { get; set; }
         private int MinVertexCount { get; }
         public VertexCountFilter(StreamReader pixelFile, int minVertexCount)
         {
@@ -257,8 +283,30 @@ namespace ClusterFilter
             return VertexFinder.FindVertices(points).Count >= MinVertexCount;
         }
     }
-    //TODO add more filters
-    
-    
+    public class WidthFilter : ClusterFilter
+    {
+        private double LowerBound { get; }
+        private double UpperrBound { get; }
+        public ConvexHull Hull { get; set; }
+        public WidthFilter(StreamReader pixelFile, double minWidth, double maxWidth)
+        {
+            PixelFile = pixelFile;
+            LowerBound = minWidth;
+            UpperrBound = maxWidth;
+        }
+        public override bool MatchesFilter(ClusterInfo clusterInfo)
+        {
+            if(Hull == null)
+            {
+                var points = GetPixels(clusterInfo);               
+                Hull = new ConvexHull(points);
+            }
+            var width = Hull.CalculateWidth();
+            return width >= LowerBound && width <= UpperrBound;
+        }
+    }
+
+
+
 
 }

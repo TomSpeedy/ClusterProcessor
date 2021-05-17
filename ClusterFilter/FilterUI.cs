@@ -18,7 +18,6 @@ namespace ClusterFilter
 {
     public partial class FilterUI : Form
     {
-        const string configPath = "../../../config/";
         private IClusterReader ClusterReader { get; set; } = new MMClusterReader();
         public FilterUI()
         {

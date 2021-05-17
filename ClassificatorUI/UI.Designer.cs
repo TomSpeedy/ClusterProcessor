@@ -30,6 +30,10 @@ namespace ClassificatorUI
         private void InitializeComponent()
         {
             this.TrainingGroupBox = new System.Windows.Forms.GroupBox();
+            this.StopButton = new System.Windows.Forms.Button();
+            this.BrowseTrainedModelButton = new System.Windows.Forms.Button();
+            this.TrainedModelTextBox = new System.Windows.Forms.TextBox();
+            this.TrainedModelLabel = new System.Windows.Forms.Label();
             this.SeedLabel = new System.Windows.Forms.Label();
             this.SeedTextBox = new System.Windows.Forms.TextBox();
             this.MinAccuracyLabel = new System.Windows.Forms.Label();
@@ -65,16 +69,14 @@ namespace ClassificatorUI
             this.BrowseRootModelButton = new System.Windows.Forms.Button();
             this.RootTrainedLabel = new System.Windows.Forms.Label();
             this.RootTrainedModelTextBox = new System.Windows.Forms.TextBox();
-            this.TrainedModelLabel = new System.Windows.Forms.Label();
-            this.TrainedModelTextBox = new System.Windows.Forms.TextBox();
-            this.Trained = new System.Windows.Forms.Button();
             this.TrainingGroupBox.SuspendLayout();
             this.ApplicationGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // TrainingGroupBox
             // 
-            this.TrainingGroupBox.Controls.Add(this.Trained);
+            this.TrainingGroupBox.Controls.Add(this.StopButton);
+            this.TrainingGroupBox.Controls.Add(this.BrowseTrainedModelButton);
             this.TrainingGroupBox.Controls.Add(this.TrainedModelTextBox);
             this.TrainingGroupBox.Controls.Add(this.TrainedModelLabel);
             this.TrainingGroupBox.Controls.Add(this.SeedLabel);
@@ -96,6 +98,42 @@ namespace ClassificatorUI
             this.TrainingGroupBox.TabIndex = 0;
             this.TrainingGroupBox.TabStop = false;
             this.TrainingGroupBox.Text = "Single Classifier Training";
+            // 
+            // StopButton
+            // 
+            this.StopButton.Location = new System.Drawing.Point(165, 135);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(129, 23);
+            this.StopButton.TabIndex = 19;
+            this.StopButton.Text = "Stop the training";
+            this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Click += new System.EventHandler(this.StopButtonClicked);
+            // 
+            // BrowseTrainedModelButton
+            // 
+            this.BrowseTrainedModelButton.Location = new System.Drawing.Point(296, 92);
+            this.BrowseTrainedModelButton.Name = "BrowseTrainedModelButton";
+            this.BrowseTrainedModelButton.Size = new System.Drawing.Size(75, 23);
+            this.BrowseTrainedModelButton.TabIndex = 18;
+            this.BrowseTrainedModelButton.Text = "Browse";
+            this.BrowseTrainedModelButton.UseVisualStyleBackColor = true;
+            this.BrowseTrainedModelButton.Click += new System.EventHandler(this.BrowseClassifiersClicked);
+            // 
+            // TrainedModelTextBox
+            // 
+            this.TrainedModelTextBox.Location = new System.Drawing.Point(165, 94);
+            this.TrainedModelTextBox.Name = "TrainedModelTextBox";
+            this.TrainedModelTextBox.Size = new System.Drawing.Size(100, 20);
+            this.TrainedModelTextBox.TabIndex = 17;
+            // 
+            // TrainedModelLabel
+            // 
+            this.TrainedModelLabel.AutoSize = true;
+            this.TrainedModelLabel.Location = new System.Drawing.Point(9, 99);
+            this.TrainedModelLabel.Name = "TrainedModelLabel";
+            this.TrainedModelLabel.Size = new System.Drawing.Size(121, 13);
+            this.TrainedModelLabel.TabIndex = 15;
+            this.TrainedModelLabel.Text = "Trained Model (optional)";
             // 
             // SeedLabel
             // 
@@ -153,7 +191,7 @@ namespace ClassificatorUI
             this.BrowseClassifierConfigButton.TabIndex = 6;
             this.BrowseClassifierConfigButton.Text = "Browse";
             this.BrowseClassifierConfigButton.UseVisualStyleBackColor = true;
-            this.BrowseClassifierConfigButton.Click += new System.EventHandler(this.BrowseButtonClicked);
+            this.BrowseClassifierConfigButton.Click += new System.EventHandler(this.BrowseJsonFieldsClicked);
             // 
             // BrowseTrainJsonButton
             // 
@@ -163,7 +201,7 @@ namespace ClassificatorUI
             this.BrowseTrainJsonButton.TabIndex = 5;
             this.BrowseTrainJsonButton.Text = "Browse";
             this.BrowseTrainJsonButton.UseVisualStyleBackColor = true;
-            this.BrowseTrainJsonButton.Click += new System.EventHandler(this.BrowseButtonClicked);
+            this.BrowseTrainJsonButton.Click += new System.EventHandler(this.BrowseJsonFieldsClicked);
             // 
             // TrainClassifierButton
             // 
@@ -319,7 +357,7 @@ namespace ClassificatorUI
             this.BrowseModelLv3Button.TabIndex = 15;
             this.BrowseModelLv3Button.Text = "Browse";
             this.BrowseModelLv3Button.UseVisualStyleBackColor = true;
-            this.BrowseModelLv3Button.Click += new System.EventHandler(this.BrowseButtonClicked);
+            this.BrowseModelLv3Button.Click += new System.EventHandler(this.BrowseClassifiersClicked);
             // 
             // Level3TrainedModelLabel
             // 
@@ -345,7 +383,7 @@ namespace ClassificatorUI
             this.BrowseModelLv2Button.TabIndex = 12;
             this.BrowseModelLv2Button.Text = "Browse";
             this.BrowseModelLv2Button.UseVisualStyleBackColor = true;
-            this.BrowseModelLv2Button.Click += new System.EventHandler(this.BrowseButtonClicked);
+            this.BrowseModelLv2Button.Click += new System.EventHandler(this.BrowseClassifiersClicked);
             // 
             // Level2TrainedModelLabel
             // 
@@ -371,7 +409,7 @@ namespace ClassificatorUI
             this.BrowseModelLv1Button.TabIndex = 9;
             this.BrowseModelLv1Button.Text = "Browse";
             this.BrowseModelLv1Button.UseVisualStyleBackColor = true;
-            this.BrowseModelLv1Button.Click += new System.EventHandler(this.BrowseButtonClicked);
+            this.BrowseModelLv1Button.Click += new System.EventHandler(this.BrowseClassifiersClicked);
             // 
             // Level1TrainedModelLabel
             // 
@@ -397,7 +435,7 @@ namespace ClassificatorUI
             this.BrowseRootModelButton.TabIndex = 6;
             this.BrowseRootModelButton.Text = "Browse";
             this.BrowseRootModelButton.UseVisualStyleBackColor = true;
-            this.BrowseRootModelButton.Click += new System.EventHandler(this.BrowseButtonClicked);
+            this.BrowseRootModelButton.Click += new System.EventHandler(this.BrowseClassifiersClicked);
             // 
             // RootTrainedLabel
             // 
@@ -414,31 +452,6 @@ namespace ClassificatorUI
             this.RootTrainedModelTextBox.Name = "RootTrainedModelTextBox";
             this.RootTrainedModelTextBox.Size = new System.Drawing.Size(100, 20);
             this.RootTrainedModelTextBox.TabIndex = 2;
-            // 
-            // TrainedModelLabel
-            // 
-            this.TrainedModelLabel.AutoSize = true;
-            this.TrainedModelLabel.Location = new System.Drawing.Point(9, 99);
-            this.TrainedModelLabel.Name = "TrainedModelLabel";
-            this.TrainedModelLabel.Size = new System.Drawing.Size(121, 13);
-            this.TrainedModelLabel.TabIndex = 15;
-            this.TrainedModelLabel.Text = "Trained Model (optional)";
-            // 
-            // TrainedModelTextBox
-            // 
-            this.TrainedModelTextBox.Location = new System.Drawing.Point(165, 94);
-            this.TrainedModelTextBox.Name = "TrainedModelTextBox";
-            this.TrainedModelTextBox.Size = new System.Drawing.Size(100, 20);
-            this.TrainedModelTextBox.TabIndex = 17;
-            // 
-            // Trained
-            // 
-            this.Trained.Location = new System.Drawing.Point(296, 92);
-            this.Trained.Name = "Trained";
-            this.Trained.Size = new System.Drawing.Size(75, 23);
-            this.Trained.TabIndex = 18;
-            this.Trained.Text = "Browse";
-            this.Trained.UseVisualStyleBackColor = true;
             // 
             // ClassifierUI
             // 
@@ -496,8 +509,9 @@ namespace ClassificatorUI
         private System.Windows.Forms.Label SeedLabel;
         private System.Windows.Forms.TextBox SeedTextBox;
         private System.Windows.Forms.Label TrainedModelLabel;
-        private System.Windows.Forms.Button Trained;
+        private System.Windows.Forms.Button BrowseTrainedModelButton;
         private System.Windows.Forms.TextBox TrainedModelTextBox;
+        private System.Windows.Forms.Button StopButton;
     }
 }
 

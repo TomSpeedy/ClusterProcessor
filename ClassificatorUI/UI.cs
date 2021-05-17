@@ -23,21 +23,15 @@ namespace ClassificatorUI
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("en-US");
         }
 
-        public void BrowseButtonClicked(object sender, EventArgs e)
+        public void BrowseClassifiersClicked(object sender, EventArgs e)
         {
             Button pressedButton = sender as Button;
             var fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Trained simple classifiers(*.csf)|*.csf";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                if (pressedButton == BrowseClassifierConfigButton)
-                {
-                    ClassifierConfigTextBox.Text = fileDialog.FileName;
-                }
-                else if (pressedButton == BrowseTrainJsonButton)
-                {
-                    TrainJsonFileTextBox.Text = fileDialog.FileName;
-                }
-                else if (pressedButton == BrowseRootModelButton)
+
+                if (pressedButton == BrowseRootModelButton)
                 {
                     RootTrainedModelTextBox.Text = fileDialog.FileName;
                 }
@@ -53,10 +47,37 @@ namespace ClassificatorUI
                 {
                     TrainedLv3TextBox.Text = fileDialog.FileName;
                 }
+                else if (pressedButton == BrowseTrainedModelButton)
+                {
+                    TrainedModelTextBox.Text = fileDialog.FileName;
+                }
             }
-
         }
-
+        public void BrowseJsonFieldsClicked(object sender, EventArgs e)
+        {
+            Button pressedButton = sender as Button;
+            var fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "json file (*.json)|*.json";
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (pressedButton == BrowseClassifierConfigButton)
+                {
+                    ClassifierConfigTextBox.Text = fileDialog.FileName;
+                }
+                else if (pressedButton == BrowseTrainJsonButton)
+                {
+                    TrainJsonFileTextBox.Text = fileDialog.FileName;
+                }
+                else if (pressedButton == BrowseTrainedModelButton)
+                {
+                    TrainedModelTextBox.Text = fileDialog.FileName;
+                }
+            }
+        }
+        public void BrowseNewModelClicked(object sender, EventArgs e)
+        { 
+        
+        }
         public void TrainSimpleClassifierClicked(object sender, EventArgs e)
         {
             ITrainableClassifier classifier;
@@ -83,16 +104,18 @@ namespace ClassificatorUI
                 seed = parsedSeed;
             }
             int iterationCount = 0;
-            double accuracy = 0;
-
-            while (iterationCount < maxRepetCount && accuracy <= minAccuracy)
-            {              
-               Thread thread = new Thread(() => { accuracy = classifier.Train(ClassifierConfigTextBox.Text, TrainJsonFileTextBox.Text, ref TrainingStopped, minAccuracy, seed); });
-                thread.Start();
-               thread.Join();
-               iterationCount++;
-            }
-            MessageBox.Show("The training process has successfully ended");
+            double accuracy = 0;             
+            Thread thread = new Thread(() => 
+            {
+                while (iterationCount < maxRepetCount && accuracy <= minAccuracy)
+                {
+                    accuracy = classifier.Train(ClassifierConfigTextBox.Text, TrainJsonFileTextBox.Text, ref TrainingStopped, minAccuracy, seed);
+                    iterationCount++;
+                }
+                MessageBox.Show("The training process has successfully ended");
+                TrainingStopped = false;
+            });
+            thread.Start();
         }
 
         public void MergeClassifiersClicked(object sender, EventArgs e)
@@ -136,6 +159,9 @@ namespace ClassificatorUI
             classi.LoadFromFile(MergedClassifierNameTextBox.Text);
             MessageBox.Show(classi.TestModel("../../../ClusterDescriptionGen/bin/Debug/testCollection.json").ToString());
         }
-
+        public void StopButtonClicked(object sender, EventArgs e)
+        {
+            TrainingStopped = true;
+        }
     }
 }

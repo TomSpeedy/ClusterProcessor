@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Forms;
-using ClusterFilter;
 using ClusterCalculator;
 using System.Threading;
 using System.Globalization;
+
 namespace ClusterDescriptionGen
 {
-    public partial class Form1 : Form
+    public partial class UI : Form
     {
         long ProcessedCount = 0;
         System.Windows.Forms.Timer CheckProgressTimer = new System.Windows.Forms.Timer();
@@ -24,7 +20,7 @@ namespace ClusterDescriptionGen
         }
         private IDescriptionWriter ClDescriptionWriter { get; set; }
 
-        public Form1()
+        public UI()
         {
             InitializeComponent();
             SelectedInputListView.View = View.Details;
@@ -38,7 +34,6 @@ namespace ClusterDescriptionGen
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 
-                //InputTextbox.Text += string.Join(";",fileDialog.FileNames);
                 const string noClass = "<none>";
                 foreach (var fileName in fileDialog.FileNames)
                 {
@@ -89,7 +84,13 @@ namespace ClusterDescriptionGen
             {
                attributes.Add(((string)checkedAttribute).ToAttribute());
             }
-            Thread processingThread = new Thread(() =>  GenerateDescription(ref ProcessedCount, iniFiles, classes, classesProportional, endCond, allignBy, parallelProcessing, attributes) );
+            double maxPartitionRead = 1;
+            if(double.TryParse(UsedPartitionDataRatioTextBox.Text, out double maxPartReadParsed))
+            {
+                if(Math.Abs(maxPartReadParsed) <= 1)
+                    maxPartitionRead = maxPartReadParsed;
+            }
+            Thread processingThread = new Thread(() =>  GenerateDescription(ref ProcessedCount, iniFiles, classes, classesProportional, endCond, allignBy, parallelProcessing, attributes, maxPartitionRead) );
             CheckProgressTimer.Interval = 1000;
             CheckProgressTimer.Tick += TimerTicked;
             CheckProgressTimer.Start();
@@ -104,7 +105,8 @@ namespace ClusterDescriptionGen
                 AttributeCheckedList.SetItemChecked(i, true);
             }
         }
-        private void GenerateDescription(ref long processedCount, string[] iniFiles, string[] classes, bool classesProportional, EndCondition endCond, string allignBy, bool parallelProcessing, IList<ClusterAttribute> attributes)
+        private void GenerateDescription(ref long processedCount, string[] iniFiles, string[] classes, bool classesProportional,
+            EndCondition endCond, string allignBy, bool parallelProcessing, IList<ClusterAttribute> attributes, double maxRead)
         {
             Dictionary<ClusterClassPartition, int> writtenCount = new Dictionary<ClusterClassPartition, int>();
 
@@ -121,6 +123,7 @@ namespace ClusterDescriptionGen
                 var clCollection = new ClusterInfoCollection(new StreamReader(clFile), new StreamReader(pxFile));
                 var existingClEnumCollections = clusterEnumCollections.FindAll(clusterEnColl => (clusterEnColl.Class == classes[i]));
                 var newPartition = new ClusterClassPartition(clCollection, null);
+                newPartition.MaxRead = maxRead;
                 writtenCount.Add(newPartition, 0);
                 if (existingClEnumCollections.Count == 0)
                     clusterEnumCollections.Add(new ClusterClassCollection(newPartition, classes[i]));
@@ -213,7 +216,8 @@ namespace ClusterDescriptionGen
             currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: true);
             clEnumCollections[currentIndex] = currentClEnumCollection;
             
-            while (!currentClEnumCollection.CurrentEnumerator.MoveNext() || !currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].CheckPosition())
+            while (!currentClEnumCollection.CurrentEnumerator.MoveNext() 
+                || !currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].CheckPosition())
             {
                 if (endCond == EndCondition.FirstPartition)
                     done = true;
@@ -244,8 +248,7 @@ namespace ClusterDescriptionGen
                     currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: false);
                     clEnumCollections[currentIndex] = currentClEnumCollection;
                 }
-            }
-                
+            }             
             return done;
         }
 

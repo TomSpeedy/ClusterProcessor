@@ -13,7 +13,7 @@ namespace ClusterCalculator
         NeighbourCountFilter NeighCountFilter { get; }
         EnergyCenterFinder EnCenterFinder { get; }
         const int trivialBranchLength = 2;
-        int maxDepth = 4; //changes in analyze method
+        int maxDepth = 4;
         int maxbranchCount = 20;
         public BranchAnalyzer(EnergyCenterFinder centerFinder)
         {

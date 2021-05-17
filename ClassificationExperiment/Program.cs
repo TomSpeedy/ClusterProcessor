@@ -116,7 +116,7 @@ namespace ClassificationExperiment
                 string name = "lead";
                 string[] outputClasses = DefaultLearner.OutputClasses[name];
                 LeadClassifiers[i] =null;//new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsLead, outputClasses, name);
-                LeadClassifiers[i].TrainInterval = new Interval(0, 0.8);
+                LeadClassifiers[i].TrainProportion = new Interval(0, 0.8);
 
                 name = "fragHeFe";
                 outputClasses = DefaultLearner.OutputClasses[name];

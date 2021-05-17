@@ -1,6 +1,6 @@
 ﻿namespace ClusterDescriptionGen
 {
-    partial class Form1
+    partial class UI
     {
         /// <summary>
         /// Required designer variable.
@@ -55,6 +55,8 @@
             this.OutputLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.InputLabel = new System.Windows.Forms.Label();
+            this.UsedPartitionDataRatioTextBox = new System.Windows.Forms.TextBox();
+            this.UsedPartitionDataRatioLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.EndingConditionGroupBox.SuspendLayout();
             this.DistributionGroupBox.SuspendLayout();
@@ -63,6 +65,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.UsedPartitionDataRatioLabel);
+            this.groupBox1.Controls.Add(this.UsedPartitionDataRatioTextBox);
             this.groupBox1.Controls.Add(this.button2);
             this.groupBox1.Controls.Add(this.button1);
             this.groupBox1.Controls.Add(this.ProcessedCountLabel);
@@ -354,13 +358,29 @@
             this.InputLabel.TabIndex = 0;
             this.InputLabel.Text = "Add input (partition):";
             // 
-            // Form1
+            // UsedPartitionDataRatioTextBox
+            // 
+            this.UsedPartitionDataRatioTextBox.Location = new System.Drawing.Point(1198, 59);
+            this.UsedPartitionDataRatioTextBox.Name = "UsedPartitionDataRatioTextBox";
+            this.UsedPartitionDataRatioTextBox.Size = new System.Drawing.Size(100, 20);
+            this.UsedPartitionDataRatioTextBox.TabIndex = 20;
+            // 
+            // UsedPartitionDataRatioLabel
+            // 
+            this.UsedPartitionDataRatioLabel.AutoSize = true;
+            this.UsedPartitionDataRatioLabel.Location = new System.Drawing.Point(1195, 35);
+            this.UsedPartitionDataRatioLabel.Name = "UsedPartitionDataRatioLabel";
+            this.UsedPartitionDataRatioLabel.Size = new System.Drawing.Size(99, 13);
+            this.UsedPartitionDataRatioLabel.TabIndex = 21;
+            this.UsedPartitionDataRatioLabel.Text = "Used Partition Data";
+            // 
+            // UI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1443, 564);
             this.Controls.Add(this.groupBox1);
-            this.Name = "Form1";
+            this.Name = "UI";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -403,6 +423,8 @@
         private System.Windows.Forms.Label ProcessedCountLabel;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Label UsedPartitionDataRatioLabel;
+        private System.Windows.Forms.TextBox UsedPartitionDataRatioTextBox;
     }
 }
 

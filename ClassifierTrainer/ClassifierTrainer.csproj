@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4B2F6CCA-57ED-4C8B-BBDF-F03614E525A8}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>ClusterDescriptionGen</RootNamespace>
-    <AssemblyName>ClusterDescriptionGen</AssemblyName>
+    <ProjectGuid>{315BBDD0-BEBF-4BB7-9A3E-813FD3ADA2F0}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>ClassifierTrainer</RootNamespace>
+    <AssemblyName>ClassifierTrainer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -39,50 +39,20 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UI.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI.Designer.cs">
-      <DependentUpon>UI.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="UI.resx">
-      <DependentUpon>UI.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClCalculator\ClusterCalculator.csproj">
-      <Project>{ea18b5cf-5e61-45a1-b5c3-3349f93e999d}</Project>
-      <Name>ClusterCalculator</Name>
+    <ProjectReference Include="..\ClassifierForClusters\ClassifierForClusters.csproj">
+      <Project>{6d8f2f2a-9011-4880-a15d-413033b33a34}</Project>
+      <Name>ClassifierForClusters</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

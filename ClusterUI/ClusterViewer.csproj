@@ -79,7 +79,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ClusterDetails.cs" />
     <Compile Include="ClusterUI.cs">
       <SubType>Form</SubType>
     </Compile>
