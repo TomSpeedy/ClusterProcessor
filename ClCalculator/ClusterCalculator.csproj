@@ -70,6 +70,7 @@
     <Compile Include="Branch.cs" />
     <Compile Include="BranchedCluster.cs" />
     <Compile Include="CenterFinder.cs" />
+    <Compile Include="ClusterClassPartition.cs" />
     <Compile Include="ClusterCore.cs" />
     <Compile Include="ClusterReader.cs" />
     <Compile Include="ClusterWriter.cs" />

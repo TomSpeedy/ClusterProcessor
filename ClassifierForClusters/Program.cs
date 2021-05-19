@@ -204,6 +204,7 @@ namespace ClassifierForClusters
     {
        void LoadFromFile(string filePath);
         ClassPrediction Classify(Dictionary<ClusterAttribute, double> inputPairs);
+        Dictionary<string, int> ClassifyCollection(string inputFile, ClassifiactionOutputType processingType = ClassifiactionOutputType.PrintClasses);
         ClusterAttribute[] ValidFields { get; }
         string[] OutputClasses { get; }
     }
@@ -270,7 +271,9 @@ namespace ClassifierForClusters
             result.MostProbableClassName = mostProbableClass;*/
         }
         public virtual double CalcConfidence()
-        {            
+        {
+            if (MostProbableClassName == "unclassified")
+                return 0;
             var maximumProb = ClassProbabilities[MostProbableClassName];
             var newProbabilities = ClassProbabilities.Values.ToList();
             newProbabilities.Sort();
@@ -326,7 +329,7 @@ namespace ClassifierForClusters
             }
         }
     }
-    
+
     [Serializable]
     public class NNClassifier : ITrainableClassifier
     {
@@ -364,7 +367,7 @@ namespace ClassifierForClusters
             Teacher.LayerCount = Network.Layers.Length;
             Teacher.LayerIndex = 0;
         }
-        private void SetTeacher(string teacherName, double? momentum , double? learningRate)
+        public void SetTeacher(string teacherName, double? momentum , double? learningRate)
         {
             Teacher = new DeepNeuralNetworkLearning(Network);
             Teacher.Algorithm = (activationNetwork, index) =>
@@ -506,11 +509,10 @@ namespace ClassifierForClusters
                 else
                     throw new ArgumentException("Error - the value of the momentum was not valid");
             }
-            int printInterval;
             if (networkParameters.ContainsKey("printInterval"))
             {
                 if (uint.TryParse(networkParameters["printInterval"].ToString(), out uint printIntervalJson))
-                    printInterval = (int)printIntervalJson;
+                    PrintInterval = (int)printIntervalJson;
                 else
                     throw new ArgumentException("Error - the value of the momentum was not valid");
             }
@@ -571,8 +573,8 @@ namespace ClassifierForClusters
             //empty read
             var _inputVector = preprocessor.ReadTrainJsonToVector(jsonStream, ValidFields, OutputClasses, out int _classIndex);
             var iteration = 0;
-            double errorSum = 0;
             bool done = false;
+            int currentEpoch = 0;
             while (inputStream.BaseStream.Position < inputStream.BaseStream.Length && !done && !stopCondition)
             {               
                 double[][] input = new double[EpochSize][];
@@ -606,14 +608,14 @@ namespace ClassifierForClusters
                 }
                 if (done)
                         continue;
-                double error = Teacher.RunEpoch(input, output);
-                errorSum += error;
-                if (currentTrainIndex % PrintInterval == 0)
+                double error = Teacher.RunEpoch(input, output) / (double)EpochSize;
+
+                if (currentEpoch % PrintInterval == 0)
                 {
                     if (!Silent)
-                        Console.WriteLine(errorSum);
-                    errorSum = 0;
+                        Console.WriteLine($"Network Training MSE after {currentEpoch} epochs: {error}");
                 }
+                currentEpoch++;
                 iteration++;
                 
             }
@@ -624,7 +626,7 @@ namespace ClassifierForClusters
         }
         private double Eval(string learnJsonPath, double successThreshold, int[] trainIndices)
         {
-            Console.WriteLine("Evaluation in progress...");
+            Console.WriteLine("Evaluation on test data in progress...");
 
             NNInputProcessor preprocessor = new NNInputProcessor();
             int matrixLength = EvaluationClasses == null ? OutputClasses.Length + 1 : EvaluationClasses.Count() + 1;
@@ -708,7 +710,6 @@ namespace ClassifierForClusters
             if (!Silent)
             {
                 PrintConfusionMatrix(confusionMatrix);
-                Console.WriteLine("Success rate is : " + successRate);
             }
             if (successRate >= successThreshold)
             {
@@ -717,35 +718,71 @@ namespace ClassifierForClusters
             }
             return successRate;
         }     
-        private void PrintConfusionMatrix(int[][] confusionMatrix)
+        public double PrintConfusionMatrix(int[][] confusionMatrix, bool normalized = false)
         {
-            var totalSum = 0;
-            var diagSum = 0;
+            var rowSums = confusionMatrix.Select(x => x.Sum()).ToArray();
+            double totalSum = 0;
+            double diagSum = 0;
+            for (int j = 0; j < confusionMatrix.Length; j++)
+            {
+
+                for (int k = 0; k < confusionMatrix.Length; k++)
+                {
+                    double value = 0;
+                    if (normalized)
+                    {
+                        if (rowSums[j] == 0)
+                            value = 0;
+                        else
+                            value =  confusionMatrix[j][k] / (double) rowSums[j];
+                    }
+                    else
+                        value = confusionMatrix[j][k];
+                    totalSum += value;
+                    if (j == k)
+                        diagSum += value;
+                }
+            }
+
             Console.Write("Tru\\Pre");
             for (int i = 0; i < confusionMatrix.Length; i++)
             {
                 Console.Write("\t");
+
                 if (i < confusionMatrix.Length - 1)
-                    Console.Write(OutputClasses[i].Substring(0, Math.Min(4, OutputClasses[i].Length)));
+                {
+                    string className = EvaluationClasses == null ? OutputClasses[i] : EvaluationClasses[i];
+                    Console.Write(className.Substring(0, Math.Min(4, className.Length)));
+                }
                 else
                     Console.WriteLine(unclassified.Substring(0, 4));
             }
             for (int i = 0; i < confusionMatrix.Length; i++)
             {
                 if (i < confusionMatrix.Length - 1)
-                    Console.Write(OutputClasses[i].Substring(0, Math.Min(4, OutputClasses[i].Length)));
+                {
+                    string className = EvaluationClasses == null ? OutputClasses[i] : EvaluationClasses[i];
+                    Console.Write(className.Substring(0, Math.Min(4, className.Length)));
+                }
                 else
                     Console.Write(unclassified.Substring(0, 4));
                 for (int j = 0; j < confusionMatrix.Length; j++)
                 {
                     Console.Write("\t");
-                    Console.Write(confusionMatrix[i][j]);
-                    totalSum += confusionMatrix[i][j];
-                    if (i == j)
-                        diagSum += confusionMatrix[i][j];
+                    if (normalized)
+                    {
+                        if (rowSums[i] == 0)
+                            Console.Write(0);
+                        else
+                            Console.Write(Math.Truncate(1000d * confusionMatrix[i][j] / (double)rowSums[i]) / 1000d);
+                    }
+                    else
+                        Console.Write(confusionMatrix[i][j]);
                 }
                 Console.WriteLine();
             }
+            Console.WriteLine("Classifier Accuracy :" + diagSum / (double)totalSum);
+            return diagSum / (double)totalSum;
         }
         public void StoreToFile(string outJsonPath)
         {
@@ -768,17 +805,9 @@ namespace ClassifierForClusters
             writer.Write("," + classesString.Substring(1));
             writer.Close();*/
         }
-        /// <summary>
-        /// Calculates the K-fold cross validation - expects the data to be ordered randomly
-        /// </summary>
-        /// <param name="kFoldCount"></param>
-        /// <param name="EpochSize"></param>
-        /// <param name="learnJsonPath"></param>
-        /// <param name="ValidFields"></param>
-        /// <param name="successThreshold"></param>
-        /// <returns></returns>
-        public double[] CrossValidate(int kFoldCount, string learnJsonPath, int seed, int learnIterationsCount = 1)
+        public double[] CrossValidate(int kFoldCount, string learnJsonPath, string configPath, int seed, int learnIterationsCount = 1)
         {
+            ConfigureParams(new string[] { configPath, learnJsonPath });
             double[] accuracies = new double[kFoldCount];
             var originInterval = TrainProportion;
             NNInputProcessor preprocessor = new NNInputProcessor();
@@ -797,19 +826,29 @@ namespace ClassifierForClusters
              bool done = false;
             for (int i = 0; i < kFoldCount; i++)
             {
-                int[] currentTrainIndices = new int[(trainIndices.Length * (kFoldCount - 1)) / kFoldCount];
+                int[] currentTrainIndices = new int[splitTrainIndices[0].Length * (kFoldCount - 1)];
+                int diffIndex = 0;
                 for (int j = 0; j < kFoldCount; j++)
                 {
                     if (j != i)
-                        splitTrainIndices[j].CopyTo(currentTrainIndices, j * trainIndices.Length / kFoldCount);
+                    {
+                        splitTrainIndices[j].CopyTo(currentTrainIndices, (j - diffIndex) * splitTrainIndices[0].Length);
+                    
+                    }
+                    else 
+                    {
+                        diffIndex = 1;
+                    }
                 }
+                currentTrainIndices.Sort();
                 for (int learnIteration = 0; learnIteration < learnIterationsCount; learnIteration++)
-                {                   
-                    Learn(learnJsonPath, 1, ref done, eval: false, currentTrainIndices, seed);
-                }               
-                accuracies[i] = Eval(learnJsonPath, 1, splitTrainIndices[i]);
+                {
+                    Learn(learnJsonPath, 1, ref done, eval: false, currentTrainIndices, seed: seed);
+                }
+                accuracies[i] = Eval(learnJsonPath, 1, splitTrainIndices[i].Sorted());
                 Network.Randomize();
             }
+            
             TrainProportion = originInterval;
             return accuracies;
         }
@@ -849,14 +888,114 @@ namespace ClassifierForClusters
 
             var resultVector = Network.Compute(orderedVector.ToArray());
 
-            const double epsilonConfidence = 0.05;
+            const double epsilonConfidence = 0.01;
 
             var classPrediction = new ClassPrediction(resultVector, OutputClasses);
             if (classPrediction.CalcConfidence() < epsilonConfidence)
                 classPrediction.MostProbableClassName = unclassified;
             return classPrediction;
         }
-        
+        public Dictionary<string, int> ClassifyCollection(string inputPath, ClassifiactionOutputType outputType = ClassifiactionOutputType.PrintClasses)
+        {
+            const string unclassified = "unclassified";
+            const string special = "__special";
+            var classHistogram = new Dictionary<string, int>();
+            var classStreams = new Dictionary<string, JSONDecriptionWriter>();
+            if (outputType != ClassifiactionOutputType.Histogram)
+            {
+                for (int i = 0; i < OutputClasses.Length; i++)
+                {
+                    classStreams.Add(OutputClasses[i], new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + OutputClasses[i] + ".json")));
+                }
+                classStreams.Add(unclassified, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + unclassified + ".json")));
+            }
+            JSONDecriptionWriter specialsWriter = null;
+            if (outputType != ClassifiactionOutputType.PrintClassesAndSpecials)
+            {
+                specialsWriter = new JSONDecriptionWriter(new StreamWriter(inputPath + special + ".json"));
+            }
+            for (int i = 0; i < OutputClasses.Length; i++)
+            {
+                classHistogram.Add(OutputClasses[i], 0);
+            }
+
+            classHistogram.Add(unclassified, 0);
+            StreamReader inputStream = new StreamReader(inputPath);
+            var jsonStream = new JsonTextReader(inputStream);
+            NNInputProcessor preprocessor = new NNInputProcessor();
+            long processedCount = 0;
+            var _inputVector = preprocessor.ReadWholeJsonToVector(jsonStream, ValidFields, processedCount, out string _wholeRecord);
+            while (inputStream.Peek() != -1 && inputStream.BaseStream.Position < inputStream.BaseStream.Length)
+            {
+                var inputVector = preprocessor.ReadWholeJsonToVector(jsonStream, ValidFields, processedCount, out string wholeRecord);
+                var predictedClass = Classify(inputVector).MostProbableClassName;
+                if (outputType != ClassifiactionOutputType.Histogram)
+                    classStreams[predictedClass].Write(wholeRecord);
+                classHistogram[predictedClass]++;
+                processedCount++;
+                if (predictedClass == unclassified && outputType == ClassifiactionOutputType.PrintClassesAndSpecials)
+                    CheckSpecialClusters(inputVector, wholeRecord, specialsWriter, processedCount);
+            }
+            specialsWriter.Close();
+            if (outputType != ClassifiactionOutputType.Histogram)
+            {
+                foreach (var outputStreamPair in classStreams)
+                {
+                    outputStreamPair.Value.Close();
+                }
+            }
+            return classHistogram;
+        }
+        public virtual void CheckSpecialClusters(Dictionary<ClusterAttribute, double> inputPairs, string wholeRecord, JSONDecriptionWriter writer, long processedCount)
+        {
+            const int lowestPixCount = 100;
+            const int lowestBranchCount = 5;
+            if ((int)inputPairs[ClusterAttribute.PixelCount] > lowestPixCount)
+                if ((int)inputPairs[ClusterAttribute.BranchCount] > lowestBranchCount)
+                {
+                    var attributePairs = new Dictionary<ClusterAttribute, object>();
+                    IList<ClusterAttribute> attributesToGet = new List<ClusterAttribute>();
+                    writer.Write(wholeRecord);
+                }
+
+        }
+        public double TestModel(string testInputPath)
+        {
+
+            int[][] ConfusionMatrix = ConfusionMatrix = new int[OutputClasses.Length + 1][];
+            for (int i = 0; i < OutputClasses.Length + 1; i++)
+            {
+                ConfusionMatrix[i] = new int[OutputClasses.Length + 1];
+            }
+            StreamReader inputStream = new StreamReader(testInputPath);
+            var jsonStream = new JsonTextReader(inputStream);
+            NNInputProcessor preprocessor = new NNInputProcessor();
+            var _inputVector = preprocessor.ReadTrainJsonToVector(jsonStream, ValidFields, OutputClasses, out int _classIndex);
+            int[] classesCounts = new int[OutputClasses.Length];
+            int c = 0;
+            while (inputStream.Peek() != -1 && inputStream.BaseStream.Position < 1 * inputStream.BaseStream.Length)
+            {
+                var inputVector = preprocessor.ReadTrainJsonToVector(jsonStream, ValidFields, OutputClasses, out int classIndex);
+                if (inputVector == null)
+                    break;
+                if (classIndex == 1)
+                { 
+                }
+                var resultClass = Classify(inputVector).MostProbableClassName;
+                if (true)
+                {
+                    if (resultClass == "unclassified")
+                        ConfusionMatrix[classIndex][OutputClasses.Length]++;
+                    else
+                        ConfusionMatrix[classIndex][OutputClasses.IndexOf(resultClass)]++;
+                    classesCounts[classIndex]++;
+                    c++;
+                }
+
+            }
+  
+            return PrintConfusionMatrix(ConfusionMatrix);
+        }
 
     }
     [Serializable]
@@ -935,7 +1074,6 @@ namespace ClassifierForClusters
     [Serializable]
     public class MultiLayeredClassifier : IClassifier
     {
-        SupportVectorMachine<Gaussian> Svm { get; set; }
         public virtual ClusterAttribute[] ValidFields { get; set; } 
         public virtual string[] OutputClasses { get; set; }
         public ClassifierRoot<IClassifier> ClassifierTree { get; set; }
@@ -973,7 +1111,7 @@ namespace ClassifierForClusters
             OutputClasses = ClassifierTree.GetAllOuputClasses();
             ValidFields = ClassifierTree.GetAllUsedAttributes();
         }
-        public void FromDefault()
+        public void FromDefault(int? seed = null)
         {
             const string modelLead = "../../trained_models/trainLeadNew.json_trained_0.994.csf";
             const string modelFrag = "../../trained_models/trainFragHeFeNew.json_trained_0.961.csf";
@@ -981,20 +1119,45 @@ namespace ClassifierForClusters
             const string modelElMuPi = "../../trained_models/trainElMuPi.json_trained_0.801.csf";
 
             var leadNN = new NNClassifier();
-            leadNN.LoadFromFile(modelLead);
             var fragHeFeNN = new NNClassifier();
-            fragHeFeNN.LoadFromFile(modelFrag);
             var prLeNN = new NNClassifier();
-            prLeNN.LoadFromFile(modelPrLe);
             var elMuPiNN = new NNClassifier();
-            elMuPiNN.LoadFromFile(modelElMuPi);
+            bool stopped = false;
+            if (!seed.HasValue)
+            {
+                //loading existing models
+                leadNN.LoadFromFile(modelLead);
+                fragHeFeNN.LoadFromFile(modelFrag);
+                prLeNN.LoadFromFile(modelPrLe);
+                elMuPiNN.LoadFromFile(modelElMuPi);
+            }
+            else 
+            {
+                //training new models
+                const string dataLead = "../../train_data/trainLeadNew.json";
+                const string dataFrag = "../../train_data/trainFragHeFeNew.json";
+                const string dataPrLe = "../../train_data/trainPrLe_ElMuPi.json";
+                const string dataElMuPi = "../../train_data/trainElMuPi.json";
+                const string leadConfig = "../../train_data/LeadNetworkConfig.json";
+                const string fragHeFeConfig = "../../train_data/FragHeFeNetworkConfig.json";
+                const string prLeConfig = "../../train_data/PrLeNetworkConfig.json";
+                const string elMuPiConfig = "../../train_data/ElMuPiNetworkConfig.json";
+                leadNN.Train(leadConfig, dataLead, ref stopped, 1 , seed.Value);
+                leadNN.Learn( dataLead, 1, ref stopped, seed: seed.Value);
+                fragHeFeNN.Train(fragHeFeConfig,dataFrag, ref stopped, 1, seed.Value);
+                for(int i = 0; i < 4; i++)
+                    fragHeFeNN.Learn(dataFrag, 1, ref stopped,seed : seed.Value);
+                prLeNN.Train(prLeConfig, dataPrLe, ref stopped, 1, seed.Value);
+                
+                elMuPiNN.Train(elMuPiConfig, dataElMuPi, ref stopped, 1, seed.Value);
+                elMuPiNN.Learn(dataElMuPi, 1, ref stopped, seed: seed.Value);
 
+
+            }
             ClassifierNode<IClassifier> elMuPiNode = new ClassifierNode<IClassifier>(elMuPiNN);
             ClassifierNode<IClassifier> prLeNode = new ClassifierNode<IClassifier>(prLeNN);
             ClassifierNode<IClassifier> fragHeFeNode = new ClassifierNode<IClassifier>(fragHeFeNN);
             ClassifierRoot<IClassifier> leadNode = new ClassifierRoot<IClassifier>(leadNN);
-
-
             prLeNode.Descendants.Add("elMuPi", elMuPiNode);
             fragHeFeNode.Descendants.Add("other", prLeNode);
             leadNode.Descendants.Add("frag", fragHeFeNode);
@@ -1053,9 +1216,11 @@ namespace ClassifierForClusters
             var _inputVector = preprocessor.ReadTrainJsonToVector(jsonStream, ValidFields, OutputClasses, out int _classIndex);
             int[] classesCounts = new int[OutputClasses.Length];
             int c = 0;
-            while (inputStream.Peek() != -1 && inputStream.BaseStream.Position < 1 * inputStream.BaseStream.Length/* && c < 3000*/)
+            while (inputStream.Peek() != -1 && inputStream.BaseStream.Position < 1 * inputStream.BaseStream.Length)
             {
                 var inputVector = preprocessor.ReadTrainJsonToVector(jsonStream, ValidFields, OutputClasses, out int classIndex);
+                if (inputVector == null)
+                    break;
                 var resultClass = Classify(inputVector).MostProbableClassName;
                 if (true)
                 {
@@ -1068,31 +1233,81 @@ namespace ClassifierForClusters
                 }
 
             }
-            var rowSums = ConfusionMatrix.Select(x => x.Sum()).ToArray();
+            return PrintConfMatrix(ConfusionMatrix);
+        }
+        public double PrintConfMatrix(int[][] confusionMatrix, bool normalized = true)
+        {
+            const string unclassified = "unclassified";
+            Console.Write("Tru\\Pre");
+            var rowSums = confusionMatrix.Select(x => x.Sum()).ToArray();
             double totalSum = 0;
             double diagSum = 0;
-            for (int j = 0; j < OutputClasses.Length; j++)
+            for (int j= 0; j < confusionMatrix.Length; j++)
             {
-
-                for (int k = 0; k < OutputClasses.Length; k++)
+                for (int k = 0; k < confusionMatrix.Length; k++)
                 {
-                    Console.Write(Math.Truncate(1000d * ConfusionMatrix[j][k] / (double)rowSums[j]) / 10d);
-                    Console.Write("\t");
-                    totalSum += ConfusionMatrix[j][k]/(double)rowSums[j];
+                    double value = 0;
+                    if (normalized)
+                        value = confusionMatrix[j][k] / (double)rowSums[j];
+                    if (normalized)
+                    {
+                        if (rowSums[j] == 0)
+                            value = 0;
+                        else
+                            value =  confusionMatrix[j][k] / (double)rowSums[j];
+                    }
+                    else
+                        value = confusionMatrix[j][k];
+                    totalSum += value;
                     if (j == k)
-                        diagSum += ConfusionMatrix[j][k]/(double)rowSums[j];
+                        diagSum += value;
 
 
                 }
+            }
+            for (int i = 0; i<confusionMatrix.Length; i++)
+            {
+                Console.Write("\t");
+
+                if (i<confusionMatrix.Length - 1)
+                {
+                    string className =  OutputClasses[i];
+                    Console.Write(className.Substring(0, Math.Min(4, className.Length)));
+                }
+                else
+                    Console.WriteLine(unclassified.Substring(0, 4));
+            }
+            for (int i = 0; i < confusionMatrix.Length; i++)
+            {
+                if (i < confusionMatrix.Length - 1)
+                {
+                    string className = OutputClasses[i];
+                    Console.Write(className.Substring(0, Math.Min(4, className.Length)));
+                }
+                else
+                    Console.Write(unclassified.Substring(0, 4));
+                for (int j = 0; j < confusionMatrix.Length; j++)
+                {
+                    Console.Write("\t");
+                    if (normalized)
+                    {
+                        if (rowSums[i] == 0)
+                            Console.Write(0);
+                        else
+                            Console.Write(Math.Truncate(1000d * confusionMatrix[i][j] / (double)rowSums[i]) / 1000d);
+                    }
+                    else
+                        Console.Write(confusionMatrix[i][j]);
+                }
                 Console.WriteLine();
             }
-            var successRate = diagSum / (double)totalSum;
-            return successRate;
+            Console.WriteLine("Classifier Accuracy :" + diagSum / (double)totalSum);
+            return diagSum / (double)totalSum;
         }
         public virtual ClassPrediction Classify(Dictionary<ClusterAttribute, double> inputVector)
         {
             const string unclassified = "unclassified";
-            const double epsilonConfidence = 0.02;
+            const double epsilonConfidence = 0.01;
 
             var treePrediction = ClassifierTree.Classify(inputVector);
 
@@ -1176,19 +1391,74 @@ namespace ClassifierForClusters
     }
     class Program
     {
-        //using the default classifier 
+        static void FilterData()
+        {
+            const string testInputPath = "D:/source/repos/Celko2020/ClassificationExperiment/test_data/testCollection.json";
+            const string clas = "D:/source/repos/Celko 2020 Example data/trained_models/bestClassifier.csf";
+            StreamReader inputStream = new StreamReader(testInputPath);
+            var jsonStream = new JsonTextReader(inputStream);
+            NNInputProcessor preprocessor = new NNInputProcessor();
+            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
+            StreamWriter writer = new StreamWriter("testFrag.json");
+            classifier.LoadFromFile(clas);
+            var _inputVector = preprocessor.ReadTrainJsonToVector(jsonStream, classifier.ValidFields, classifier.OutputClasses, out int _classIndex);
+            writer.WriteLine('[');
+            int origId = 1;
+            int newId = 1;
+            while (inputStream.Peek() != -1 && inputStream.BaseStream.Position < 1 * inputStream.BaseStream.Length)
+            {
+                var inputVector = preprocessor.ReadWholeJsonToVector(jsonStream, classifier.ValidFields, 0, out string wholeRecord);
+                if (!wholeRecord.Contains("lead"))
+                {
+                    wholeRecord = wholeRecord.Replace($"\"id\": {origId}", $"\"id\": {newId}");
+                    if (wholeRecord.Contains("frag") || wholeRecord.Contains("he") || wholeRecord.Contains("fe"))
+                        writer.Write(wholeRecord);
+                    else
+                    {
+                        if (wholeRecord.Contains("electron"))
+                            writer.Write(wholeRecord.Replace("electron", "other"));
+                        if (wholeRecord.Contains("pion"))
+                            writer.Write(wholeRecord.Replace("pion", "other"));
+                        if (wholeRecord.Contains("proton"))
+                            writer.Write(wholeRecord.Replace("proton", "other"));
+                        if (wholeRecord.Contains("low_electr"))
+                            writer.Write(wholeRecord.Replace("low_electr", "other"));
+                        if (wholeRecord.Contains("elPi0"))
+                            writer.Write(wholeRecord.Replace("elPi0", "other"));
+                        if(wholeRecord.Contains("muon"))
+                            writer.Write(wholeRecord.Replace("muon", "other"));
+                    }
+                    newId++;
+                    writer.WriteLine(',');
+                }
+                origId++;
+            }
+            writer.WriteLine(']');
+
+            writer.Close();
+        }
         static void Main(string[] args)
         {
             args = new string[] { "program", "D:/source/repos/Celko 2020 Example data/trained_models/bestClassifier.csf",
-                "D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/etstNoBackSlash.json", "--classes" };
+                "D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/etstNoBackSlash.json", "--classes"  };
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
             const string distrOption = "--distr";     
             const string printClassesOption = "--classes";
             const string printClassesAndSpecialsOption = "--specials";
-            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
-
-
-             if (args.Contains(distrOption))
+            const string simpleOption = "--simple";
+            const string multiOption = "--multi";
+            IClassifier classifier;
+            if(args.Contains(multiOption))
+            { 
+                classifier = new MultiLayeredClassifier();
+            classifier.LoadFromFile(args[1]);
+            }
+            else
+            {
+                classifier = new NNClassifier();
+                classifier.LoadFromFile(args[1]);
+            }
+            if (args.Contains(distrOption))
             {
                 classifier.LoadFromFile(args[1]);
                 var histo = classifier.ClassifyCollection(args[2], ClassifiactionOutputType.Histogram);
@@ -1207,7 +1477,7 @@ namespace ClassifierForClusters
 
         }
         
-}
+    }
     static class DictionaryExtensions
     {
         public static Dictionary<TKey, object> ToObjectDictionary<TKey, TValue>(this Dictionary<TKey, TValue> origDict)

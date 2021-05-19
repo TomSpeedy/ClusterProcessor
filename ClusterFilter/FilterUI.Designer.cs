@@ -30,6 +30,21 @@
         {
             this.FilterButton = new System.Windows.Forms.Button();
             this.FilterGroup = new System.Windows.Forms.GroupBox();
+            this.ToWidthTextBox = new System.Windows.Forms.TextBox();
+            this.FromWidthTextBox = new System.Windows.Forms.TextBox();
+            this.ToWidthCount = new System.Windows.Forms.Label();
+            this.FromWidthLabel = new System.Windows.Forms.Label();
+            this.ToBranchCountTextBox = new System.Windows.Forms.TextBox();
+            this.FromBranchCountTextBox = new System.Windows.Forms.TextBox();
+            this.ToBranchCountLabel = new System.Windows.Forms.Label();
+            this.FromBranchCountLabel = new System.Windows.Forms.Label();
+            this.ToMaxEnergyTextBox = new System.Windows.Forms.TextBox();
+            this.FromMaxEnergyTextBox = new System.Windows.Forms.TextBox();
+            this.ToMaxEnergyLabel = new System.Windows.Forms.Label();
+            this.FromMaxEnergyLabel = new System.Windows.Forms.Label();
+            this.WidthLabel = new System.Windows.Forms.Label();
+            this.BranchCountLabel = new System.Windows.Forms.Label();
+            this.MaxEnergyLabel = new System.Windows.Forms.Label();
             this.ConvexitySkeletFilterCheckBox = new System.Windows.Forms.CheckBox();
             this.ToLinearityTextBox = new System.Windows.Forms.TextBox();
             this.FromLinearityTextBox = new System.Windows.Forms.TextBox();
@@ -56,21 +71,11 @@
             this.ViewClusters = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.MainGroupBox = new System.Windows.Forms.GroupBox();
-            this.MaxEnergyLabel = new System.Windows.Forms.Label();
-            this.BranchCountLabel = new System.Windows.Forms.Label();
-            this.WidthLabel = new System.Windows.Forms.Label();
-            this.ToMaxEnergyTextBox = new System.Windows.Forms.TextBox();
-            this.FromMaxEnergyTextBox = new System.Windows.Forms.TextBox();
-            this.ToMaxEnergyLabel = new System.Windows.Forms.Label();
-            this.FromMaxEnergyLabel = new System.Windows.Forms.Label();
-            this.ToBranchCountTextBox = new System.Windows.Forms.TextBox();
-            this.FromBranchCountTextBox = new System.Windows.Forms.TextBox();
-            this.ToBranchCountLabel = new System.Windows.Forms.Label();
-            this.FromBranchCountLabel = new System.Windows.Forms.Label();
-            this.ToWidthTextBox = new System.Windows.Forms.TextBox();
-            this.FromWidthTextBox = new System.Windows.Forms.TextBox();
-            this.ToWidthCount = new System.Windows.Forms.Label();
-            this.FromWidthLabel = new System.Windows.Forms.Label();
+            this.VertexCountLabel = new System.Windows.Forms.Label();
+            this.ToVertexCountTextBox = new System.Windows.Forms.TextBox();
+            this.ToVertexCountLabel = new System.Windows.Forms.Label();
+            this.FromVertexCountLabel = new System.Windows.Forms.Label();
+            this.FromVertexCountTextBox = new System.Windows.Forms.TextBox();
             this.FilterGroup.SuspendLayout();
             this.InputFileGroup.SuspendLayout();
             this.MainGroupBox.SuspendLayout();
@@ -78,7 +83,7 @@
             // 
             // FilterButton
             // 
-            this.FilterButton.Location = new System.Drawing.Point(21, 411);
+            this.FilterButton.Location = new System.Drawing.Point(16, 425);
             this.FilterButton.Margin = new System.Windows.Forms.Padding(2);
             this.FilterButton.Name = "FilterButton";
             this.FilterButton.Size = new System.Drawing.Size(104, 42);
@@ -89,6 +94,11 @@
             // 
             // FilterGroup
             // 
+            this.FilterGroup.Controls.Add(this.ToVertexCountTextBox);
+            this.FilterGroup.Controls.Add(this.ToVertexCountLabel);
+            this.FilterGroup.Controls.Add(this.FromVertexCountLabel);
+            this.FilterGroup.Controls.Add(this.FromVertexCountTextBox);
+            this.FilterGroup.Controls.Add(this.VertexCountLabel);
             this.FilterGroup.Controls.Add(this.ToWidthTextBox);
             this.FilterGroup.Controls.Add(this.FromWidthTextBox);
             this.FilterGroup.Controls.Add(this.ToWidthCount);
@@ -124,15 +134,156 @@
             this.FilterGroup.Margin = new System.Windows.Forms.Padding(2);
             this.FilterGroup.Name = "FilterGroup";
             this.FilterGroup.Padding = new System.Windows.Forms.Padding(2);
-            this.FilterGroup.Size = new System.Drawing.Size(387, 255);
+            this.FilterGroup.Size = new System.Drawing.Size(387, 278);
             this.FilterGroup.TabIndex = 6;
             this.FilterGroup.TabStop = false;
             this.FilterGroup.Text = "Select filters";
             // 
+            // ToWidthTextBox
+            // 
+            this.ToWidthTextBox.Location = new System.Drawing.Point(317, 213);
+            this.ToWidthTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.ToWidthTextBox.Name = "ToWidthTextBox";
+            this.ToWidthTextBox.Size = new System.Drawing.Size(57, 21);
+            this.ToWidthTextBox.TabIndex = 35;
+            // 
+            // FromWidthTextBox
+            // 
+            this.FromWidthTextBox.Location = new System.Drawing.Point(207, 217);
+            this.FromWidthTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.FromWidthTextBox.Name = "FromWidthTextBox";
+            this.FromWidthTextBox.Size = new System.Drawing.Size(57, 21);
+            this.FromWidthTextBox.TabIndex = 34;
+            // 
+            // ToWidthCount
+            // 
+            this.ToWidthCount.AutoSize = true;
+            this.ToWidthCount.Location = new System.Drawing.Point(278, 220);
+            this.ToWidthCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.ToWidthCount.Name = "ToWidthCount";
+            this.ToWidthCount.Size = new System.Drawing.Size(24, 15);
+            this.ToWidthCount.TabIndex = 33;
+            this.ToWidthCount.Text = "To:";
+            // 
+            // FromWidthLabel
+            // 
+            this.FromWidthLabel.AutoSize = true;
+            this.FromWidthLabel.Location = new System.Drawing.Point(163, 220);
+            this.FromWidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.FromWidthLabel.Name = "FromWidthLabel";
+            this.FromWidthLabel.Size = new System.Drawing.Size(39, 15);
+            this.FromWidthLabel.TabIndex = 32;
+            this.FromWidthLabel.Text = "From:";
+            // 
+            // ToBranchCountTextBox
+            // 
+            this.ToBranchCountTextBox.Location = new System.Drawing.Point(317, 247);
+            this.ToBranchCountTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.ToBranchCountTextBox.Name = "ToBranchCountTextBox";
+            this.ToBranchCountTextBox.Size = new System.Drawing.Size(57, 21);
+            this.ToBranchCountTextBox.TabIndex = 31;
+            // 
+            // FromBranchCountTextBox
+            // 
+            this.FromBranchCountTextBox.Location = new System.Drawing.Point(207, 247);
+            this.FromBranchCountTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.FromBranchCountTextBox.Name = "FromBranchCountTextBox";
+            this.FromBranchCountTextBox.Size = new System.Drawing.Size(57, 21);
+            this.FromBranchCountTextBox.TabIndex = 30;
+            // 
+            // ToBranchCountLabel
+            // 
+            this.ToBranchCountLabel.AutoSize = true;
+            this.ToBranchCountLabel.Location = new System.Drawing.Point(275, 251);
+            this.ToBranchCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.ToBranchCountLabel.Name = "ToBranchCountLabel";
+            this.ToBranchCountLabel.Size = new System.Drawing.Size(24, 15);
+            this.ToBranchCountLabel.TabIndex = 29;
+            this.ToBranchCountLabel.Text = "To:";
+            // 
+            // FromBranchCountLabel
+            // 
+            this.FromBranchCountLabel.AutoSize = true;
+            this.FromBranchCountLabel.Location = new System.Drawing.Point(160, 251);
+            this.FromBranchCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.FromBranchCountLabel.Name = "FromBranchCountLabel";
+            this.FromBranchCountLabel.Size = new System.Drawing.Size(39, 15);
+            this.FromBranchCountLabel.TabIndex = 28;
+            this.FromBranchCountLabel.Text = "From:";
+            // 
+            // ToMaxEnergyTextBox
+            // 
+            this.ToMaxEnergyTextBox.Location = new System.Drawing.Point(317, 65);
+            this.ToMaxEnergyTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.ToMaxEnergyTextBox.Name = "ToMaxEnergyTextBox";
+            this.ToMaxEnergyTextBox.Size = new System.Drawing.Size(57, 21);
+            this.ToMaxEnergyTextBox.TabIndex = 27;
+            // 
+            // FromMaxEnergyTextBox
+            // 
+            this.FromMaxEnergyTextBox.Location = new System.Drawing.Point(207, 68);
+            this.FromMaxEnergyTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.FromMaxEnergyTextBox.Name = "FromMaxEnergyTextBox";
+            this.FromMaxEnergyTextBox.Size = new System.Drawing.Size(57, 21);
+            this.FromMaxEnergyTextBox.TabIndex = 26;
+            // 
+            // ToMaxEnergyLabel
+            // 
+            this.ToMaxEnergyLabel.AutoSize = true;
+            this.ToMaxEnergyLabel.Location = new System.Drawing.Point(275, 71);
+            this.ToMaxEnergyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.ToMaxEnergyLabel.Name = "ToMaxEnergyLabel";
+            this.ToMaxEnergyLabel.Size = new System.Drawing.Size(24, 15);
+            this.ToMaxEnergyLabel.TabIndex = 25;
+            this.ToMaxEnergyLabel.Text = "To:";
+            // 
+            // FromMaxEnergyLabel
+            // 
+            this.FromMaxEnergyLabel.AutoSize = true;
+            this.FromMaxEnergyLabel.Location = new System.Drawing.Point(161, 71);
+            this.FromMaxEnergyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.FromMaxEnergyLabel.Name = "FromMaxEnergyLabel";
+            this.FromMaxEnergyLabel.Size = new System.Drawing.Size(39, 15);
+            this.FromMaxEnergyLabel.TabIndex = 24;
+            this.FromMaxEnergyLabel.Text = "From:";
+            // 
+            // WidthLabel
+            // 
+            this.WidthLabel.AutoSize = true;
+            this.WidthLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.WidthLabel.Location = new System.Drawing.Point(8, 217);
+            this.WidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.WidthLabel.Name = "WidthLabel";
+            this.WidthLabel.Size = new System.Drawing.Size(49, 17);
+            this.WidthLabel.TabIndex = 20;
+            this.WidthLabel.Text = "Width";
+            // 
+            // BranchCountLabel
+            // 
+            this.BranchCountLabel.AutoSize = true;
+            this.BranchCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.BranchCountLabel.Location = new System.Drawing.Point(8, 247);
+            this.BranchCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.BranchCountLabel.Name = "BranchCountLabel";
+            this.BranchCountLabel.Size = new System.Drawing.Size(101, 17);
+            this.BranchCountLabel.TabIndex = 19;
+            this.BranchCountLabel.Text = "BranchCount";
+            // 
+            // MaxEnergyLabel
+            // 
+            this.MaxEnergyLabel.AutoSize = true;
+            this.MaxEnergyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.MaxEnergyLabel.Location = new System.Drawing.Point(7, 70);
+            this.MaxEnergyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.MaxEnergyLabel.Name = "MaxEnergyLabel";
+            this.MaxEnergyLabel.Size = new System.Drawing.Size(87, 17);
+            this.MaxEnergyLabel.TabIndex = 18;
+            this.MaxEnergyLabel.Text = "MaxEnergy";
+            // 
             // ConvexitySkeletFilterCheckBox
             // 
             this.ConvexitySkeletFilterCheckBox.AutoSize = true;
-            this.ConvexitySkeletFilterCheckBox.Location = new System.Drawing.Point(85, 125);
+            this.ConvexitySkeletFilterCheckBox.Location = new System.Drawing.Point(92, 196);
             this.ConvexitySkeletFilterCheckBox.Name = "ConvexitySkeletFilterCheckBox";
             this.ConvexitySkeletFilterCheckBox.Size = new System.Drawing.Size(172, 19);
             this.ConvexitySkeletFilterCheckBox.TabIndex = 17;
@@ -141,7 +292,7 @@
             // 
             // ToLinearityTextBox
             // 
-            this.ToLinearityTextBox.Location = new System.Drawing.Point(316, 103);
+            this.ToLinearityTextBox.Location = new System.Drawing.Point(317, 175);
             this.ToLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToLinearityTextBox.Name = "ToLinearityTextBox";
             this.ToLinearityTextBox.Size = new System.Drawing.Size(57, 21);
@@ -149,7 +300,7 @@
             // 
             // FromLinearityTextBox
             // 
-            this.FromLinearityTextBox.Location = new System.Drawing.Point(207, 104);
+            this.FromLinearityTextBox.Location = new System.Drawing.Point(207, 175);
             this.FromLinearityTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.FromLinearityTextBox.Name = "FromLinearityTextBox";
             this.FromLinearityTextBox.Size = new System.Drawing.Size(57, 21);
@@ -158,7 +309,7 @@
             // ToConvexityClabel
             // 
             this.ToConvexityClabel.AutoSize = true;
-            this.ToConvexityClabel.Location = new System.Drawing.Point(279, 107);
+            this.ToConvexityClabel.Location = new System.Drawing.Point(276, 181);
             this.ToConvexityClabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ToConvexityClabel.Name = "ToConvexityClabel";
             this.ToConvexityClabel.Size = new System.Drawing.Size(24, 15);
@@ -168,7 +319,7 @@
             // FromLinearityLabel
             // 
             this.FromLinearityLabel.AutoSize = true;
-            this.FromLinearityLabel.Location = new System.Drawing.Point(163, 110);
+            this.FromLinearityLabel.Location = new System.Drawing.Point(160, 183);
             this.FromLinearityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.FromLinearityLabel.Name = "FromLinearityLabel";
             this.FromLinearityLabel.Size = new System.Drawing.Size(39, 15);
@@ -179,7 +330,7 @@
             // 
             this.ConvexityLabel.AutoSize = true;
             this.ConvexityLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.ConvexityLabel.Location = new System.Drawing.Point(7, 103);
+            this.ConvexityLabel.Location = new System.Drawing.Point(8, 177);
             this.ConvexityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ConvexityLabel.Name = "ConvexityLabel";
             this.ConvexityLabel.Size = new System.Drawing.Size(89, 17);
@@ -190,7 +341,7 @@
             // 
             this.PixCountLabel.AutoSize = true;
             this.PixCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.PixCountLabel.Location = new System.Drawing.Point(6, 70);
+            this.PixCountLabel.Location = new System.Drawing.Point(7, 103);
             this.PixCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.PixCountLabel.Name = "PixCountLabel";
             this.PixCountLabel.Size = new System.Drawing.Size(84, 17);
@@ -210,7 +361,7 @@
             // 
             // ToPixCountFilterBox
             // 
-            this.ToPixCountFilterBox.Location = new System.Drawing.Point(316, 70);
+            this.ToPixCountFilterBox.Location = new System.Drawing.Point(317, 102);
             this.ToPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToPixCountFilterBox.Name = "ToPixCountFilterBox";
             this.ToPixCountFilterBox.Size = new System.Drawing.Size(57, 21);
@@ -219,7 +370,7 @@
             // ToPixCountLabel
             // 
             this.ToPixCountLabel.AutoSize = true;
-            this.ToPixCountLabel.Location = new System.Drawing.Point(278, 73);
+            this.ToPixCountLabel.Location = new System.Drawing.Point(274, 105);
             this.ToPixCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ToPixCountLabel.Name = "ToPixCountLabel";
             this.ToPixCountLabel.Size = new System.Drawing.Size(24, 15);
@@ -229,7 +380,7 @@
             // FromPixCountLabel
             // 
             this.FromPixCountLabel.AutoSize = true;
-            this.FromPixCountLabel.Location = new System.Drawing.Point(163, 73);
+            this.FromPixCountLabel.Location = new System.Drawing.Point(159, 104);
             this.FromPixCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.FromPixCountLabel.Name = "FromPixCountLabel";
             this.FromPixCountLabel.Size = new System.Drawing.Size(39, 15);
@@ -238,7 +389,7 @@
             // 
             // FromPixCountFilterBox
             // 
-            this.FromPixCountFilterBox.Location = new System.Drawing.Point(207, 73);
+            this.FromPixCountFilterBox.Location = new System.Drawing.Point(207, 101);
             this.FromPixCountFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.FromPixCountFilterBox.Name = "FromPixCountFilterBox";
             this.FromPixCountFilterBox.Size = new System.Drawing.Size(57, 21);
@@ -266,7 +417,7 @@
             // 
             // ToEnergyFilterBox
             // 
-            this.ToEnergyFilterBox.Location = new System.Drawing.Point(316, 35);
+            this.ToEnergyFilterBox.Location = new System.Drawing.Point(317, 31);
             this.ToEnergyFilterBox.Margin = new System.Windows.Forms.Padding(2);
             this.ToEnergyFilterBox.Name = "ToEnergyFilterBox";
             this.ToEnergyFilterBox.Size = new System.Drawing.Size(57, 21);
@@ -380,146 +531,52 @@
             this.MainGroupBox.TabStop = false;
             this.MainGroupBox.Text = "Filterer";
             // 
-            // MaxEnergyLabel
+            // VertexCountLabel
             // 
-            this.MaxEnergyLabel.AutoSize = true;
-            this.MaxEnergyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.MaxEnergyLabel.Location = new System.Drawing.Point(7, 153);
-            this.MaxEnergyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.MaxEnergyLabel.Name = "MaxEnergyLabel";
-            this.MaxEnergyLabel.Size = new System.Drawing.Size(87, 17);
-            this.MaxEnergyLabel.TabIndex = 18;
-            this.MaxEnergyLabel.Text = "MaxEnergy";
+            this.VertexCountLabel.AutoSize = true;
+            this.VertexCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.VertexCountLabel.Location = new System.Drawing.Point(8, 145);
+            this.VertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.VertexCountLabel.Name = "VertexCountLabel";
+            this.VertexCountLabel.Size = new System.Drawing.Size(96, 17);
+            this.VertexCountLabel.TabIndex = 36;
+            this.VertexCountLabel.Text = "VertexCount";
             // 
-            // BranchCountLabel
+            // ToVertexCountTextBox
             // 
-            this.BranchCountLabel.AutoSize = true;
-            this.BranchCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.BranchCountLabel.Location = new System.Drawing.Point(7, 178);
-            this.BranchCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.BranchCountLabel.Name = "BranchCountLabel";
-            this.BranchCountLabel.Size = new System.Drawing.Size(101, 17);
-            this.BranchCountLabel.TabIndex = 19;
-            this.BranchCountLabel.Text = "BranchCount";
+            this.ToVertexCountTextBox.Location = new System.Drawing.Point(317, 143);
+            this.ToVertexCountTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.ToVertexCountTextBox.Name = "ToVertexCountTextBox";
+            this.ToVertexCountTextBox.Size = new System.Drawing.Size(57, 21);
+            this.ToVertexCountTextBox.TabIndex = 40;
             // 
-            // WidthLabel
+            // ToVertexCountLabel
             // 
-            this.WidthLabel.AutoSize = true;
-            this.WidthLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.WidthLabel.Location = new System.Drawing.Point(7, 205);
-            this.WidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.WidthLabel.Name = "WidthLabel";
-            this.WidthLabel.Size = new System.Drawing.Size(49, 17);
-            this.WidthLabel.TabIndex = 20;
-            this.WidthLabel.Text = "Width";
+            this.ToVertexCountLabel.AutoSize = true;
+            this.ToVertexCountLabel.Location = new System.Drawing.Point(278, 145);
+            this.ToVertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.ToVertexCountLabel.Name = "ToVertexCountLabel";
+            this.ToVertexCountLabel.Size = new System.Drawing.Size(24, 15);
+            this.ToVertexCountLabel.TabIndex = 39;
+            this.ToVertexCountLabel.Text = "To:";
             // 
-            // ToMaxEnergyTextBox
+            // FromVertexCountLabel
             // 
-            this.ToMaxEnergyTextBox.Location = new System.Drawing.Point(316, 149);
-            this.ToMaxEnergyTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.ToMaxEnergyTextBox.Name = "ToMaxEnergyTextBox";
-            this.ToMaxEnergyTextBox.Size = new System.Drawing.Size(57, 21);
-            this.ToMaxEnergyTextBox.TabIndex = 27;
+            this.FromVertexCountLabel.AutoSize = true;
+            this.FromVertexCountLabel.Location = new System.Drawing.Point(163, 144);
+            this.FromVertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.FromVertexCountLabel.Name = "FromVertexCountLabel";
+            this.FromVertexCountLabel.Size = new System.Drawing.Size(39, 15);
+            this.FromVertexCountLabel.TabIndex = 38;
+            this.FromVertexCountLabel.Text = "From:";
             // 
-            // FromMaxEnergyTextBox
+            // FromVertexCountTextBox
             // 
-            this.FromMaxEnergyTextBox.Location = new System.Drawing.Point(207, 149);
-            this.FromMaxEnergyTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.FromMaxEnergyTextBox.Name = "FromMaxEnergyTextBox";
-            this.FromMaxEnergyTextBox.Size = new System.Drawing.Size(57, 21);
-            this.FromMaxEnergyTextBox.TabIndex = 26;
-            // 
-            // ToMaxEnergyLabel
-            // 
-            this.ToMaxEnergyLabel.AutoSize = true;
-            this.ToMaxEnergyLabel.Location = new System.Drawing.Point(278, 152);
-            this.ToMaxEnergyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.ToMaxEnergyLabel.Name = "ToMaxEnergyLabel";
-            this.ToMaxEnergyLabel.Size = new System.Drawing.Size(24, 15);
-            this.ToMaxEnergyLabel.TabIndex = 25;
-            this.ToMaxEnergyLabel.Text = "To:";
-            // 
-            // FromMaxEnergyLabel
-            // 
-            this.FromMaxEnergyLabel.AutoSize = true;
-            this.FromMaxEnergyLabel.Location = new System.Drawing.Point(164, 149);
-            this.FromMaxEnergyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.FromMaxEnergyLabel.Name = "FromMaxEnergyLabel";
-            this.FromMaxEnergyLabel.Size = new System.Drawing.Size(39, 15);
-            this.FromMaxEnergyLabel.TabIndex = 24;
-            this.FromMaxEnergyLabel.Text = "From:";
-            // 
-            // ToBranchCountTextBox
-            // 
-            this.ToBranchCountTextBox.Location = new System.Drawing.Point(317, 175);
-            this.ToBranchCountTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.ToBranchCountTextBox.Name = "ToBranchCountTextBox";
-            this.ToBranchCountTextBox.Size = new System.Drawing.Size(57, 21);
-            this.ToBranchCountTextBox.TabIndex = 31;
-            // 
-            // FromBranchCountTextBox
-            // 
-            this.FromBranchCountTextBox.Location = new System.Drawing.Point(207, 174);
-            this.FromBranchCountTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.FromBranchCountTextBox.Name = "FromBranchCountTextBox";
-            this.FromBranchCountTextBox.Size = new System.Drawing.Size(57, 21);
-            this.FromBranchCountTextBox.TabIndex = 30;
-            // 
-            // ToBranchCountLabel
-            // 
-            this.ToBranchCountLabel.AutoSize = true;
-            this.ToBranchCountLabel.Location = new System.Drawing.Point(279, 178);
-            this.ToBranchCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.ToBranchCountLabel.Name = "ToBranchCountLabel";
-            this.ToBranchCountLabel.Size = new System.Drawing.Size(24, 15);
-            this.ToBranchCountLabel.TabIndex = 29;
-            this.ToBranchCountLabel.Text = "To:";
-            // 
-            // FromBranchCountLabel
-            // 
-            this.FromBranchCountLabel.AutoSize = true;
-            this.FromBranchCountLabel.Location = new System.Drawing.Point(164, 178);
-            this.FromBranchCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.FromBranchCountLabel.Name = "FromBranchCountLabel";
-            this.FromBranchCountLabel.Size = new System.Drawing.Size(39, 15);
-            this.FromBranchCountLabel.TabIndex = 28;
-            this.FromBranchCountLabel.Text = "From:";
-            // 
-            // ToWidthTextBox
-            // 
-            this.ToWidthTextBox.Location = new System.Drawing.Point(316, 203);
-            this.ToWidthTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.ToWidthTextBox.Name = "ToWidthTextBox";
-            this.ToWidthTextBox.Size = new System.Drawing.Size(57, 21);
-            this.ToWidthTextBox.TabIndex = 35;
-            // 
-            // FromWidthTextBox
-            // 
-            this.FromWidthTextBox.Location = new System.Drawing.Point(206, 203);
-            this.FromWidthTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.FromWidthTextBox.Name = "FromWidthTextBox";
-            this.FromWidthTextBox.Size = new System.Drawing.Size(57, 21);
-            this.FromWidthTextBox.TabIndex = 34;
-            // 
-            // ToWidthCount
-            // 
-            this.ToWidthCount.AutoSize = true;
-            this.ToWidthCount.Location = new System.Drawing.Point(278, 206);
-            this.ToWidthCount.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.ToWidthCount.Name = "ToWidthCount";
-            this.ToWidthCount.Size = new System.Drawing.Size(24, 15);
-            this.ToWidthCount.TabIndex = 33;
-            this.ToWidthCount.Text = "To:";
-            // 
-            // FromWidthLabel
-            // 
-            this.FromWidthLabel.AutoSize = true;
-            this.FromWidthLabel.Location = new System.Drawing.Point(163, 206);
-            this.FromWidthLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.FromWidthLabel.Name = "FromWidthLabel";
-            this.FromWidthLabel.Size = new System.Drawing.Size(39, 15);
-            this.FromWidthLabel.TabIndex = 32;
-            this.FromWidthLabel.Text = "From:";
+            this.FromVertexCountTextBox.Location = new System.Drawing.Point(207, 141);
+            this.FromVertexCountTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.FromVertexCountTextBox.Name = "FromVertexCountTextBox";
+            this.FromVertexCountTextBox.Size = new System.Drawing.Size(57, 21);
+            this.FromVertexCountTextBox.TabIndex = 37;
             // 
             // FilterUI
             // 
@@ -584,6 +641,11 @@
         private System.Windows.Forms.Label WidthLabel;
         private System.Windows.Forms.Label BranchCountLabel;
         private System.Windows.Forms.Label MaxEnergyLabel;
+        private System.Windows.Forms.TextBox ToVertexCountTextBox;
+        private System.Windows.Forms.Label ToVertexCountLabel;
+        private System.Windows.Forms.Label FromVertexCountLabel;
+        private System.Windows.Forms.TextBox FromVertexCountTextBox;
+        private System.Windows.Forms.Label VertexCountLabel;
     }
 }
 

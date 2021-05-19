@@ -61,7 +61,6 @@ namespace ClusterFilter
             const string doneMessage = "Filtering successfully completed";
             try
             {
-                const int minVertexCount = 3;
 
                 var workingDirName = PathParser.GetPrefixPath(InFilePathBox.Text);
                 ClusterReader.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
@@ -71,19 +70,30 @@ namespace ClusterFilter
 
                 var pixelCountFilter = new PixelCountFilter(new StreamReader(pxFile),
                     int.TryParse(FromPixCountFilterBox.Text, out int resultLowerP) ? resultLowerP : 0,
-                    int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : 100000);
+                    int.TryParse(ToPixCountFilterBox.Text, out int resultUpperP) ? resultUpperP : int.MaxValue);
 
                 var energyFilter = new EnergyFilter(new StreamReader(pxFile), 
                     double.TryParse(FromEnergyFilterBox.Text, out double resultLowerE) ? resultLowerE : 0,
-                    double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : 1000000);
+                    double.TryParse(ToEnergyFilterBox.Text, out double resultUpperE) ? resultUpperE : double.MaxValue);
 
                 var convexityFilter = new ConvexityFilter(new StreamReader(pxFile), 
                      int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
                      int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100, ConvexitySkeletFilterCheckBox.Checked);
 
-                var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile), minVertexCount);
+                var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile),
+                    int.TryParse(FromVertexCountTextBox.Text, out int resultLowerV) ? resultLowerP : 0,
+                    int.TryParse(ToVertexCountTextBox.Text, out int resultUpperV) ? resultUpperP : int.MaxValue);
+
+                var widthFilter = new WidthFilter(new StreamReader(pxFile),
+                    double.TryParse(FromWidthTextBox.Text, out double resultLowerW) ? resultLowerE : 0,
+                    double.TryParse(ToWidthTextBox.Text, out double resultUpperW) ? resultUpperE : double.MaxValue);
+
+                var branchCountFilter = new BranchCountFilter(new StreamReader(pxFile),
+                    double.TryParse(FromBranchCountTextBox.Text, out double resultLowerB) ? resultLowerE : 0,
+                    double.TryParse(ToBranchCountTextBox.Text, out double resultUpperB) ? resultUpperE : double.MaxValue);
 
                 List<ClusterFilter> usedFiletrs = new List<ClusterFilter>();
+
                 if (int.TryParse(FromPixCountFilterBox.Text, out int valInt) || int.TryParse(ToPixCountFilterBox.Text, out valInt))
                 {
                     usedFiletrs.Add(pixelCountFilter);
@@ -92,12 +102,26 @@ namespace ClusterFilter
                 {
                     usedFiletrs.Add(energyFilter);
                 }
-                usedFiletrs.Add(vertexCountFilter);
                 if (double.TryParse(FromLinearityTextBox.Text, out  valDouble) || double.TryParse(ToLinearityTextBox.Text, out valDouble))
                 {
                     usedFiletrs.Add(convexityFilter);
                 }
-                              
+
+                if (int.TryParse(FromVertexCountTextBox.Text, out valInt) || int.TryParse(ToVertexCountTextBox.Text, out valInt))
+                {
+                    usedFiletrs.Add(vertexCountFilter);
+                }
+
+                if (double.TryParse(FromWidthTextBox.Text, out valDouble) || double.TryParse(ToWidthTextBox.Text, out valDouble))
+                {
+                    usedFiletrs.Add(widthFilter);
+                }
+
+                if (int.TryParse(FromBranchCountTextBox.Text, out valInt) || int.TryParse(ToBranchCountTextBox.Text, out valInt))
+                {
+                    usedFiletrs.Add(branchCountFilter);
+                }
+
                 usedFiletrs.Add(new SuccessFilter());
                 var multiFilter = new MultiFilter(usedFiletrs);
                 multiFilter.Process(new StreamReader(clFile), filteredOut);

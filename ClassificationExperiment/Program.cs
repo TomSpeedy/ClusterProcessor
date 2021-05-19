@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using ClassifierForClusters;
 using ClusterCalculator;
 using Accord.Neuro;
+using System.Globalization;
+using System.Threading;
 namespace ClassificationExperiment
 {
     interface ITest
     {
         void PrepareData();
-        void Test(string inputTestFile = null);
+        void Test();
     }
     class Program
     {
@@ -19,240 +21,260 @@ namespace ClassificationExperiment
 
         static void Main(string[] args)
         {
-            /*
-            const string dataTestAll = "../../test_data/testCollection.json";
-            var testDefault = new TestManyDefaultClassifiers(5);
-            testDefault.PrepareData();
-            testDefault.Test(dataTestAll);
+            Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+            /*var testParameters = new TestDifferentParameters();
+            testParameters.PrepareData();
+            testParameters.Test();
             */
-            var testKFold = new TestCrossValidateSimple(6, 1);
+            /*var testSimpleVsMulti = new TestSimpleVsMulti(10);
+            testSimpleVsMulti.PrepareData();
+            testSimpleVsMulti.Test();*/
+
+            /*var testKFold = new TestCrossValidateSimple(6, 1);
             testKFold.PrepareData();
-            testKFold.Test();
+            testKFold.Test();*/
+
+            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
+            classifier.LoadFromFile("../../trained_models/bestClassifier.csf");
+            classifier.TestModel(TestData.dataTest);
 
         }      
     }
+    class TestDifferentParameters
+    {
+        NNClassifier[] SimpleClassifiers { get; set; }
+        const int classifierCount = 10;
+        public TestDifferentParameters()
+        {
+            SimpleClassifiers = new NNClassifier[classifierCount];
+        }
+        public void PrepareData()
+        {
+            for (int i = 0; i < SimpleClassifiers.Length; i++)
+            {
+                SimpleClassifiers[i] = new NNClassifier();
+            }
+            SimpleClassifiers[0].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[0].EpochSize = 1;            
 
-    class TestManyDefaultClassifiers : ITest
+            SimpleClassifiers[1].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[1].EpochSize = 8;
+
+            SimpleClassifiers[2].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[2].EpochSize = 16;
+
+            SimpleClassifiers[3].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[3].SetTeacher("backProp", 0.1, 0.1);
+
+            SimpleClassifiers[4].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[4].SetTeacher("backProp", 0.5, 0.5);
+
+            SimpleClassifiers[5].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[5].SetTeacher("backProp", 0.9, 0.9);
+
+            SimpleClassifiers[6].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[7].ConfigureParams(new string[] { TestData.fragOneLayerConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[8].ConfigureParams(new string[] { TestData.fragTwoBiggerConfig, TestData.dataLearnFrag });
+            SimpleClassifiers[9].ConfigureParams(new string[] { TestData.fragThreeLayerConfig, TestData.dataLearnFrag });
+
+            bool stopCondition = false;
+            for (int i = 0; i < SimpleClassifiers.Length; i++)
+            {
+                SimpleClassifiers[i].TrainProportion = 0.5;
+                SimpleClassifiers[i].Learn( TestData.dataLearnFrag, 1, ref stopCondition);
+            }
+        }
+        public void Test()
+        {
+            
+                double[] simpleResults = new double[SimpleClassifiers.Length];
+                for (int i = 0; i < SimpleClassifiers.Length; i++)
+                {
+                    Console.WriteLine("single classifier confusion matrix:");
+                    simpleResults[i] = SimpleClassifiers[i].TestModel(TestData.fragTest);
+                }
+                for (int i = 0; i < SimpleClassifiers.Length; i++)
+                {
+                    Console.WriteLine("simple classifier accuracy" + i + ":" + simpleResults[i]);
+                }
+                Console.WriteLine("simple classifier mean: " + simpleResults.Mean());
+                Console.WriteLine("simple classifier variance: " + simpleResults.Variance());           
+        }
+    }
+
+    class Test { }
+    class TestSimpleVsMulti : ITest
     {
         public double VarianceExpected { get; set; }
         public double AccuracyExpected { get; set; }
-        int TestClassifierCount { get; }     
-        MultiLayeredClassifier[] Classifiers { get; set; }
-        const string dataLearnLead = "../../train_data/trainLeadMulti.json";
-        const string dataLearnFrag = "../../train_data/trainFragHeFeNew.json";
-        const string dataLearnPrLe = "../../train_data/trainPrLe_ElMuPi.json";
-        const string dataLearnElMuPi = "../../train_data/trainElMuPi.json";      
-        ClusterAttribute[] ValidFields { get; } = new MultiLayeredClassifier().ValidFields;
-            
-    public TestManyDefaultClassifiers(int testClassifierCount)
+        MultiLayeredClassifier[] MultiClassifiers { get; set; }
+        NNClassifier[] SimpleClassifiers { get; set; }
+        const string trainAllPath = "../../train_data/trainAll.json";
+        const string configAllPath = "../../train_data/AllConfig.json";
+        bool Stopped = false;
+        public TestSimpleVsMulti(int testClassifierCount)
         {
-            TestClassifierCount = testClassifierCount;
-            Classifiers = new MultiLayeredClassifier[testClassifierCount];
+            MultiClassifiers = new MultiLayeredClassifier[testClassifierCount];
+            SimpleClassifiers = new NNClassifier[testClassifierCount];
         }
         public void PrepareData()
         {
-            for (int i = 0; i < TestClassifierCount; i++)
+            for (int i = 0; i < SimpleClassifiers.Length; i++)
             {
-                AddNewClasifier(i);
+                Console.WriteLine($"******** Creating Simple Classifier {i} ***********");
+                SimpleClassifiers[i] = new NNClassifier();
+                SimpleClassifiers[i].Train(configAllPath, trainAllPath, ref Stopped, minimumAccuracy: 1, seed: i);
+                for (int j = 0; j < i; j++)
+                {                  
+                    SimpleClassifiers[i].Learn( trainAllPath, successThreshold:1, ref Stopped,  seed: i, eval:true);
+                }
+                SimpleClassifiers[i].Learn(trainAllPath, successThreshold: 0, ref Stopped, seed: i, eval: true);
+                MultiClassifiers[i] = new MultiLayeredClassifier();
+                Console.WriteLine($"******** Creating Multi Classifier {i} ***********");
+                MultiClassifiers[i].FromDefault(seed: i);
             }
 
         }
-        public void Test(string inputData)
+        public void Test()
         {
-            double[] accuracies = new double[Classifiers.Length];
-            for(int i = 0; i < Classifiers.Length; i++)
+            double[] simpleResults = new double[SimpleClassifiers.Length];
+            double[] multiResults = new double[MultiClassifiers.Length];
+            for (int i = 0; i < SimpleClassifiers.Length; i++)
             {
-                accuracies[i] = Classifiers [i].TestModel(inputData);
+                Console.WriteLine("single classifier confusion matrix:");
+                simpleResults[i] = SimpleClassifiers[i].TestModel(TestData.dataTest);
+                Console.WriteLine("multi classifier confusion matrix:");
+                multiResults[i] = MultiClassifiers[i].TestModel(TestData.dataTest);
+                    
             }
-            AccuracyExpected = accuracies.Average();
-            accuracies.ToList().ForEach(accuracy => { VarianceExpected += Math.Pow(accuracy - AccuracyExpected, 2) / (accuracies.Length - 1); });
-
+            for (int i = 0; i < SimpleClassifiers.Length; i++)
+            {
+                Console.WriteLine("simple classifier accuracy" + i + ":" + simpleResults[i]);
+                Console.WriteLine("multi classifier accuracy" + i + ":" + multiResults[i]);
+            }
+            Console.WriteLine("simple classifier mean" + ":" + simpleResults.Mean());
+            Console.WriteLine("simple classifier variance:" + simpleResults.Variance());
+            Console.WriteLine("multi classifier mean:" + multiResults.Mean());
+            Console.WriteLine("multi classifier variance" + multiResults.Variance());
         }
-        void AddNewClasifier(int indexToAdd)
-        {           
-            var classifiers = new List<NNClassifier>();
-            classifiers.Add(DefaultLearner.LearnLead().classifier);
-            classifiers.Add(DefaultLearner.LearnFragHeFe().classifier);
-            classifiers.Add(DefaultLearner.LearnPrLe().classifier);
-            classifiers.Add(DefaultLearner.LearnElMuPi().classifier);
-            MultiLayeredClassifier multiClassifier = null;// new MultiLayeredClassifier(classifiers);
-            Classifiers[indexToAdd] = multiClassifier;
-        }
-
     }
-    class TestCrossValidateSimple :ITest
+    class TestCrossValidateSimple : ITest
     {
-        Dictionary<string, double[]> ExpectedValues { get; set; } = new Dictionary<string, double[]>();
-        Dictionary<string, double[]> Variances { get; set; }
+        public Dictionary<string, double[][]> CVErrors { get; private set; } = new Dictionary<string, double[][]>();
+        public Dictionary<string, double> Variances { get; private set; } = new Dictionary<string, double>();
         int KFoldValue { get; set; }
-        NNClassifier[] LeadClassifiers { get; set; }
-        NNClassifier[] FragHeFeClassifiers { get; set; }
-        NNClassifier[] PrLeClassifiers { get; set; }
-        NNClassifier[] ElMuPiClassifiers { get; set; }
-        const string dataLearnLead = "../../train_data/trainLeadMulti.json";
-        const string dataLearnFragHeFe = "../../train_data/trainFragHeFeNew.json";
-        const string dataLearnPrLe = "../../train_data/trainPrLe_ElMuPi.json";
-        const string dataLearnElMuPi = "../../train_data/trainElMuPi.json";
+        NNClassifier LeadClassifier { get; set; }
+        NNClassifier FragHeFeClassifier { get; set; }
+        NNClassifier PrLeClassifier { get; set; }
+        NNClassifier ElMuPiClassifier { get; set; }
+        int RepetitionCount { get; }
         public TestCrossValidateSimple(int kFoldValue, int repetitionsCount)
         {
+            RepetitionCount = repetitionsCount;
             KFoldValue = kFoldValue;
-            LeadClassifiers = new NNClassifier[repetitionsCount];
-            FragHeFeClassifiers = new NNClassifier[repetitionsCount];
-            PrLeClassifiers = new NNClassifier[repetitionsCount];
-            ElMuPiClassifiers = new NNClassifier[repetitionsCount];
 
         }
         public void PrepareData()
         {
-            NNInputProcessor preprocessor = new NNInputProcessor();
-            Interval[] intervalsLead;//= preprocessor.CalculateNormIntervals(dataLearnLead, DefaultLearner.ValidFields);
-            Interval[] intervalsFragHeFe ;//= preprocessor.CalculateNormIntervals(dataLearnFragHeFe, DefaultLearner.ValidFields);
-            Interval[] intervalsPrLe ;// preprocessor.CalculateNormIntervals(dataLearnPrLe, DefaultLearner.ValidFields);
-            Interval[] intervalsElMuPi;//= preprocessor.CalculateNormIntervals(dataLearnElMuPi, DefaultLearner.ValidFields);
 
-            for (int i = 0; i < LeadClassifiers.Length; i++)
-            {
                 
-                string name = "lead";
-                string[] outputClasses = DefaultLearner.OutputClasses[name];
-                LeadClassifiers[i] =null;//new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsLead, outputClasses, name);
-                LeadClassifiers[i].TrainProportion = new Interval(0, 0.8);
+                LeadClassifier = new NNClassifier();
 
-                name = "fragHeFe";
-                outputClasses = DefaultLearner.OutputClasses[name];
-                FragHeFeClassifiers[i] = null;// new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsFragHeFe, outputClasses, name);
+                FragHeFeClassifier = new NNClassifier();
 
-                name = "prLe";
-                outputClasses = DefaultLearner.OutputClasses[name];
-                PrLeClassifiers[i] = null;// new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsPrLe, outputClasses, name);
+                PrLeClassifier = new NNClassifier();
 
-                name = "elMuPi";
-                outputClasses = DefaultLearner.OutputClasses[name];
-                ElMuPiClassifiers[i] = null;//new NNClassifier(DefaultLearner.ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervalsElMuPi, outputClasses, name);
-
-
-            }
+                ElMuPiClassifier = new NNClassifier();
         }
-        public void Test(string v = null)
+        public void Test()
         {
-            double[] accuraciesLead = new double[LeadClassifiers.Length];
-            double[] accuraciesFragHeFe = new double[LeadClassifiers.Length];
-            double[] accuraciesPrLe = new double[LeadClassifiers.Length];
-            double[] accuraciesElMuPi = new double[LeadClassifiers.Length];
-            for (int i = 0; i < LeadClassifiers.Length; i++)
+            double[][] accuraciesLead = new double[RepetitionCount][];
+            double[][] accuraciesFragHeFe = new double[RepetitionCount][];
+            double[][] accuraciesPrLe = new double[RepetitionCount][];
+            double[][] accuraciesElMuPi = new double[RepetitionCount][];
+            for (int i = 0; i < RepetitionCount; i++)
             {
-                int epochSize = 32;
                 int learnIterationsCount = 1;
-                accuraciesLead[i] = LeadClassifiers[i].CrossValidate(KFoldValue, epochSize, dataLearnLead, DefaultLearner.ValidFields, learnIterationsCount).Average();
+                accuraciesLead[i] = LeadClassifier.CrossValidate(KFoldValue, TestData.dataLearnLead, TestData.leadConfig, i,  learnIterationsCount);
 
 
-                epochSize = 8;
-                learnIterationsCount = 4;
-                accuraciesFragHeFe[i] = FragHeFeClassifiers[i].CrossValidate(KFoldValue, epochSize, dataLearnFragHeFe, DefaultLearner.ValidFields, learnIterationsCount).Average();
+                learnIterationsCount = 2;
+                accuraciesFragHeFe[i] = FragHeFeClassifier.CrossValidate(KFoldValue, TestData.dataLearnFrag, TestData.fragHeFeConfig, i, learnIterationsCount);
 
-                epochSize = 6;
                 learnIterationsCount = 1;
-                accuraciesPrLe[i] = PrLeClassifiers[i].CrossValidate(KFoldValue, epochSize, dataLearnPrLe, DefaultLearner.ValidFields, learnIterationsCount).Average();
+                accuraciesPrLe[i] = PrLeClassifier.CrossValidate(KFoldValue, TestData.dataLearnPrLe, TestData.prLeConfig, i, learnIterationsCount);
 
-                epochSize = 8;
                 learnIterationsCount = 1;
-                accuraciesElMuPi[i] = ElMuPiClassifiers[i].CrossValidate(KFoldValue, epochSize, dataLearnElMuPi, DefaultLearner.ValidFields, learnIterationsCount).Average();
+                accuraciesElMuPi[i] = ElMuPiClassifier.CrossValidate(KFoldValue, TestData.dataLearnElMuPi, TestData.elMuPiConfig, i, learnIterationsCount);
 
             }
-            ExpectedValues.Add("lead", accuraciesLead);
-            ExpectedValues.Add("fragHeFe", accuraciesFragHeFe);
-            ExpectedValues.Add("prLe", accuraciesPrLe);
-            ExpectedValues.Add("elMuPi", accuraciesElMuPi);
-        }
-    }
-    //class TestAllWithSingleClassifier
-    static class DefaultLearner
-    {
-        public static ClusterAttribute[] ValidFields { get; } = new MultiLayeredClassifier().ValidFields;
-        const string dataLearnLead = "../../train_data/trainLeadMulti.json";
-        const string dataLearnFrag = "../../train_data/trainFragHeFeNew.json";
-        const string dataLearnPrLe = "../../train_data/trainPrLe_ElMuPi.json";
-        const string dataLearnElMuPi = "../../train_data/trainElMuPi.json";
-        public static Dictionary<string, string[]> OutputClasses = new Dictionary<string, string[]>();
-        static DefaultLearner()
-        {
-            OutputClasses.Add("lead", new string[] {
-                 "lead",
-                  "he",
-                 "fe",
-                 "frag",
-                 "other"
-             });
-            OutputClasses.Add("fragHeFe", new string[] {
-                 "frag",
-                 "he",
-                 "fe",
-                 "other"
-             });
-            OutputClasses.Add("prLe", new string[] {
-                 "proton",
-                 "elMuPi",
-                 "low_electr",
-            });
-            OutputClasses.Add("elMuPi", new string[] {
-                 "muon",
-                 "electron",
-                 "pion",
-                 "elPi0"
-            });
-        }
-        public static (NNClassifier classifier, double success) LearnFragHeFe()
-        {
-            const string name = "fragHeFe";
-            var outputClasses = OutputClasses["name"];
-            NNInputProcessor preprocessor = new NNInputProcessor();
-            var intervals = preprocessor.CalculateNormIntervals(dataLearnFrag, ValidFields);
-                        const int epochSize = 8;
-            NNClassifier fragClassifier = null; //= new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
-            const int learnIterations = 4;
-            double success = 0;
-            for (int i = 0; i < learnIterations; i++)
-            {
-                //if(i == learnIterations - 1)
-                 //   success = fragClassifier.Learn(epochSize, dataLearnFrag, ValidFields, 0, eval: false);
+            CVErrors.Add(TestData.lead, accuraciesLead);
+            Variances.Add(TestData.lead, accuraciesLead.Variance());
+            CVErrors.Add(TestData.fragHeFe, accuraciesFragHeFe);
+            Variances.Add(TestData.fragHeFe, accuraciesFragHeFe.Variance());
+            CVErrors.Add(TestData.prLe, accuraciesPrLe);
+            Variances.Add(TestData.prLe, accuraciesPrLe.Variance());
+            CVErrors.Add(TestData.elMuPi, accuraciesElMuPi);
+            Variances.Add(TestData.elMuPi, accuraciesElMuPi.Variance());
 
-            };
-            return (fragClassifier, success);
         }
-        public static (NNClassifier classifier, double success) LearnLead()
-        {
-            const string name = "lead";
-            string[] outputClasses = OutputClasses[name];
-                  
-            NNInputProcessor preprocessor = new NNInputProcessor();
-           // Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnLead, ValidFields);
-            int epochSize = 32;
-            NNClassifier nnClassifier = null;// = new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
-            var success = nnClassifier.Learn("",0);
-            return (nnClassifier, success);
-        }
-        public static (NNClassifier classifier, double success) LearnPrLe()
-        {
-            const string name = "prLe";
-            string[] outputClasses = OutputClasses[name];
-            NNInputProcessor preprocessor = new NNInputProcessor();
-            //Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnPrLe, ValidFields);
-            int epochSize = 6;
-            NNClassifier multiClassifier = null;//new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
-            var success = multiClassifier.Learn("", 0);
-            return (multiClassifier, success);
-        }
-        public static (NNClassifier classifier, double success) LearnElMuPi()
-        {
-            const string name = "elMuPi";
-            string[] outputClasses = OutputClasses[name];
-            int epochSize = 8;
-            NNInputProcessor preprocessor = new NNInputProcessor();
-            //Interval[] intervals = preprocessor.CalculateNormIntervals(dataLearnElMuPi, ValidFields);
-            NNClassifier multiClassifier = null;//new NNClassifier(ValidFields.Length, outputClasses.Length, new int[] { 13, 13 }, new SigmoidFunction(1), intervals, outputClasses, name);
-           // multiClassifier.Learn(epochSize, dataLearnElMuPi, ValidFields, 0, eval: false);
-            var success = multiClassifier.Learn("", 0);
-            return (multiClassifier, success);
-        }       
     }
+    static class TestData
+    {
+        public const string lead = "lead";
+        public const string fragHeFe = "fragHeFe";
+        public const string prLe = "prLe";
+        public const string elMuPi = "elMuPi";
+        public const string dataLearnLead = "../../train_data/trainLeadNew.json";
+        public const string dataLearnFrag = "../../train_data/trainFragHeFeNew.json";
+        public const string dataLearnPrLe = "../../train_data/trainPrLe_ElMuPi.json";
+        public const string dataLearnElMuPi = "../../train_data/trainElMuPi.json";
+        public const string leadConfig = "../../train_data/LeadNetworkConfig.json";
+        public const string fragHeFeConfig = "../../train_data/FragHeFeNetworkConfig.json";
+        public const string prLeConfig = "../../train_data/PrLeNetworkConfig.json";
+        public const string elMuPiConfig = "../../train_data/ElMuPiNetworkConfig.json";
+        public const string dataTest = "../../test_data/testCollection.json";
+        public const string fragTest = "../../test_data/testFrag.json";
+
+        public const string fragOneLayerConfig = "../../train_data/FragHeFeNetworkConfig1.json";
+        public const string fragTwoBiggerConfig = "../../train_data/FragHeFeNetworkConfig2.json";
+        public const string fragThreeLayerConfig = "../../train_data/FragHeFeNetworkConfig3.json";
+    }
+    public static class TestUtilExtensions
+    {
+        public static double Variance(this double[] input)
+        {
+            var mean = input.Mean();
+            double variance = 0;
+            for (int i = 0; i < input.Length; i++)
+            {
+                variance += (input[i] - mean) * (input[i] - mean);
+            }
+            return variance / (input.Length - 1);
+        }
+        public static double Mean(this double[] input)
+        {
+            return input.Sum() / input.Length;          
+        }
+        public static double Mean(this double[][] input)
+        {
+            double result = 0;
+            for (int i = 0; i < input.Length; i++)
+            {
+                result += input[i].Sum() / (double)input[i].Length;
+            }
+            return result / (double)input.Length;
+
+        }
+        public static double Variance(this double[][] input)
+        {
+            var mean = input.Mean();
+            double variance = 0;
+            for (int i = 0; i < input.Length; i++)
+                input[i].Select(value => { return variance += (value - mean)*(value-mean); }).ToArray();
+            return variance / (double)(input.Length * input[0].Length - 1);
+        }
+    }
+          
+    
 }

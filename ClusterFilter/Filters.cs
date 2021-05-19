@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using ClusterCalculator;
 namespace ClusterFilter
 {
-    
+
 
 
     public abstract class ClusterFilter //works with text files
@@ -57,7 +57,7 @@ namespace ClusterFilter
         {
             IClusterWriter clusterWriter = new MMClusterWriter(outputCLFile);
             foreach (var clInfo in new ClusterInfoCollection(inputCLFile))
-            { 
+            {
                 if (MatchesFilter(clInfo))
                 {
                     FilterSuccessCount++;
@@ -83,7 +83,7 @@ namespace ClusterFilter
     }
     public class EnergyFilter : ClusterFilter
     {
-        
+
         private EnergyCalculator EnergyCalculator { get; set; }
 
         private bool NeedsCalibration = false;
@@ -97,7 +97,7 @@ namespace ClusterFilter
             this.EnergyCalculator = new EnergyCalculator(calib);
             NeedsCalibration = true;
         }
-        public EnergyFilter(StreamReader pixelFile,  double lowerBound = 0D, double upperBound = double.MaxValue)
+        public EnergyFilter(StreamReader pixelFile, double lowerBound = 0D, double upperBound = double.MaxValue)
         {
             this.PixelFile = pixelFile;
             this.LowerBound = lowerBound;
@@ -118,16 +118,16 @@ namespace ClusterFilter
 
                 if (tokens.Length == 5)
                 {
-                    
+
                     ushort.TryParse(tokens[0], out ushort x);
                     ushort.TryParse(tokens[1], out ushort y);
                     double.TryParse(tokens[2], out double ToA);
                     double.TryParse(tokens[3], out double ToT);
                     double Energy = 0;
-                    if ((x <= 255) && (x >= 0) && (y >= 0) &&(y <= 255))
-                        Energy = NeedsCalibration ? EnergyCalculator.ToElectronVolts(ToT, x, y): ToT;
+                    if ((x <= 255) && (x >= 0) && (y >= 0) && (y <= 255))
+                        Energy = NeedsCalibration ? EnergyCalculator.ToElectronVolts(ToT, x, y) : ToT;
                     totalEnergy += Energy;
-                   
+
                 }
             }
             if ((totalEnergy >= LowerBound) && (totalEnergy <= UpperBound))
@@ -151,14 +151,14 @@ namespace ClusterFilter
         }
         public override bool MatchesFilter(ClusterInfo clInfo)
         {
-            
+
             if ((clInfo.PixCount >= this.LowerBound) && (clInfo.PixCount <= this.UpperBound))
             {
                 return true;
             }
             return false;
         }
-        
+
 
 
 
@@ -167,7 +167,7 @@ namespace ClusterFilter
     {
         private double LowerBound { get; }
         private double UpperBound { get; }
-        private EnergyCalculator EnergyCalculator {get;}
+        private EnergyCalculator EnergyCalculator { get; }
         bool UseSkelet { get; }
         bool NeedsCalibration = false;
 
@@ -191,7 +191,7 @@ namespace ClusterFilter
         public override bool MatchesFilter(ClusterInfo clInfo)
         {
             PixelFile.DiscardBufferedData();
-          
+
             PixelFile.BaseStream.Seek((long)clInfo.ByteStart, SeekOrigin.Begin);
 
 
@@ -211,7 +211,7 @@ namespace ClusterFilter
                 ushort.TryParse(tokens[1], out ushort y);
                 double.TryParse(tokens[2], out double ToA);
                 double.TryParse(tokens[3], out double ToT);
-                if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1) 
+                if (points.FindIndex(point => point.xCoord == x && point.yCoord == y) == -1)
                 {
 
                     points.Add(new PixelPoint(x, y, ToA, NeedsCalibration ? EnergyCalculator.ToElectronVolts(ToT, x, y) : ToT));
@@ -223,7 +223,7 @@ namespace ClusterFilter
                 area = points.Count;
             else
             {
-                if(UseSkelet)
+                if (UseSkelet)
                 {
                     ISkeletonizer skeletonizer = new ThinSkeletonizer();
                     var hull = new ConvexHull(skeletonizer.SkeletonizePoints(points));
@@ -235,13 +235,13 @@ namespace ClusterFilter
                     area = hull.CalculateArea();
                 }
             }
-            
+
             double convexityPercentage = clInfo.PixCount / (double)area;
             if (convexityPercentage >= LowerBound && convexityPercentage <= UpperBound)
                 return true;
             return false;
         }
-                 
+
 
     }
     public class SuccessFilter : ClusterFilter
@@ -252,11 +252,13 @@ namespace ClusterFilter
     {
         private VertexFinder VertexFinder { get; }
         private int MinVertexCount { get; }
-        public VertexCountFilter(StreamReader pixelFile, int minVertexCount)
+        private int MaxVertexCount { get; }
+        public VertexCountFilter(StreamReader pixelFile, int minVertexCount, int maxVertexCount)
         {
             VertexFinder = new VertexFinder();
             PixelFile = pixelFile;
             MinVertexCount = minVertexCount;
+            MaxVertexCount = maxVertexCount;
         }
         public override bool MatchesFilter(ClusterInfo clusterInfo)
         {
@@ -287,7 +289,6 @@ namespace ClusterFilter
     {
         private double LowerBound { get; }
         private double UpperrBound { get; }
-        public ConvexHull Hull { get; set; }
         public WidthFilter(StreamReader pixelFile, double minWidth, double maxWidth)
         {
             PixelFile = pixelFile;
@@ -296,17 +297,40 @@ namespace ClusterFilter
         }
         public override bool MatchesFilter(ClusterInfo clusterInfo)
         {
-            if(Hull == null)
-            {
-                var points = GetPixels(clusterInfo);               
-                Hull = new ConvexHull(points);
-            }
-            var width = Hull.CalculateWidth();
+            var points = GetPixels(clusterInfo);
+            var hull = new ConvexHull(points);
+            var width = hull.CalculateWidth();
             return width >= LowerBound && width <= UpperrBound;
         }
     }
+    public class BranchCountFilter : ClusterFilter
+    {
+        private double LowerBound { get; }
+        private double UpperrBound { get; }
+        private ISkeletonizer Skeletonizer { get; } = new ThinSkeletonizer();
+        private BranchAnalyzer BranchAnalyzer { get; }
+        public BranchCountFilter(StreamReader pixelFile, double minBranchCount, double maxBranchCount)
+        {
+            PixelFile = pixelFile;
+            LowerBound = minBranchCount;
+            UpperrBound = maxBranchCount;
+            var centerFinder = new EnergyCenterFinder();
+            BranchAnalyzer = new BranchAnalyzer(centerFinder);
+        }
+        public override bool MatchesFilter(ClusterInfo clusterInfo)
+        {
+            var points = GetPixels(clusterInfo).ToArray();
+            var baseCluster = new Cluster(clusterInfo.FirstToA, clusterInfo.PixCount, clusterInfo.ByteStart);
+            baseCluster.Points = points;
+            var skeletonizedPoints = Skeletonizer.SkeletonizePoints(points);
+            var skeletCluster = new Cluster(clusterInfo.FirstToA, clusterInfo.PixCount, clusterInfo.ByteStart);
+            skeletCluster.Points = skeletonizedPoints;
+            var branchedCluster = BranchAnalyzer.Analyze(baseCluster, skeletCluster);
 
-
-
-
+            int branchesCount = 0;
+            foreach (var branch in branchedCluster.MainBranches)
+                branchesCount += (branch.GetTotalSubBranchCount() + 1);
+            return branchesCount >= LowerBound && branchesCount <= UpperrBound;
+        }
+    }
 }

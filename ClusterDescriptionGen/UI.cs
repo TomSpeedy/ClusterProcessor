@@ -195,6 +195,7 @@ namespace ClusterDescriptionGen
                 }
             }
             ClDescriptionWriter.Close();
+            MessageBox.Show("Processing successfully completed");
         }
         private EndCondition GetEndCondition()
         {
