@@ -78,7 +78,7 @@ namespace ClusterFilter
 
                 var convexityFilter = new ConvexityFilter(new StreamReader(pxFile), 
                      int.TryParse(FromLinearityTextBox.Text, out int resultLowerL) ? resultLowerL : 0,
-                     int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 100, ConvexitySkeletFilterCheckBox.Checked);
+                     int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 1, ConvexitySkeletFilterCheckBox.Checked);
 
                 var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile),
                     int.TryParse(FromVertexCountTextBox.Text, out int resultLowerV) ? resultLowerP : 0,

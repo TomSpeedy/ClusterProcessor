@@ -177,7 +177,6 @@ namespace ClusterFilter
             this.LowerBound = lowerBound;
             this.UpperBound = upperBound;
             EnergyCalculator = new EnergyCalculator(calib);
-            NeedsCalibration = true;
             UseSkelet = useSkelet;
         }
         public ConvexityFilter(StreamReader pixelFile, int lowerBound, int upperBound, bool useSkelet = false)
@@ -236,10 +235,9 @@ namespace ClusterFilter
                 }
             }
 
-            double convexityPercentage = clInfo.PixCount / (double)area;
-            if (convexityPercentage >= LowerBound && convexityPercentage <= UpperBound)
-                return true;
-            return false;
+            double convexity = clInfo.PixCount / (double)area;
+            return convexity >= LowerBound && convexity <= UpperBound;
+
         }
 
 
@@ -282,7 +280,8 @@ namespace ClusterFilter
                 double.TryParse(tokens[3], out double ToT);
                 points.Add(new PixelPoint(x, y, ToA, ToT));
             }
-            return VertexFinder.FindVertices(points).Count >= MinVertexCount;
+            var vertices = VertexFinder.FindVertices(points);
+            return vertices.Count >= MinVertexCount && vertices.Count <= MaxVertexCount;
         }
     }
     public class WidthFilter : ClusterFilter

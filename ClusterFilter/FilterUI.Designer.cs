@@ -30,6 +30,11 @@
         {
             this.FilterButton = new System.Windows.Forms.Button();
             this.FilterGroup = new System.Windows.Forms.GroupBox();
+            this.ToVertexCountTextBox = new System.Windows.Forms.TextBox();
+            this.ToVertexCountLabel = new System.Windows.Forms.Label();
+            this.FromVertexCountLabel = new System.Windows.Forms.Label();
+            this.FromVertexCountTextBox = new System.Windows.Forms.TextBox();
+            this.VertexCountLabel = new System.Windows.Forms.Label();
             this.ToWidthTextBox = new System.Windows.Forms.TextBox();
             this.FromWidthTextBox = new System.Windows.Forms.TextBox();
             this.ToWidthCount = new System.Windows.Forms.Label();
@@ -71,11 +76,6 @@
             this.ViewClusters = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.MainGroupBox = new System.Windows.Forms.GroupBox();
-            this.VertexCountLabel = new System.Windows.Forms.Label();
-            this.ToVertexCountTextBox = new System.Windows.Forms.TextBox();
-            this.ToVertexCountLabel = new System.Windows.Forms.Label();
-            this.FromVertexCountLabel = new System.Windows.Forms.Label();
-            this.FromVertexCountTextBox = new System.Windows.Forms.TextBox();
             this.FilterGroup.SuspendLayout();
             this.InputFileGroup.SuspendLayout();
             this.MainGroupBox.SuspendLayout();
@@ -138,6 +138,53 @@
             this.FilterGroup.TabIndex = 6;
             this.FilterGroup.TabStop = false;
             this.FilterGroup.Text = "Select filters";
+            // 
+            // ToVertexCountTextBox
+            // 
+            this.ToVertexCountTextBox.Location = new System.Drawing.Point(317, 143);
+            this.ToVertexCountTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.ToVertexCountTextBox.Name = "ToVertexCountTextBox";
+            this.ToVertexCountTextBox.Size = new System.Drawing.Size(57, 21);
+            this.ToVertexCountTextBox.TabIndex = 40;
+            // 
+            // ToVertexCountLabel
+            // 
+            this.ToVertexCountLabel.AutoSize = true;
+            this.ToVertexCountLabel.Location = new System.Drawing.Point(278, 145);
+            this.ToVertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.ToVertexCountLabel.Name = "ToVertexCountLabel";
+            this.ToVertexCountLabel.Size = new System.Drawing.Size(24, 15);
+            this.ToVertexCountLabel.TabIndex = 39;
+            this.ToVertexCountLabel.Text = "To:";
+            // 
+            // FromVertexCountLabel
+            // 
+            this.FromVertexCountLabel.AutoSize = true;
+            this.FromVertexCountLabel.Location = new System.Drawing.Point(163, 144);
+            this.FromVertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.FromVertexCountLabel.Name = "FromVertexCountLabel";
+            this.FromVertexCountLabel.Size = new System.Drawing.Size(39, 15);
+            this.FromVertexCountLabel.TabIndex = 38;
+            this.FromVertexCountLabel.Text = "From:";
+            // 
+            // FromVertexCountTextBox
+            // 
+            this.FromVertexCountTextBox.Location = new System.Drawing.Point(207, 141);
+            this.FromVertexCountTextBox.Margin = new System.Windows.Forms.Padding(2);
+            this.FromVertexCountTextBox.Name = "FromVertexCountTextBox";
+            this.FromVertexCountTextBox.Size = new System.Drawing.Size(57, 21);
+            this.FromVertexCountTextBox.TabIndex = 37;
+            // 
+            // VertexCountLabel
+            // 
+            this.VertexCountLabel.AutoSize = true;
+            this.VertexCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.VertexCountLabel.Location = new System.Drawing.Point(8, 145);
+            this.VertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.VertexCountLabel.Name = "VertexCountLabel";
+            this.VertexCountLabel.Size = new System.Drawing.Size(96, 17);
+            this.VertexCountLabel.TabIndex = 36;
+            this.VertexCountLabel.Text = "VertexCount";
             // 
             // ToWidthTextBox
             // 
@@ -333,9 +380,9 @@
             this.ConvexityLabel.Location = new System.Drawing.Point(8, 177);
             this.ConvexityLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.ConvexityLabel.Name = "ConvexityLabel";
-            this.ConvexityLabel.Size = new System.Drawing.Size(89, 17);
+            this.ConvexityLabel.Size = new System.Drawing.Size(77, 17);
             this.ConvexityLabel.TabIndex = 12;
-            this.ConvexityLabel.Text = "Convexity()";
+            this.ConvexityLabel.Text = "Convexity";
             // 
             // PixCountLabel
             // 
@@ -530,53 +577,6 @@
             this.MainGroupBox.TabIndex = 18;
             this.MainGroupBox.TabStop = false;
             this.MainGroupBox.Text = "Filterer";
-            // 
-            // VertexCountLabel
-            // 
-            this.VertexCountLabel.AutoSize = true;
-            this.VertexCountLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.VertexCountLabel.Location = new System.Drawing.Point(8, 145);
-            this.VertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.VertexCountLabel.Name = "VertexCountLabel";
-            this.VertexCountLabel.Size = new System.Drawing.Size(96, 17);
-            this.VertexCountLabel.TabIndex = 36;
-            this.VertexCountLabel.Text = "VertexCount";
-            // 
-            // ToVertexCountTextBox
-            // 
-            this.ToVertexCountTextBox.Location = new System.Drawing.Point(317, 143);
-            this.ToVertexCountTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.ToVertexCountTextBox.Name = "ToVertexCountTextBox";
-            this.ToVertexCountTextBox.Size = new System.Drawing.Size(57, 21);
-            this.ToVertexCountTextBox.TabIndex = 40;
-            // 
-            // ToVertexCountLabel
-            // 
-            this.ToVertexCountLabel.AutoSize = true;
-            this.ToVertexCountLabel.Location = new System.Drawing.Point(278, 145);
-            this.ToVertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.ToVertexCountLabel.Name = "ToVertexCountLabel";
-            this.ToVertexCountLabel.Size = new System.Drawing.Size(24, 15);
-            this.ToVertexCountLabel.TabIndex = 39;
-            this.ToVertexCountLabel.Text = "To:";
-            // 
-            // FromVertexCountLabel
-            // 
-            this.FromVertexCountLabel.AutoSize = true;
-            this.FromVertexCountLabel.Location = new System.Drawing.Point(163, 144);
-            this.FromVertexCountLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.FromVertexCountLabel.Name = "FromVertexCountLabel";
-            this.FromVertexCountLabel.Size = new System.Drawing.Size(39, 15);
-            this.FromVertexCountLabel.TabIndex = 38;
-            this.FromVertexCountLabel.Text = "From:";
-            // 
-            // FromVertexCountTextBox
-            // 
-            this.FromVertexCountTextBox.Location = new System.Drawing.Point(207, 141);
-            this.FromVertexCountTextBox.Margin = new System.Windows.Forms.Padding(2);
-            this.FromVertexCountTextBox.Name = "FromVertexCountTextBox";
-            this.FromVertexCountTextBox.Size = new System.Drawing.Size(57, 21);
-            this.FromVertexCountTextBox.TabIndex = 37;
             // 
             // FilterUI
             // 

@@ -718,7 +718,7 @@ namespace ClassifierForClusters
             }
             return successRate;
         }     
-        public double PrintConfusionMatrix(int[][] confusionMatrix, bool normalized = false)
+        public double PrintConfusionMatrix(int[][] confusionMatrix, bool normalized = true)
         {
             var rowSums = confusionMatrix.Select(x => x.Sum()).ToArray();
             double totalSum = 0;

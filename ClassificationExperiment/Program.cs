@@ -22,10 +22,10 @@ namespace ClassificationExperiment
         static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
-            /*var testParameters = new TestDifferentParameters();
+            var testParameters = new TestDifferentParameters(10);
             testParameters.PrepareData();
             testParameters.Test();
-            */
+            
             /*var testSimpleVsMulti = new TestSimpleVsMulti(10);
             testSimpleVsMulti.PrepareData();
             testSimpleVsMulti.Test();*/
@@ -42,67 +42,73 @@ namespace ClassificationExperiment
     }
     class TestDifferentParameters
     {
-        NNClassifier[] SimpleClassifiers { get; set; }
-        const int classifierCount = 10;
-        public TestDifferentParameters()
+        NNClassifier[][] SimpleClassifiers { get; set; }
+        const int classifierCount = 6;
+        int IterationsCount { get; }
+        public TestDifferentParameters(int iterationsCount)
         {
-            SimpleClassifiers = new NNClassifier[classifierCount];
+            SimpleClassifiers = new NNClassifier[classifierCount][];
+            IterationsCount = iterationsCount;
         }
         public void PrepareData()
         {
-            for (int i = 0; i < SimpleClassifiers.Length; i++)
-            {
-                SimpleClassifiers[i] = new NNClassifier();
-            }
-            SimpleClassifiers[0].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[0].EpochSize = 1;            
+            for (int i = 0; i < IterationsCount; i++)
+            {              
+                for (int j = 0; j < SimpleClassifiers.Length; j++)
+                {
+                    if(i == 0)
+                    {
+                        SimpleClassifiers[j] = new NNClassifier[IterationsCount];
+                    }
+                    SimpleClassifiers[j][i] = new NNClassifier();
+                }
 
-            SimpleClassifiers[1].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[1].EpochSize = 8;
+                SimpleClassifiers[0][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+                SimpleClassifiers[0][i].SetTeacher("backProp", 0.1, 0.1);
 
-            SimpleClassifiers[2].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[2].EpochSize = 16;
+                SimpleClassifiers[1][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+                SimpleClassifiers[1][i].SetTeacher("backProp", 0.5, 0.5);
 
-            SimpleClassifiers[3].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[3].SetTeacher("backProp", 0.1, 0.1);
+                SimpleClassifiers[2][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+                SimpleClassifiers[2][i].SetTeacher("backProp", 1, 1);
 
-            SimpleClassifiers[4].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[4].SetTeacher("backProp", 0.5, 0.5);
+                SimpleClassifiers[3][i].ConfigureParams(new string[] { TestData.fragOneLayerConfig, TestData.dataLearnFrag });
+                SimpleClassifiers[4][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
+                
+                SimpleClassifiers[5][i].ConfigureParams(new string[] { TestData.fragThreeLayerConfig, TestData.dataLearnFrag });
 
-            SimpleClassifiers[5].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[5].SetTeacher("backProp", 0.9, 0.9);
-
-            SimpleClassifiers[6].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[7].ConfigureParams(new string[] { TestData.fragOneLayerConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[8].ConfigureParams(new string[] { TestData.fragTwoBiggerConfig, TestData.dataLearnFrag });
-            SimpleClassifiers[9].ConfigureParams(new string[] { TestData.fragThreeLayerConfig, TestData.dataLearnFrag });
-
-            bool stopCondition = false;
-            for (int i = 0; i < SimpleClassifiers.Length; i++)
-            {
-                SimpleClassifiers[i].TrainProportion = 0.5;
-                SimpleClassifiers[i].Learn( TestData.dataLearnFrag, 1, ref stopCondition);
+                bool stopCondition = false;
+                for (int j = 0; j < SimpleClassifiers.Length; j++)
+                {
+                    SimpleClassifiers[j][i].TrainProportion = 0.2;
+                    SimpleClassifiers[j][i].Learn( TestData.dataLearnFrag, 1, ref stopCondition, eval : false);
+                }
             }
         }
         public void Test()
         {
             
-                double[] simpleResults = new double[SimpleClassifiers.Length];
-                for (int i = 0; i < SimpleClassifiers.Length; i++)
+                double[][] simpleResults = new double[SimpleClassifiers.Length][];
+            for (int i = 0; i < SimpleClassifiers.Length; i++)
+            {
+                simpleResults[i] = new double[IterationsCount];
+                for (int j = 0; j < SimpleClassifiers[i].Length; j++)
                 {
                     Console.WriteLine("single classifier confusion matrix:");
-                    simpleResults[i] = SimpleClassifiers[i].TestModel(TestData.fragTest);
+                    simpleResults[i][j] = SimpleClassifiers[i][j].TestModel(TestData.fragTest);
                 }
-                for (int i = 0; i < SimpleClassifiers.Length; i++)
+                for (int j = 0; j < SimpleClassifiers[i].Length; j++)
                 {
-                    Console.WriteLine("simple classifier accuracy" + i + ":" + simpleResults[i]);
+                    Console.WriteLine("simple classifier " + i.ToString() + " accuracy (" + j.ToString()  + "):" + simpleResults[i][j].ToString());
                 }
-                Console.WriteLine("simple classifier mean: " + simpleResults.Mean());
-                Console.WriteLine("simple classifier variance: " + simpleResults.Variance());           
+            }
+            for (int i = 0; i < SimpleClassifiers.Length; i++)
+            {
+                Console.WriteLine("simple classifier mean: " + simpleResults[i].Mean());
+            }      
         }
     }
 
-    class Test { }
     class TestSimpleVsMulti : ITest
     {
         public double VarianceExpected { get; set; }
