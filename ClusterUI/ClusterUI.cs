@@ -22,17 +22,16 @@ namespace ClusterUI
 {
     public partial class ClusterUI : Form
     {
-
-        private int clusterNumber = 1;
-        private string pxFile;
-        private string clFile;
-        const int defaultMouseZoomFactor = -10;
+      
         double MouseZoomFactor { get; set; }
         double CenterImageX {get; set;} = 0.5;
         double CenterImageY { get; set; } = 0.5;
         int CurrentZoom { get; set; } = 1;
+        int clusterNumber = 1;
+        string pxFile;
+        string clFile;
+        const int defaultMouseZoomFactor = -10;
         private IClassifier Classifier { get; set; }
-        private HistogramPoint[] HistogramPoints { get; set; }
         private HistogramPoint[] HistogramPixPoints { get; set; }
         private InputType InputType { get; set; }
         private Cluster CurrentBase { get; set; }
@@ -349,8 +348,9 @@ namespace ClusterUI
             }
             try
             {
-                clFile = (string)jsonRecord.Property(ClusterAttribute.ClFile.ToString()).Value;
-                pxFile = (string)jsonRecord.Property(ClusterAttribute.PxFile.ToString()).Value;
+                var baseJsonPath = Path.GetDirectoryName(InViewFilePathBox.Text).Replace('\\', '/');
+                clFile =  baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.ClFile.ToString()).Value;
+                pxFile = baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.PxFile.ToString()).Value;
                 clIndex = (int)jsonRecord.Property(ClusterAttribute.ClIndex.ToString()).Value;
             }
             catch
@@ -409,6 +409,7 @@ namespace ClusterUI
             {
                 MessageBox.Show("Error - file to load from must have suffix .ini or .json");
             }
+            MessageBox.Show("Cluster collection successfully loaded");
         }
         public void View3DClicked(object sender, EventArgs e)
         {

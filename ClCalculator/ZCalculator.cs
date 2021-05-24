@@ -8,12 +8,14 @@ using System.Xml.Linq;
 
 namespace ClusterCalculator
 {
-    //TODO: Clean Redraw here and also in UI
     public interface IZCalculator
     {
         PointD3[] TransformPoints(Cluster cluster);
         double CalculateZ(PixelPoint point, Cluster cluster);
     }
+    /// <summary>
+    /// calculates the relative z coordinate with respect to the first arrived pixel
+    /// </summary>
     public class ZCalculator : IZCalculator
     {
         //Set default: 500 um, 110 V depl, bias: 230 V, mob: 45 V s / um2

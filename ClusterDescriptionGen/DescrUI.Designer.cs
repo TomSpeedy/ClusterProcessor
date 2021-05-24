@@ -1,6 +1,6 @@
 ﻿namespace ClusterDescriptionGen
 {
-    partial class UI
+    partial class DescrUI
     {
         /// <summary>
         /// Required designer variable.
@@ -29,6 +29,9 @@
         private void InitializeComponent()
         {
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.StopProcessingButton = new System.Windows.Forms.Button();
+            this.UsedPartitionDataRatioLabel = new System.Windows.Forms.Label();
+            this.UsedPartitionDataRatioTextBox = new System.Windows.Forms.TextBox();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.ProcessedCountLabel = new System.Windows.Forms.Label();
@@ -55,8 +58,6 @@
             this.OutputLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.InputLabel = new System.Windows.Forms.Label();
-            this.UsedPartitionDataRatioTextBox = new System.Windows.Forms.TextBox();
-            this.UsedPartitionDataRatioLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.EndingConditionGroupBox.SuspendLayout();
             this.DistributionGroupBox.SuspendLayout();
@@ -65,6 +66,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.StopProcessingButton);
             this.groupBox1.Controls.Add(this.UsedPartitionDataRatioLabel);
             this.groupBox1.Controls.Add(this.UsedPartitionDataRatioTextBox);
             this.groupBox1.Controls.Add(this.button2);
@@ -91,6 +93,32 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Menu";
             // 
+            // StopProcessingButton
+            // 
+            this.StopProcessingButton.Location = new System.Drawing.Point(610, 394);
+            this.StopProcessingButton.Name = "StopProcessingButton";
+            this.StopProcessingButton.Size = new System.Drawing.Size(133, 50);
+            this.StopProcessingButton.TabIndex = 22;
+            this.StopProcessingButton.Text = "Stop Processing";
+            this.StopProcessingButton.UseVisualStyleBackColor = true;
+            this.StopProcessingButton.Click += new System.EventHandler(this.StopProcessingClicked);
+            // 
+            // UsedPartitionDataRatioLabel
+            // 
+            this.UsedPartitionDataRatioLabel.AutoSize = true;
+            this.UsedPartitionDataRatioLabel.Location = new System.Drawing.Point(1195, 35);
+            this.UsedPartitionDataRatioLabel.Name = "UsedPartitionDataRatioLabel";
+            this.UsedPartitionDataRatioLabel.Size = new System.Drawing.Size(99, 13);
+            this.UsedPartitionDataRatioLabel.TabIndex = 21;
+            this.UsedPartitionDataRatioLabel.Text = "Used Partition Data";
+            // 
+            // UsedPartitionDataRatioTextBox
+            // 
+            this.UsedPartitionDataRatioTextBox.Location = new System.Drawing.Point(1198, 59);
+            this.UsedPartitionDataRatioTextBox.Name = "UsedPartitionDataRatioTextBox";
+            this.UsedPartitionDataRatioTextBox.Size = new System.Drawing.Size(100, 20);
+            this.UsedPartitionDataRatioTextBox.TabIndex = 20;
+            // 
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(22, 407);
@@ -103,9 +131,9 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(478, 394);
+            this.button1.Location = new System.Drawing.Point(461, 393);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(166, 51);
+            this.button1.Size = new System.Drawing.Size(143, 51);
             this.button1.TabIndex = 18;
             this.button1.Text = "Remove Selected";
             this.button1.UseVisualStyleBackColor = true;
@@ -307,9 +335,9 @@
             // 
             // ProcessButton
             // 
-            this.ProcessButton.Location = new System.Drawing.Point(669, 394);
+            this.ProcessButton.Location = new System.Drawing.Point(857, 407);
             this.ProcessButton.Name = "ProcessButton";
-            this.ProcessButton.Size = new System.Drawing.Size(155, 51);
+            this.ProcessButton.Size = new System.Drawing.Size(169, 66);
             this.ProcessButton.TabIndex = 7;
             this.ProcessButton.Text = "Process";
             this.ProcessButton.UseVisualStyleBackColor = true;
@@ -358,29 +386,13 @@
             this.InputLabel.TabIndex = 0;
             this.InputLabel.Text = "Add input (partition):";
             // 
-            // UsedPartitionDataRatioTextBox
-            // 
-            this.UsedPartitionDataRatioTextBox.Location = new System.Drawing.Point(1198, 59);
-            this.UsedPartitionDataRatioTextBox.Name = "UsedPartitionDataRatioTextBox";
-            this.UsedPartitionDataRatioTextBox.Size = new System.Drawing.Size(100, 20);
-            this.UsedPartitionDataRatioTextBox.TabIndex = 20;
-            // 
-            // UsedPartitionDataRatioLabel
-            // 
-            this.UsedPartitionDataRatioLabel.AutoSize = true;
-            this.UsedPartitionDataRatioLabel.Location = new System.Drawing.Point(1195, 35);
-            this.UsedPartitionDataRatioLabel.Name = "UsedPartitionDataRatioLabel";
-            this.UsedPartitionDataRatioLabel.Size = new System.Drawing.Size(99, 13);
-            this.UsedPartitionDataRatioLabel.TabIndex = 21;
-            this.UsedPartitionDataRatioLabel.Text = "Used Partition Data";
-            // 
-            // UI
+            // DescrUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1443, 564);
             this.Controls.Add(this.groupBox1);
-            this.Name = "UI";
+            this.Name = "DescrUI";
             this.Text = "Form1";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -425,6 +437,7 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label UsedPartitionDataRatioLabel;
         private System.Windows.Forms.TextBox UsedPartitionDataRatioTextBox;
+        private System.Windows.Forms.Button StopProcessingButton;
     }
 }
 

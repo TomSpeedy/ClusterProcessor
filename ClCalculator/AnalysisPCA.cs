@@ -1,23 +1,18 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Numerics;
-using Accord.Statistics.Analysis;
 using Accord.Math.Comparers;
 using Accord.Statistics;
 using Accord.Math;
 using Accord.Math.Decompositions;
-//using System.Windows.Forms.DataVisualization.Charting;
-//using Accord.Controls;
 using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("ClustersProcessor")]
 
 
 namespace ClusterCalculator
 {
-    
+    /// <summary>
+    /// Performs PCA analysis 
+    /// </summary>
     public class AnalysisPCA
     {
         const int inputDimension = 2;
@@ -34,24 +29,23 @@ namespace ClusterCalculator
         public double[,] Transform(IList<PixelPoint> points)
         {
             double[,] data = ToDoublePoints(points);
-
-            // Step 2. Subtract the mean
+            //Subtract the mean
             double[] mean = data.Mean(0);
             double[,] dataAdjust = data.Subtract(mean,VectorType.RowVector);
-            // Step 3. Calculate the covariance matrix
+            // Calculate the covariance matrix
             double[,] cov = dataAdjust.Covariance();
-            // Step 4. Calculate the eigenvectors and
+            // Calculate the eigenvectors and
             // eigenvalues of the covariance matrix
             var evd = new EigenvalueDecomposition(cov);
-            double[] eigenvalues = evd.RealEigenvalues;
-            double[,] eigenvectors = evd.Eigenvectors;
+            double[] eigenvals = evd.RealEigenvalues;
+            double[,] eigenvect = evd.Eigenvectors;
 
             // Sort eigenvalues and vectors in descending order
-            eigenvectors = Matrix.Sort(eigenvalues, eigenvectors,
+            eigenvect = Matrix.Sort(eigenvals, eigenvect,
             new GeneralComparer(ComparerDirection.Descending, true));
             // Select all eigenvectors
-            double[,] featureVector = eigenvectors;
-            // Step 6. Deriving the new data set
+            double[,] featureVector = eigenvect;
+            // Deriving the new data set
             double[,] finalData =  Matrix.Dot(dataAdjust, featureVector);
             return finalData;
             

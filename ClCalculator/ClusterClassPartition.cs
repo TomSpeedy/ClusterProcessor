@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
+    /// <summary>
+    /// serves as an object for storing information about the class and its partitions
+    /// </summary>
     public class ClusterClassPartition
     {
         public string ConfigPath { get; }

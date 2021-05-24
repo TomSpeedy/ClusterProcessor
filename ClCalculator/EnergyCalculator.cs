@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
+    /// <summary>
+    /// serves as a conversion between ToA and energy and for energy based calculations
+    /// </summary>
     public class EnergyCalculator
     {
         const int confSize = 256;

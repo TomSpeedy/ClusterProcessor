@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
-    public abstract class PixelFilter //works with loaded data, suitable only for filtering currently viewed files
+    /// <summary>
+    /// abstract filter, handling the iteration over pixels
+    /// </summary>
+    public abstract class PixelFilter 
     {
         public int ProcessedCount { get; protected set; } = 0;
         public int FilterSuccessCount { get; protected set; } = 0;
@@ -29,6 +32,9 @@ namespace ClusterCalculator
             return result;
         }
     }
+    /// <summary>
+    /// Checks if pixel has given energy
+    /// </summary>
     public class EnergyHaloFilter : PixelFilter
     {
         double HaloLimit { get; }
@@ -47,6 +53,9 @@ namespace ClusterCalculator
         WithYpsilonNeighbours,
         WithAllDiagonalNeighbours
     }
+    /// <summary>
+    /// class contains data for checkiong and handling Y types of neighbours
+    /// </summary>
     class YpsilonConfig
     {
         public int YpsilonVersionCount { get; } = 8;
@@ -95,6 +104,9 @@ namespace ClusterCalculator
             }
         }
     }
+    /// <summary>
+    /// filters pixels based on the neighor count based on the neighbor type
+    /// </summary>
     public class NeighbourCountFilter : PixelFilter
     {
         readonly (int x, int y)[] neighbourDiagDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
+    /// <summary>
+    /// a simple parser for the given path
+    /// </summary>
     public class PathParser
     {
         public static string GetPrefixPath(string iniPath)

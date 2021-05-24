@@ -10,17 +10,29 @@ using System.Globalization;
 
 namespace ClusterDescriptionGen
 {
-    public partial class UI : Form
+    public partial class DescrUI : Form
     {
-        long ProcessedCount = 0;
+        long ProcessedCount  = 0;
+        bool Stopped = false;
+        bool Done = false;
         System.Windows.Forms.Timer CheckProgressTimer = new System.Windows.Forms.Timer();
+        /// <summary>
+        /// event to update processed clusters count
+        /// </summary>
         public void TimerTicked(object sender, EventArgs e)
         {
             ProcessedCountLabel.Text = "Clusters processed: " + ProcessedCount.ToString();
+            if (Done)
+            {
+                EnableButtonsAfterProcessing();
+                CheckProgressTimer.Stop();
+                Done = false;
+            }
+
         }
         private IDescriptionWriter ClDescriptionWriter { get; set; }
 
-        public UI()
+        public DescrUI()
         {
             InitializeComponent();
             SelectedInputListView.View = View.Details;
@@ -31,6 +43,7 @@ namespace ClusterDescriptionGen
         {
             var fileDialog = new OpenFileDialog();
             fileDialog.Multiselect = true;
+            fileDialog.Filter = "Ini files (*.ini)|*.ini";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 
@@ -70,9 +83,31 @@ namespace ClusterDescriptionGen
                 for (int i = SelectedInputListView.SelectedItems.Count - 1; i >= 0; i--)
                     SelectedInputListView.Items.Remove(SelectedInputListView.SelectedItems[i]);
         }
+        public bool CheckInput()
+        {
+            if (SelectedInputListView.Items.Count == 0)
+            {
+                MessageBox.Show("Nothing to process - no files have been selected");
+                return false;
+            }
+            if (AttributeCheckedList.CheckedItems.Count == 0)
+            {
+                MessageBox.Show("Nothing to process - no attributes have been ticked");
+                return false;
+            }
+            if (OutputTextbox.Text == "")
+            {
+                MessageBox.Show("Cannot start processing - please name the output file");
+                return false;
+            }
+            return true;
+        }
         public void ProcessButtonClicked(object sender, EventArgs e)
         {
-
+            //parse the data from the form
+            ProcessedCount = 0;
+            if (!CheckInput())
+                return;
             string[] iniFiles = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => item.SubItems[1].Text).ToArray();
             string[] classes = SelectedInputListView.Items.Cast<ListViewItem>().Select(item => '"' + item.SubItems[0].Text + '"').ToArray();
             bool classesProportional = UnevenDistrRadioButton.Checked;
@@ -90,7 +125,12 @@ namespace ClusterDescriptionGen
                 if(Math.Abs(maxPartReadParsed) <= 1)
                     maxPartitionRead = maxPartReadParsed;
             }
-            Thread processingThread = new Thread(() =>  GenerateDescription(ref ProcessedCount, iniFiles, classes, classesProportional, endCond, allignBy, parallelProcessing, attributes, maxPartitionRead) );
+            Stopped = false;
+            DisableButtonsForProcessing();
+            //process the clusters in a different thread to stay responsive
+            Thread processingThread = new Thread(() =>
+                GenerateDescription(iniFiles, classes, classesProportional, endCond, allignBy,
+                                    parallelProcessing, attributes, maxPartitionRead)) ;
             CheckProgressTimer.Interval = 1000;
             CheckProgressTimer.Tick += TimerTicked;
             CheckProgressTimer.Start();
@@ -98,19 +138,66 @@ namespace ClusterDescriptionGen
             
             
         }
-        public void CheckAllBoxesClicked(object sender, EventArgs e)
+        private void DisableButtonsForProcessing()
+        {
+            foreach (Control control in Controls)
+            {
+                Button button = control as Button;
+                if (button != null)
+                {
+                    button.Enabled = false;
+                }
+                GroupBox groupBox = control as GroupBox;
+                if (groupBox != null)
+                    foreach (Control controlInGroupBox in groupBox.Controls)
+                    {
+                        Button buttonInGroupBox = controlInGroupBox as Button;
+                        if (buttonInGroupBox != null)
+                        {
+                            buttonInGroupBox.Enabled = false;
+                        }
+                    }
+            }
+            StopProcessingButton.Enabled = true;
+        }
+        private void EnableButtonsAfterProcessing()
+        {
+            foreach (Control control in Controls)
+            {
+                Button button = control as Button;
+                if (button != null)
+                {
+                    button.Enabled = true;
+                }
+                GroupBox groupBox = control as GroupBox;
+                if (groupBox != null)
+                    foreach (Control controlInGroupBox in groupBox.Controls)
+                    {
+                        Button buttonInGroupBox = controlInGroupBox as Button;
+                        if (buttonInGroupBox != null)
+                        {
+                            buttonInGroupBox.Enabled = true;
+                        }
+                    }
+            }
+        }
+            public void CheckAllBoxesClicked(object sender, EventArgs e)
         {
             for (int i = 0; i < AttributeCheckedList.Items.Count; i++)
             {
                 AttributeCheckedList.SetItemChecked(i, true);
             }
         }
-        private void GenerateDescription(ref long processedCount, string[] iniFiles, string[] classes, bool classesProportional,
+        public void StopProcessingClicked(object sender, EventArgs e)
+        {
+            Stopped = true;
+        }
+        private void GenerateDescription(string[] iniFiles, string[] classes, bool classesProportional,
             EndCondition endCond, string allignBy, bool parallelProcessing, IList<ClusterAttribute> attributes, double maxRead)
         {
             Dictionary<ClusterClassPartition, int> writtenCount = new Dictionary<ClusterClassPartition, int>();
 
-            ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text));
+            ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text + ".json"));
             IClusterReader clusterReader = new MMClusterReader();
 
             List<ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
@@ -139,7 +226,7 @@ namespace ClusterDescriptionGen
                 attributePairs.Add(attribute, null);
                 attributesToGet.Add(attribute);
             }
-            int clustersProcessedCount = 0; //remove
+            int clustersProcessedCount = 0; 
             int maxClusterCount = 10000000;
             Random random = new Random();
             IAttributeCalculator attrCalc = new DefaultAttributeCalculator();
@@ -158,9 +245,9 @@ namespace ClusterDescriptionGen
                 else
                     probabilities[i] = clusterEnumCollections[i].CalcLength() / (double)totalLength;
             }
-            while (clustersProcessedCount < maxClusterCount)
+            while (clustersProcessedCount < maxClusterCount && !Stopped)
             {
-                processedCount++;
+                ProcessedCount++;
                 var currentProb = random.NextDouble();
                 var currentIndex = 0;
                 if (classesProportional)
@@ -171,30 +258,27 @@ namespace ClusterDescriptionGen
                             currentIndex = i;
                             break;
                         }
-
                     }
                 else
                     currentIndex = random.Next(0, clusterEnumCollections.Count);
-                var clusterEnumCollection = clusterEnumCollections[currentIndex];
-                //var progress = clusterEnumCollection.Partitions.Select(partition => partition.Collection.ClFile.BaseStream.Position).Sum() / (double)clusterEnumCollection.CalcLength();
-                
+                var clusterEnumCollection = clusterEnumCollections[currentIndex];                
                 if (parallelProcessing)
                 {
                     if (clusterEnumCollections.SelectNextEtorParallel(ref clusterEnumCollection, ref currentIndex, random, allignBy, endCond))
                         break;
                 }
-                else if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, ref currentIndex, random, allignBy, endCond))
+                else if (clusterEnumCollections.SelectNextEtorSequential(ref clusterEnumCollection, 
+                    ref currentIndex, random, allignBy, endCond))
                     break;
                 var currentClFile = clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex].Collection.ClFile;
-                if (/*currentClFile.BaseStream.Position > currentClFile.BaseStream.Length * 0.9 && writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]] < 3000*/true)
-                {
-                    attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
-                    writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]]++;
-                    clustersProcessedCount++;
-                    ClDescriptionWriter.WriteDescription(attributePairs);
-                }
+                attrCalc.Calculate(clusterEnumCollection, attributesToGet, ref clusterReader, ref attributePairs);
+                writtenCount[clusterEnumCollection.Partitions[clusterEnumCollection.PartitionIndex]]++;
+                clustersProcessedCount++;
+                ClDescriptionWriter.WriteDescription(attributePairs);
             }
             ClDescriptionWriter.Close();
+            Stopped = false;
+            Done = true;
             MessageBox.Show("Processing successfully completed");
         }
         private EndCondition GetEndCondition()
@@ -209,6 +293,7 @@ namespace ClusterDescriptionGen
 
 
     }
+    //extension class for iteration methods over the collection of partitions
     static class ClusterClassCollectionExtensions
     {
         public static bool SelectNextEtorParallel(this List<ClusterClassCollection> clEnumCollections, ref ClusterClassCollection currentClEnumCollection, ref int currentIndex, Random random, string allignBy, EndCondition endCond)
@@ -285,15 +370,15 @@ namespace ClusterDescriptionGen
                     currentClEnumCollection.Partitions[currentClEnumCollection.PartitionIndex].ResetEtor();
                     currentClEnumCollection.SetNewCurrentEnumerator(chooseRandomly: false);
                     clEnumCollections[currentIndex] = currentClEnumCollection;
-                    //currentClEnumCollection = clEnumCollections[currentIndex];
                 }
-                //after class removal, chooose the nex class randomly
-
             }
 
             return done;
         }
     }
+    /// <summary>
+    /// condition where the computation should be finished
+    /// </summary>
     public enum EndCondition
     {
         FirstClass, FirstPartition, LastClass

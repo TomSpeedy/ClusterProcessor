@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
-
+    /// <summary>
+    /// Result of the BranchAnalysis
+    /// </summary>
     public class BranchedCluster : Cluster
     {
         public PixelPoint Center { get;}

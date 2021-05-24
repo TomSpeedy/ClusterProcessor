@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
+    /// <summary>
+    /// handles the convex hull calculation
+    /// </summary>
     public class ConvexHull
     {
         public PixelPoint MinPoint { get; }
@@ -84,7 +87,10 @@ namespace ClusterCalculator
             right,
             straight
         }
-
+        /// <summary>
+        /// Check if given point should be part of the hull and adapt the rest of the hull
+        /// </summary>
+        /// <param name="current"></param>
         private void CheckHull(PixelPoint current)
         {
             Direction dir = GetTurn(current);
@@ -135,6 +141,7 @@ namespace ClusterCalculator
             return min;
         }
     }
+    
     class PixelPointComparer : IComparer<PixelPoint>
     {
         public PixelPointComparer(PixelPoint minPoint)

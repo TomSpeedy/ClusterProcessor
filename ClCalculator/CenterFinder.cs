@@ -8,27 +8,9 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
-    public static class Extensions
-    {
-        public static HashSet<PixelPoint> ToHashSetPixPoints(this IEnumerable<PixelPoint> points)
-        {
-            var hashSet = new HashSet<PixelPoint>();
-            foreach (var point in points)
-            {
-                if (!hashSet.Contains(point))
-                    hashSet.Add(point);
-                else
-                { hashSet.TryGetValue(point, out PixelPoint oldPoint);
-                    if (oldPoint.Energy < point.Energy)
-                    {
-                        hashSet.Remove(oldPoint);
-                        hashSet.Add(point);
-                    }
-                 }   
-            }
-            return hashSet;
-        }
-    }
+   /// <summary>
+   /// Class for finding the center of a cluster based on the energy of the pixels
+   /// </summary>
     public class EnergyCenterFinder
     {
         private NeighbourCountFilter NeighbourFilter;
@@ -62,7 +44,12 @@ namespace ClusterCalculator
             surroundEnergy += (coreWeight - skeletWeight) * point.Energy;
             return surroundEnergy;
         }
-
+        /// <summary>
+        ///  calculates the center For the given cluster 
+        /// </summary>
+        /// <param name="skeletCluster"> already skeletonized cluster</param>
+        /// <param name="allPoints"> points of the former cluster</param>
+        /// <returns></returns>
         public PixelPoint CalcCenterPoint(Cluster skeletCluster, IList<PixelPoint> allPoints)
         {
             var hashedPoints = allPoints.ToHashSetPixPoints();
@@ -129,5 +116,27 @@ namespace ClusterCalculator
             }
         }
     }
-    
+    public static class HashSetExtensions
+    {
+        public static HashSet<PixelPoint> ToHashSetPixPoints(this IEnumerable<PixelPoint> points)
+        {
+            var hashSet = new HashSet<PixelPoint>();
+            foreach (var point in points)
+            {
+                if (!hashSet.Contains(point))
+                    hashSet.Add(point);
+                else
+                {
+                    hashSet.TryGetValue(point, out PixelPoint oldPoint);
+                    if (oldPoint.Energy < point.Energy)
+                    {
+                        hashSet.Remove(oldPoint);
+                        hashSet.Add(point);
+                    }
+                }
+            }
+            return hashSet;
+        }
+    }
+
 }

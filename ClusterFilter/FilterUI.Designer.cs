@@ -76,6 +76,7 @@
             this.ViewClusters = new System.Windows.Forms.Button();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.MainGroupBox = new System.Windows.Forms.GroupBox();
+            this.ProcessedCountLabel = new System.Windows.Forms.Label();
             this.FilterGroup.SuspendLayout();
             this.InputFileGroup.SuspendLayout();
             this.MainGroupBox.SuspendLayout();
@@ -567,6 +568,7 @@
             // 
             // MainGroupBox
             // 
+            this.MainGroupBox.Controls.Add(this.ProcessedCountLabel);
             this.MainGroupBox.Controls.Add(this.InputFileGroup);
             this.MainGroupBox.Controls.Add(this.FilterGroup);
             this.MainGroupBox.Controls.Add(this.FilterButton);
@@ -577,6 +579,15 @@
             this.MainGroupBox.TabIndex = 18;
             this.MainGroupBox.TabStop = false;
             this.MainGroupBox.Text = "Filterer";
+            // 
+            // ProcessedCountLabel
+            // 
+            this.ProcessedCountLabel.AutoSize = true;
+            this.ProcessedCountLabel.Location = new System.Drawing.Point(215, 439);
+            this.ProcessedCountLabel.Name = "ProcessedCountLabel";
+            this.ProcessedCountLabel.Size = new System.Drawing.Size(113, 15);
+            this.ProcessedCountLabel.TabIndex = 9;
+            this.ProcessedCountLabel.Text = "Processed Count: 0";
             // 
             // FilterUI
             // 
@@ -592,6 +603,7 @@
             this.InputFileGroup.ResumeLayout(false);
             this.InputFileGroup.PerformLayout();
             this.MainGroupBox.ResumeLayout(false);
+            this.MainGroupBox.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -646,6 +658,7 @@
         private System.Windows.Forms.Label FromVertexCountLabel;
         private System.Windows.Forms.TextBox FromVertexCountTextBox;
         private System.Windows.Forms.Label VertexCountLabel;
+        private System.Windows.Forms.Label ProcessedCountLabel;
     }
 }
 

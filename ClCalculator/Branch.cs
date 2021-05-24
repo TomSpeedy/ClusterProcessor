@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Accord.Statistics.Models.Regression.Linear;
 namespace ClusterCalculator
 {
+    /// <summary>
+    /// Class performing the branch analysis
+    /// </summary>
     public class BranchAnalyzer
     {
 
@@ -13,29 +16,32 @@ namespace ClusterCalculator
         NeighbourCountFilter NeighCountFilter { get; }
         EnergyCenterFinder EnCenterFinder { get; }
         const int trivialBranchLength = 2;
-        int maxDepth = 4;
-        int maxbranchCount = 20;
+        int MaxDepth { get; set; } = 4;
+        int MaxbranchCount { get; set; } = 20;
         public BranchAnalyzer(EnergyCenterFinder centerFinder)
         {
             EnCenterFinder = centerFinder;
             NeighCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
         }
+        /// <summary>
+        /// Performs the branch analysis on the top level
+        /// </summary>
         public BranchedCluster Analyze(Cluster skeletCluster, Cluster originCluster, int maxDepth = 4)
         {
 
-            this.maxDepth = maxDepth;
+            this.MaxDepth = maxDepth;
             List<Branch> mainBranches = new List<Branch>();
             var usablePoints = skeletCluster.Points.ToHashSetPixPoints();
             var center = EnCenterFinder.CalcCenterPoint(skeletCluster, originCluster.Points);
             var crossPoints = NeighCountFilter.Process(usablePoints.ToList());
-            Branch mainBranch = GetCoreBranch(usablePoints, center, crossPoints, maxDepth);
+            Branch mainBranch = GetBranch(usablePoints, center, crossPoints, maxDepth);
             var currentBranch = mainBranch;
-            maxbranchCount = 30;
+            MaxbranchCount = 30;
             usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
             while (currentBranch.Points.Count > trivialBranchLength || mainBranches.Count == 0)
             {
                 mainBranches.Add(currentBranch);
-                currentBranch = GetCoreBranch(usablePoints, center, crossPoints, maxDepth);
+                currentBranch = GetBranch(usablePoints, center, crossPoints, maxDepth);
                 usablePoints = usablePoints.Except(currentBranch.TotalPoints).ToHashSet();
                 usablePoints.Add(center);
             }
@@ -74,7 +80,7 @@ namespace ClusterCalculator
                     }
                 }
             }
-            //merge mainbranch and its suitable subbranch - in case of subbranch error
+            //merge mainbranch and its suitable subbranch
             for (int i = 0; i < mainBranches.Count; ++i)
             {
                 for(int j = 0; j < mainBranches[i].SubBranches.Count; ++j)
@@ -91,7 +97,7 @@ namespace ClusterCalculator
                 }
             }
             return new BranchedCluster(skeletCluster, mainBranches, center);
-        }
+        }     
         public bool AreContinuous(Branch left, Branch right)
         {
             const double epsilonAngle = 0.35d;
@@ -101,12 +107,18 @@ namespace ClusterCalculator
 
 
         }
+        /// <summary>
+        /// Merges two distinct branches into one if the angle between them is small enough
+        /// </summary>
         public void MergeBranches(Branch left, Branch right, IEnumerable<Branch> otherMainBranches)
         {
             left.Points.UnionWith(right.Points.Reverse());
             left.SubBranches = left.SubBranches.Union(right.SubBranches).Union(otherMainBranches).Except(new Branch[] { left, right}).ToList();
 
         }
+        /// <summary>
+        /// Calculates angle between two branches based on up to 10 first points and linear regression
+        /// </summary>
         public double CalculateAngle(IEnumerable<PixelPoint> left, IEnumerable<PixelPoint> right)
         {
             double leftSlope, rightSlope;
@@ -134,22 +146,30 @@ namespace ClusterCalculator
 
             return Math.Atan(Math.Abs((leftSlope - rightSlope) / (1 + leftSlope * rightSlope)));
         }
-        public Branch GetCoreBranch(HashSet<PixelPoint> usablePoints, PixelPoint startBranchPoint, IList<PixelPoint> crossPoints, int depth)
+        /// <summary>
+        /// A recursive function for finding branch and its subbranches
+        /// </summary>
+        /// <param name="usablePoints">points not members of any branch</param>
+        /// <param name="startBranchPoint"></param>
+        /// <param name="crossPoints"></param>
+        /// <param name="depth">remaining depth of calculation</param>
+        /// <returns>Currently analyzed branch</returns>
+        public Branch GetBranch(HashSet<PixelPoint> usablePoints, PixelPoint startBranchPoint, IList<PixelPoint> crossPoints, int depth)
         {
             Branch mainBranch = new Branch(startBranchPoint,
                 FindLongestPathBFS(startBranchPoint, usablePoints/*, crossPoints*/).ToHashSet());
-            maxbranchCount--;
+            MaxbranchCount--;
             var localCrossPoints = crossPoints.Where(branchPoint => mainBranch.Points.Contains(branchPoint) && !branchPoint.Equals(startBranchPoint));
             var nonUsablePoints = mainBranch.Points.Except(localCrossPoints);
             var closeToStartPoints = usablePoints.Where(point => startBranchPoint.GetDistance(point) == 1 && !localCrossPoints.Contains(point)).ToList();
             nonUsablePoints = nonUsablePoints.Append(startBranchPoint).Union(closeToStartPoints);
             var subBranchUsablePoints = usablePoints.Except(nonUsablePoints).ToHashSet();
-            if (depth > 0 && maxbranchCount > 0)
+            if (depth > 0 && MaxbranchCount > 0)
             foreach (var localBranchPoint in localCrossPoints)
             {
-                 mainBranch.SubBranches.Add(GetCoreBranch(subBranchUsablePoints, localBranchPoint, crossPoints, depth - 1));
+                 mainBranch.SubBranches.Add(GetBranch(subBranchUsablePoints, localBranchPoint, crossPoints, depth - 1));
             }
-            if (depth == maxDepth)
+            if (depth == MaxDepth)
                 mainBranch.CalcTotalPoints();
             return mainBranch;
         }
@@ -195,6 +215,12 @@ namespace ClusterCalculator
             return longestPath;
 
         }
+        /// <summary>
+        /// Does the BFS on the points to find longest branch
+        /// </summary>
+        /// <param name="startPoint">start of the search</param>
+        /// <param name="usablePoints"> points we can use for BFS</param>
+        /// <returns>points which were found in BFS as the longest branch</returns>
         public PixelPoint[] FindLongestPathBFS(PixelPoint startPoint, HashSet<PixelPoint> usablePoints)
         {
             Queue<PixelPoint> toVisit = new Queue<PixelPoint>();
@@ -275,7 +301,7 @@ namespace ClusterCalculator
                         if (branch.CalcTotalPoints().Contains(neighbours[0]))
                         {
                             var parentBranch = branch.FindBranch(neighbours[0]);
-                            var newBranch = GetCoreBranch(usablePoints, crossPoints[i], crossPoints, maxDepth);
+                            var newBranch = GetBranch(usablePoints, crossPoints[i], crossPoints, MaxDepth);
                             var newPoints = newBranch.CalcTotalPoints();
                             if (newPoints.Count > trivialBranchLength)
                                 parentBranch.SubBranches.Add(newBranch);
@@ -287,12 +313,19 @@ namespace ClusterCalculator
             }
         }
     }
+    /// <summary>
+    /// Class representing a single branch of the cluster
+    /// </summary>
     public class Branch
     {
         public PixelPoint StartPoint;
         public List<Branch> SubBranches;
         public HashSet<PixelPoint> Points { get; private set; }
         public HashSet<PixelPoint> TotalPoints { get; set; }
+        /// <summary>
+        /// retrieves all the points of this branches and its subbranches
+        /// </summary>
+        /// <returns></returns>
         public HashSet<PixelPoint> CalcTotalPoints() 
         {
             TotalPoints = TotalPoints.Union(Points).ToHashSet();
@@ -302,6 +335,9 @@ namespace ClusterCalculator
             }
             return TotalPoints;
         }
+       /// <summary>
+       /// Get the branch where given point belongs
+       /// </summary>
         public Branch FindBranch(PixelPoint point)
         {
             if (Points.Contains(point))
@@ -325,11 +361,13 @@ namespace ClusterCalculator
             TotalPoints = new HashSet<PixelPoint>();
         
         }
+        /// <summary>
+        /// Convert this object to dictionary for further processing
+        /// </summary>
         public Dictionary<BranchAttribute, object> ToDictionary(EnergyCalculator energyCalc)
         {
             Dictionary<BranchAttribute, object> dict = new Dictionary<BranchAttribute, object>();
             dict.Add(BranchAttribute.Length, this.Points.Count);
-            //dict.Add(BranchAttribute.StartPoint, this.StartPoint);
             dict.Add(BranchAttribute.BranchEnergy, energyCalc.CalcTotalEnergy(this.Points.ToList()));
             if (this.SubBranches.Count != 0)
             {
@@ -342,6 +380,7 @@ namespace ClusterCalculator
             }
             return dict;
         }
+        
         public int GetTotalSubBranchCount()
         {
             var totalSubBranchCount = this.SubBranches.Count;

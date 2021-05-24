@@ -5,6 +5,7 @@ using System.Threading;
 using System.Globalization;
 namespace ClusterCalculator
 {
+
     public interface IClusterReader 
     {
         void GetTextFileNames(TextReader reader, string iniPath, out string pxFile, out string clFile);
@@ -12,6 +13,9 @@ namespace ClusterCalculator
         Cluster LoadByClInfo(StreamReader pixelStream, ClusterInfo clInfo);
 
     }
+    /// <summary>
+    /// handles the read operations of a cluster
+    /// </summary>
     public class MMClusterReader : IClusterReader
     {
         public MMClusterReader()
@@ -29,21 +33,23 @@ namespace ClusterCalculator
         }
         public void GetTextFileNames(TextReader reader, string iniPath, out string pxFile, out string clFile)
         {
-            try
-            {
-                var prefixPath = PathParser.GetPrefixPath(iniPath);
-                reader.ReadLine();
-                string[] tokens1 = reader.ReadLine().Split('=');
-                pxFile = prefixPath + tokens1[1];
-                string[] tokens2 = reader.ReadLine().Split('=');
-                clFile = prefixPath + tokens2[1];
-            }
-            catch (Exception ex)
-            {
-                //MessageBox.Show("Processing error, Selected '.ini' file is not in correct format or is inaccessible.");
-                throw (ex);
-            }
+            
+            var prefixPath = PathParser.GetPrefixPath(iniPath);
+            reader.ReadLine();
+            string[] tokens1 = reader.ReadLine().Split('=');
+            pxFile = prefixPath + tokens1[1];
+            string[] tokens2 = reader.ReadLine().Split('=');
+            clFile = prefixPath + tokens2[1];
+     
+
         }
+        /// <summary>
+        /// Loads cluster from the text file
+        /// </summary>
+        /// <param name="pixelStream">px file</param>
+        /// <param name="clusterStream">cl file</param>
+        /// <param name="clusterNumber">cl index</param>
+        /// <returns>initialized cluster</returns>
         public Cluster LoadFromText(StreamReader pixelStream, StreamReader clusterStream, int clusterNumber = 1)
         {
             try
@@ -59,21 +65,32 @@ namespace ClusterCalculator
 
                 pixelStream.DiscardBufferedData();
                 pixelStream.BaseStream.Position = (long)cluster.ByteStart;
-
-                for (int i = 0; i < cluster.PixelCount; i++)
+                try
                 {
-                    string[] pixel = pixelStream.ReadLine().Split(' ');
-                    cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]), double.Parse(pixel[2]), double.Parse(pixel[3]));
+                    for (int i = 0; i < cluster.PixelCount; i++)
+                    {
+                        string[] pixel = pixelStream.ReadLine().Split(' ');
+                        cluster.Points[i] = new PixelPoint(ushort.Parse(pixel[0]), ushort.Parse(pixel[1]), double.Parse(pixel[2]), double.Parse(pixel[3]));
+                    }
+                }
+                catch 
+                {
+                    throw new Exception("Cluster was not successfully loaded because there was an error parsing px file");
                 }
 
                 return (cluster);
             }
             catch
             {
-                //MessageBox.Show("Cluster was not successfully loaded because either there was an error parsing input file");
                 return null;
             }
         }
+        /// <summary>
+        /// Load clsuter by its clInfo object
+        /// </summary>
+        /// <param name="pixelStream">px file</param>
+        /// <param name="clInfo"> current clInfo</param>
+        /// <returns> initialized clsuter</returns>
         public Cluster LoadByClInfo(StreamReader pixelStream, ClusterInfo clInfo)
         {
             Cluster cluster = new Cluster(FirstToA: clInfo.FirstToA,

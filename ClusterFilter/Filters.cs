@@ -14,8 +14,10 @@ namespace ClusterFilter
 {
 
 
-
-    public abstract class ClusterFilter //works with text files
+    /// <summary>
+    /// abstract filter, handling the iteration and filtering process
+    /// </summary>
+    public abstract class ClusterFilter 
     {
         protected StreamReader PixelFile { get; set; }
         public int ProcessedCount { get; protected set; } = 0;
@@ -53,7 +55,7 @@ namespace ClusterFilter
             return points;
 
         }
-        public void Process(StreamReader inputCLFile, StreamWriter outputCLFile)
+        public void Process(StreamReader inputCLFile, StreamWriter outputCLFile, ref bool done)
         {
             IClusterWriter clusterWriter = new MMClusterWriter(outputCLFile);
             foreach (var clInfo in new ClusterInfoCollection(inputCLFile))
@@ -66,9 +68,14 @@ namespace ClusterFilter
                 }
                 ProcessedCount++;
             }
+            outputCLFile.Close();
+            done = true;
         }
 
     }
+    /// <summary>
+    /// filter consisting of multiple other filters
+    /// </summary>
     public class MultiFilter : ClusterFilter
     {
         public IList<ClusterFilter> Filters { get; }
@@ -81,6 +88,9 @@ namespace ClusterFilter
             return Filters.All(filter => filter.MatchesFilter(clInfo));
         }
     }
+    /// <summary>
+    /// filter based on total energy
+    /// </summary>
     public class EnergyFilter : ClusterFilter
     {
 
@@ -138,6 +148,9 @@ namespace ClusterFilter
 
         }
     }
+    /// <summary>
+    /// filter based on the pixel count of the cluster
+    /// </summary>
     public class PixelCountFilter : ClusterFilter
     {
         private double LowerBound { get; }
@@ -163,6 +176,9 @@ namespace ClusterFilter
 
 
     }
+    /// <summary>
+    /// filter based on the area of convex hull of a cluster
+    /// </summary>
     public class ConvexityFilter : ClusterFilter
     {
         private double LowerBound { get; }
@@ -242,10 +258,16 @@ namespace ClusterFilter
 
 
     }
+    /// <summary>
+    /// filter which always succeeds (used if no fitlers are present)
+    /// </summary>
     public class SuccessFilter : ClusterFilter
     {
         public override bool MatchesFilter(ClusterInfo clInfo) => true;
     }
+    /// <summary>
+    /// filters clusters according to its number of vertices after skeletonization
+    /// </summary>
     public class VertexCountFilter : ClusterFilter
     {
         private VertexFinder VertexFinder { get; }
@@ -302,6 +324,9 @@ namespace ClusterFilter
             return width >= LowerBound && width <= UpperrBound;
         }
     }
+    /// <summary>
+    /// filters cluster within a selected number of branches
+    /// </summary>
     public class BranchCountFilter : ClusterFilter
     {
         private double LowerBound { get; }
@@ -324,8 +349,7 @@ namespace ClusterFilter
             var skeletonizedPoints = Skeletonizer.SkeletonizePoints(points);
             var skeletCluster = new Cluster(clusterInfo.FirstToA, clusterInfo.PixCount, clusterInfo.ByteStart);
             skeletCluster.Points = skeletonizedPoints;
-            var branchedCluster = BranchAnalyzer.Analyze(baseCluster, skeletCluster);
-
+            var branchedCluster = BranchAnalyzer.Analyze(skeletCluster, baseCluster);
             int branchesCount = 0;
             foreach (var branch in branchedCluster.MainBranches)
                 branchesCount += (branch.GetTotalSubBranchCount() + 1);

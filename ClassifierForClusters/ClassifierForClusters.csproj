@@ -103,15 +103,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BackPropagation.cs" />
-    <Compile Include="CostFunction.cs" />
-    <Compile Include="Edges.cs" />
-    <Compile Include="MLP.cs" />
-    <Compile Include="Neuron.cs" />
-    <Compile Include="NNLayer.cs" />
+    <Compile Include="ClassPrediction.cs" />
+    <Compile Include="Factories.cs" />
+    <Compile Include="MultiClassifier.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqeezeFunction.cs" />
+    <Compile Include="SingleClassifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

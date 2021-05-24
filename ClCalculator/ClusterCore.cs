@@ -10,9 +10,11 @@ using System.Threading.Tasks;
 using System.IO;
 namespace ClusterCalculator
 {
+    /// <summary>
+    /// essential object which stores primary data about the cluster
+    /// </summary>
     public class Cluster
     {
-
         public double FirstToA { get; protected set; }
         public uint PixelCount { get; protected set; }
         public ulong ByteStart { get; protected set; }
@@ -33,6 +35,9 @@ namespace ClusterCalculator
         }
                
     }
+    /// <summary>
+    /// A single detected point in the cluster
+    /// </summary>
     public struct PixelPoint : IEquatable<PixelPoint>
     {
 
@@ -84,6 +89,9 @@ namespace ClusterCalculator
             return $"({this.xCoord},{this.yCoord})";
         }
     }    
+    /// <summary>
+    /// stores information about the cluster accessible from cl file
+    /// </summary>
     public struct ClusterInfo
     { 
         public double FirstToA { get; set; }
@@ -138,6 +146,9 @@ namespace ClusterCalculator
         }
 
     }
+    /// <summary>
+    /// represents attributes of a cluster that can be calculated and serialized
+    /// </summary>
     public enum ClusterAttribute
     {
         TotalEnergy, PixelCount, AverageEnergy, MaxEnergy,
@@ -146,11 +157,17 @@ namespace ClusterCalculator
         Class, ClFile, PxFile, ClIndex
         
     }
+    /// <summary>
+    /// attributes of a single branch in the cluster
+    /// </summary>
     public enum BranchAttribute
     {
         StartPoint, Length, SubBranches, BranchEnergy
 
     }
+    /// <summary>
+    /// attribute conversion between enum and string
+    /// </summary>
     public static class AttrExtensions
     {
         public static string AttrToString(this ClusterAttribute attribute)

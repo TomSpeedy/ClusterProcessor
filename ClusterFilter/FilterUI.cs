@@ -18,32 +18,56 @@ namespace ClusterFilter
 {
     public partial class FilterUI : Form
     {
-        private IClusterReader ClusterReader { get; set; } = new MMClusterReader();
+        IClusterReader ClusterReader { get; set; } = new MMClusterReader();
+        System.Windows.Forms.Timer UpdateProcessedTimer = new System.Windows.Forms.Timer();
+        long ProcessedCount { get; set; }
+        bool FilteringDone  =  true;
+        ClusterFilter CurrentFilter { get; set; }
+
         public FilterUI()
         {
             InitializeComponent();
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
         }
         #region Event Handlers
-        
-       
+
+        private void UpdateProcessedCount(object sender, EventArgs e)
+        {
+            if (CurrentFilter == null)
+                return;
+            ProcessedCount = CurrentFilter.ProcessedCount;
+            ProcessedCountLabel.Text = $"Processed Count: {ProcessedCount}";
+            if (FilteringDone)
+            {
+                UpdateProcessedTimer.Stop();
+            }
+        }
        
         public void ProcessFilterClicked(object sender, EventArgs e)
         {
+            if (!FilteringDone)
+            {
+                MessageBox.Show("Filtering cannot start because the last filtering process is still in progress");
+                return;
+            }
+            FilteringDone = false;
             Thread filteringThread = new Thread(() => ProcessFilter());
             filteringThread.Start();
-            
+            UpdateProcessedTimer.Interval = 1000;
+            UpdateProcessedTimer.Tick += UpdateProcessedCount;
+            UpdateProcessedTimer.Start();
+
 
         }
         public void BrowseFilterFileButtonClicked(object sender, EventArgs e)
         {
             var fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Ini files (*.ini)|*.ini";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 InFilePathBox.Text = fileDialog.FileName;
             }
         }
-
         #endregion
 
 
@@ -56,12 +80,15 @@ namespace ClusterFilter
             }
             output.Close();
         }
+        /// <summary>
+        /// parser the data from UI and creates the filters accordingly in ordered from the least expensive calculation
+        /// </summary>
         private void ProcessFilter()
         {
             const string doneMessage = "Filtering successfully completed";
             try
             {
-
+                ProcessedCount = 0;
                 var workingDirName = PathParser.GetPrefixPath(InFilePathBox.Text);
                 ClusterReader.GetTextFileNames(new StreamReader(InFilePathBox.Text), InFilePathBox.Text, out string pxFile, out string clFile);
                 var outClPath = clFile.Replace('.','_') + "_filtered_" + DateTime.Now.ToString().Replace('/', '-').Replace(':','-') + ".cl";
@@ -89,8 +116,8 @@ namespace ClusterFilter
                     double.TryParse(ToWidthTextBox.Text, out double resultUpperW) ? resultUpperE : double.MaxValue);
 
                 var branchCountFilter = new BranchCountFilter(new StreamReader(pxFile),
-                    double.TryParse(FromBranchCountTextBox.Text, out double resultLowerB) ? resultLowerE : 0,
-                    double.TryParse(ToBranchCountTextBox.Text, out double resultUpperB) ? resultUpperE : double.MaxValue);
+                    double.TryParse(FromBranchCountTextBox.Text, out double resultLowerB) ? resultLowerB : 0,
+                    double.TryParse(ToBranchCountTextBox.Text, out double resultUpperB) ? resultUpperB : double.MaxValue);
 
                 List<ClusterFilter> usedFiletrs = new List<ClusterFilter>();
 
@@ -124,9 +151,11 @@ namespace ClusterFilter
 
                 usedFiletrs.Add(new SuccessFilter());
                 var multiFilter = new MultiFilter(usedFiletrs);
-                multiFilter.Process(new StreamReader(clFile), filteredOut);
+                CurrentFilter = multiFilter;
+                
+                multiFilter.Process(new StreamReader(clFile), filteredOut, ref FilteringDone);
 
-                filteredOut.Close();
+                
                 MessageBox.Show(doneMessage);
             }
             catch (IOException)

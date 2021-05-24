@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using ClassifierForClusters;
 using System.Globalization;
 using System.Threading;
+using System.IO;
 using ClusterCalculator;
 
 namespace ClassificatorUI
@@ -22,7 +23,9 @@ namespace ClassificatorUI
             InitializeComponent();
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.GetCultureInfo("en-US");
         }
-
+        /// <summary>
+        /// handles browsing the files with .csf suffix
+        /// </summary>
         public void BrowseClassifiersClicked(object sender, EventArgs e)
         {
             Button pressedButton = sender as Button;
@@ -53,6 +56,9 @@ namespace ClassificatorUI
                 }
             }
         }
+        /// <summary>
+        /// handles browsing the files with .json suffix
+        /// </summary>
         public void BrowseJsonFieldsClicked(object sender, EventArgs e)
         {
             Button pressedButton = sender as Button;
@@ -74,10 +80,9 @@ namespace ClassificatorUI
                 }
             }
         }
-        public void BrowseNewModelClicked(object sender, EventArgs e)
-        { 
-        
-        }
+        /// <summary>
+        /// Handles training of the new classifier
+        /// </summary>
         public void TrainSimpleClassifierClicked(object sender, EventArgs e)
         {
             ITrainableClassifier classifier;
@@ -86,7 +91,15 @@ namespace ClassificatorUI
             else
             {
                 classifier = new NNClassifier();
-                classifier.LoadFromFile(TrainedModelTextBox.Text);
+                try
+                {
+                    classifier.LoadFromFile(TrainedModelTextBox.Text);
+                }
+                catch
+                {
+                    Console.WriteLine("Error - selected trained model is not in correct format");
+                    return;
+                }
             }
             int maxRepetCount = 1;
             if (uint.TryParse(MaxRepetitionTextBox.Text, out uint chosenRepetCount))
@@ -104,20 +117,36 @@ namespace ClassificatorUI
                 seed = parsedSeed;
             }
             int iterationCount = 0;
-            double accuracy = 0;             
+            double accuracy = 0;   
+            //staring the training process in a new thread
             Thread thread = new Thread(() => 
             {
                 while (iterationCount < maxRepetCount && accuracy <= minAccuracy)
                 {
-                    accuracy = classifier.Train(ClassifierConfigTextBox.Text, TrainJsonFileTextBox.Text, ref TrainingStopped, minAccuracy, seed);
-                    iterationCount++;
+                    try
+                    {
+                        accuracy = classifier.Train(ClassifierConfigTextBox.Text, TrainJsonFileTextBox.Text, ref TrainingStopped, minAccuracy, seed);
+                        iterationCount++;
+                    }
+                    catch (IOException)
+                    {
+                        MessageBox.Show("Error - Training or config data do not exist or are inaccessible");
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        return;
+                    }
                 }
                 MessageBox.Show("The training process has successfully ended");
                 TrainingStopped = false;
             });
             thread.Start();
         }
-
+        /// <summary>
+        /// Handles Merging multiple classifiers
+        /// </summary>
         public void MergeClassifiersClicked(object sender, EventArgs e)
         {
             
@@ -141,23 +170,36 @@ namespace ClassificatorUI
             int index = 0;
             while ( index < textBoxCount && classifierPaths[index] != "")
             {
-                simpleClassifier = new NNClassifier();
-                simpleClassifier.LoadFromFile(classifierPaths[index]);
-                classifiers.Add(simpleClassifier);
-                if (index > 0)
-                    splitClasses.Add(splitClassesInBox[index - 1]);
-                index++;
+                try
+                {
+                    simpleClassifier = new NNClassifier();
+                    simpleClassifier.LoadFromFile(classifierPaths[index]);
+                    classifiers.Add(simpleClassifier);
+                    if (index > 0)
+                        splitClasses.Add(splitClassesInBox[index - 1]);
+                    index++;
+                }
+                catch 
+                {
+                    Console.WriteLine($"Error - classifier {index} could not be loaded");
+                    return;
+                }
             }       
 
-
-
-
             MultiLayeredClassifier multiClassifier = new MultiLayeredClassifier();
+
             multiClassifier.FromLinearTrees(classifiers, splitClasses);
-            multiClassifier.StoreToFile(MergedClassifierNameTextBox.Text);
-            MultiLayeredClassifier classi = new MultiLayeredClassifier();
-            classi.LoadFromFile(MergedClassifierNameTextBox.Text);
-            MessageBox.Show(classi.TestModel("../../../ClusterDescriptionGen/bin/Debug/testCollection.json").ToString());
+            try
+            {
+                multiClassifier.StoreToFile(MergedClassifierNameTextBox.Text);
+            }
+            catch 
+            {
+                Console.WriteLine($"Error - classifier cannot be stored into a selected file");
+                return;
+            }
+            MessageBox.Show("Classifier successfully merged");
+
         }
         public void StopButtonClicked(object sender, EventArgs e)
         {

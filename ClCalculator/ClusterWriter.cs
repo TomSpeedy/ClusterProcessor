@@ -13,6 +13,9 @@ namespace ClusterCalculator
     {
         void WriteClusterInfo(ClusterInfo clusterInfo);
     }
+    /// <summary>
+    /// Writes the cluster to the given output in MM format
+    /// </summary>
     public class MMClusterWriter : IClusterWriter
     {
         private StreamWriter OutputStream { get; set; }
@@ -30,7 +33,9 @@ namespace ClusterCalculator
         void WriteDescription(Dictionary<ClusterAttribute, object> attrtibutes, long id = 0);
         void Close();
     }
-
+    /// <summary>
+    /// writes the JSON attribute description of a cluster
+    /// </summary>
     public class JSONDecriptionWriter : IDescriptionWriter
     {
         private StreamWriter OutputStream { get; set; }

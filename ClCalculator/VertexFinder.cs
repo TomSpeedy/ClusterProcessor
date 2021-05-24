@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
+    /// <summary>
+    /// serves as a class for finding vertex of a cluster after skeletonization
+    /// </summary>
     public class VertexFinder
     {
         private ISkeletonizer Skeletonizer { get; }

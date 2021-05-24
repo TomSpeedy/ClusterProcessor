@@ -15,18 +15,27 @@ namespace ClusterCalculator
         Cluster SkeletonizeCluster(Cluster cluster);
 
     }
+    /// <summary>
+    /// an implementation skeletonization algorithm
+    /// </summary>
     public class ThinSkeletonizer : ISkeletonizer
     {
         HashSet<PixelPoint> pointsHash { get; set; }
         List<PixelPoint> neighboursTemp { get; set; }
-        EnergyCalculator EnergyCalculator { get; }
         EnergyHaloFilter HaloFilter { get; }
 
         readonly (int x,  int y)[] neighbourDiff = { (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1) };
         public ThinSkeletonizer()
         {
-            HaloFilter = new EnergyHaloFilter();
+            HaloFilter = new EnergyHaloFilter(25);
         }
+        /// <summary>
+        /// skeletonizes selected set of points if they match the predicate
+        /// </summary>
+        /// <param name="points"> points to skeletonize</param>
+        /// <param name="condition"> the predicate which must be matched</param>
+        /// <param name="preserveEnergy"> sets if the enegry should be preserved during the skeletonization</param>
+        /// <returns>skeletonized poitns</returns>
         private PixelPoint[] SkeletonizeSelected(IList<PixelPoint> points, Predicate<PixelPoint> condition, bool preserveEnergy = true)
         {
             //prepare collections of points
@@ -115,12 +124,19 @@ namespace ClusterCalculator
             }
             return pointsHash.ToArray();
         }
+        /// <summary>
+        /// first public API of the Skeletonization function used for list of pixels
+        /// </summary>
         public PixelPoint[] SkeletonizePoints(IList<PixelPoint> points)
         {
             var removedHalo = SkeletonizeSelected(points, point => !HaloFilter.MatchesFilter(point), preserveEnergy:true);
             var allSkeletonized = SkeletonizeSelected(removedHalo, condition: point => true, preserveEnergy:true);
             return allSkeletonized;
         }
+        /// <summary>
+        /// second public API of the skeletonization function used for already created cluster object
+        /// </summary>
+
         public Cluster SkeletonizeCluster(Cluster cluster)
         {
             var skeletPoints = SkeletonizePoints(cluster.Points);

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ClusterCalculator
 {
@@ -11,6 +9,9 @@ namespace ClusterCalculator
     {
         void Calculate(ClusterClassCollection collection, IList<ClusterAttribute> attributesToGet, ref IClusterReader reader, ref Dictionary<ClusterAttribute, object> attributePair);
     }
+    /// <summary>
+    /// Class containing calculation of all features of type ClusterAttribute
+    /// </summary>
     public class DefaultAttributeCalculator : IAttributeCalculator
     {
         EnergyCalculator EnergyCalculator { get; set; }
@@ -19,18 +20,24 @@ namespace ClusterCalculator
         VertexFinder VertexFinder { get; set; }
         BranchAnalyzer BranchAnalyzer { get; set; }
         ClusterClassCollection ClassCollection { get; set; }
+        const int minNeighborCount = 3;
 
-        NeighbourCountFilter NeighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= 3, NeighbourCountOption.WithYpsilonNeighbours);
-        public virtual void CalcAttributes(ref Dictionary<ClusterAttribute, object> attributePairs, IList<ClusterAttribute> attributesToGet, Cluster current)
+        NeighbourCountFilter NeighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= minNeighborCount, NeighbourCountOption.WithYpsilonNeighbours);
+        /// <summary>
+        /// Performs the calculation of all attributes
+        /// </summary>
+        /// <param name="attributePairs">result key value pairs</param>
+        /// <param name="attributesToGet"> attributes to calculate (for iteration)</param>
+        /// <param name="current">current instance of cluster </param>
+        public void CalcAttributes(ref Dictionary<ClusterAttribute, object> attributePairs, IList<ClusterAttribute> attributesToGet, Cluster current)
         {
-            //var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
             ConvexHull hull = null;
             Cluster skeletonizedCluster = null;
             BranchedCluster branchedCluster = null;
             EnergyHaloFilter energyFilter = new EnergyHaloFilter(5);
             foreach (var attribute in attributesToGet)
             {
-
+                //specific calculation of each attribute, stored in dictionary
                 switch (attribute)
                 {
                     case ClusterAttribute.PixelCount:
@@ -107,7 +114,7 @@ namespace ClusterCalculator
                         break;
                     case ClusterAttribute.Class:
                         if (ClassCollection == null)
-                            throw new InvalidOperationException("Cannot calculate the class attrribute directly. Please Use Classifier to get the class");
+                            throw new InvalidOperationException("Cannot calculate the class attrribute directly via attribute calculator. Please Use Classifier to predict the class");
                         attributePairs[attribute] = ClassCollection.Class;
                         break;
                     case ClusterAttribute.StdOfEnergy:
@@ -145,7 +152,7 @@ namespace ClusterCalculator
                             ((FileStream)ClassCollection.Partitions[ClassCollection.PartitionIndex].Collection.ClFile.BaseStream)
                             .Name.Replace('\\', '/');
                         Uri absPathUri = new Uri(absPath);
-                        Uri relativeUri = new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(absPathUri);
+                        Uri relativeUri = new Uri(Directory.GetCurrentDirectory().Replace('\\', '/') + "/file").MakeRelativeUri(absPathUri);
                         attributePairs[attribute] = "\"" +  relativeUri.ToString() + "\"";
                         break;
                     case ClusterAttribute.PxFile:
@@ -153,7 +160,7 @@ namespace ClusterCalculator
                             ((FileStream)ClassCollection.Partitions[ClassCollection.PartitionIndex].Collection.PxFile.BaseStream)
                             .Name.Replace('\\','/');
                         absPathUri = new Uri(absPath);
-                        relativeUri = new Uri(Directory.GetCurrentDirectory()).MakeRelativeUri(absPathUri);
+                        relativeUri = new Uri(Directory.GetCurrentDirectory() + "\\file").MakeRelativeUri(absPathUri);
                         attributePairs[attribute] = "\"" + relativeUri.ToString() + "\"";
                         break;
                     case ClusterAttribute.ClIndex:
@@ -164,6 +171,13 @@ namespace ClusterCalculator
                 }
             }
         }
+        /// <summary>
+        /// first variant of using the calculator - via the descr generator
+        /// </summary>
+        /// <param name="collection">data with information about currently processed class</param>
+        /// <param name="attributesToGet"> attributes to calculate</param>
+        /// <param name="reader">object for reading clusters from the collection</param>
+        /// <param name="attributePairs">key value attribute pairs</param>
         public void Calculate(ClusterClassCollection collection, IList<ClusterAttribute> attributesToGet, ref IClusterReader reader, ref Dictionary<ClusterAttribute, object> attributePairs)
         {       
             var partition = collection.Partitions[collection.PartitionIndex];
@@ -177,6 +191,12 @@ namespace ClusterCalculator
             var current = reader.LoadByClInfo(partition.Collection.PxFile, clInfo);
             CalcAttributes(ref attributePairs, attributesToGet, current);       
         }
+        /// <summary>
+        /// second variant of the API for calculation, used when the cluster object is already created
+        /// </summary>
+        /// <param name="current"> cluster to process </param>
+        /// <param name="attributesToGet"> attributes for calculation </param>
+        /// <param name="attributePairs"> ke value pairs of attributes</param>
         public void Calculate(Cluster current,  IList<ClusterAttribute> attributesToGet, ref Dictionary<ClusterAttribute, object> attributePairs)
         {
             

@@ -22,21 +22,35 @@ namespace ClassificationExperiment
         static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Invalid argument count - the only argument should be the data directory path");
+                //return;
+            }
+            args = new string[] { "", "D:\\source\\repos\\Example_data" };
+            TestData.SetWorkingDirectory(args[1].Replace('\\', '/'));
+            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
+
+            Console.WriteLine("*************** TESTING THE BEST CLASSIFIER *****************");
+            classifier.LoadFromFile(TestData.workingDir + "trained_models/bestClassifier.csf");
+            classifier.TestModel(TestData.dataTest);
+
+            Console.WriteLine("*************** START OF THE FIRST TEST (DIFFERENT PARAMETERS) *****************");
             var testParameters = new TestDifferentParameters(10);
             testParameters.PrepareData();
             testParameters.Test();
-            
-            /*var testSimpleVsMulti = new TestSimpleVsMulti(10);
+            Console.WriteLine("*************** END OF THE FIRST TEST *****************");
+            Console.WriteLine("*************** START OF THE SECOND TEST (SIMPLE vs MULTI) *****************");
+            var testSimpleVsMulti = new TestSimpleVsMulti(10);
             testSimpleVsMulti.PrepareData();
-            testSimpleVsMulti.Test();*/
-
-            /*var testKFold = new TestCrossValidateSimple(6, 1);
+            testSimpleVsMulti.Test();
+            Console.WriteLine("*************** END OF THE SECOND TEST *****************");
+            Console.WriteLine("*************** START OF THE THIRD TEST (CROSSVALIDATION)*****************");
+            var testKFold = new TestCrossValidateSimple(6, 1);
             testKFold.PrepareData();
-            testKFold.Test();*/
-
-            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
-            classifier.LoadFromFile("../../trained_models/bestClassifier.csf");
-            classifier.TestModel(TestData.dataTest);
+            testKFold.Test();
+            Console.WriteLine("*************** END OF THE THIRD TEST *****************");
+            
 
         }      
     }
@@ -70,7 +84,7 @@ namespace ClassificationExperiment
                 SimpleClassifiers[1][i].SetTeacher("backProp", 0.5, 0.5);
 
                 SimpleClassifiers[2][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-                SimpleClassifiers[2][i].SetTeacher("backProp", 1, 1);
+                SimpleClassifiers[2][i].SetTeacher("backProp", 0.9, 0.9);
 
                 SimpleClassifiers[3][i].ConfigureParams(new string[] { TestData.fragOneLayerConfig, TestData.dataLearnFrag });
                 SimpleClassifiers[4][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
@@ -137,7 +151,7 @@ namespace ClassificationExperiment
                 SimpleClassifiers[i].Learn(trainAllPath, successThreshold: 0, ref Stopped, seed: i, eval: true);
                 MultiClassifiers[i] = new MultiLayeredClassifier();
                 Console.WriteLine($"******** Creating Multi Classifier {i} ***********");
-                MultiClassifiers[i].FromDefault(seed: i);
+                MultiClassifiers[i].FromDefault(TestData.workingDir,seed: i);
             }
 
         }
@@ -166,8 +180,6 @@ namespace ClassificationExperiment
     }
     class TestCrossValidateSimple : ITest
     {
-        public Dictionary<string, double[][]> CVErrors { get; private set; } = new Dictionary<string, double[][]>();
-        public Dictionary<string, double> Variances { get; private set; } = new Dictionary<string, double>();
         int KFoldValue { get; set; }
         NNClassifier LeadClassifier { get; set; }
         NNClassifier FragHeFeClassifier { get; set; }
@@ -214,37 +226,76 @@ namespace ClassificationExperiment
                 accuraciesElMuPi[i] = ElMuPiClassifier.CrossValidate(KFoldValue, TestData.dataLearnElMuPi, TestData.elMuPiConfig, i, learnIterationsCount);
 
             }
-            CVErrors.Add(TestData.lead, accuraciesLead);
-            Variances.Add(TestData.lead, accuraciesLead.Variance());
-            CVErrors.Add(TestData.fragHeFe, accuraciesFragHeFe);
-            Variances.Add(TestData.fragHeFe, accuraciesFragHeFe.Variance());
-            CVErrors.Add(TestData.prLe, accuraciesPrLe);
-            Variances.Add(TestData.prLe, accuraciesPrLe.Variance());
-            CVErrors.Add(TestData.elMuPi, accuraciesElMuPi);
-            Variances.Add(TestData.elMuPi, accuraciesElMuPi.Variance());
+            Console.WriteLine($"********* RESULTS ***********");
+            for (int i = 0; i < KFoldValue; i++)
+            {
+                Console.WriteLine($"{TestData.lead} accuracy : {accuraciesLead[0][i]}");
+            }
+            Console.WriteLine($"{TestData.lead} variance : {accuraciesLead.Variance()}");
+
+            for (int i = 0; i < KFoldValue; i++)
+            {
+                Console.WriteLine($"{TestData.fragHeFe} accuracy : {accuraciesFragHeFe[0][i]}");
+            }
+            Console.WriteLine($"{TestData.fragHeFe} variance : {accuraciesFragHeFe.Variance()}");
+
+            for (int i = 0; i < KFoldValue; i++)
+            {
+                Console.WriteLine($"{TestData.prLe} accuracy : {accuraciesPrLe[0][i]}");
+            }
+            Console.WriteLine($"{TestData.prLe} variance : {accuraciesPrLe.Variance()}");
+
+
+            for (int i = 0; i < KFoldValue; i++)
+            {
+                Console.WriteLine($"{TestData.elMuPi} accuracy : {accuraciesElMuPi[0][i]}");
+            }
+            Console.WriteLine($"{TestData.elMuPi} variance : {accuraciesElMuPi.Variance()}");
 
         }
     }
     static class TestData
     {
-        public const string lead = "lead";
-        public const string fragHeFe = "fragHeFe";
-        public const string prLe = "prLe";
-        public const string elMuPi = "elMuPi";
-        public const string dataLearnLead = "../../train_data/trainLeadNew.json";
-        public const string dataLearnFrag = "../../train_data/trainFragHeFeNew.json";
-        public const string dataLearnPrLe = "../../train_data/trainPrLe_ElMuPi.json";
-        public const string dataLearnElMuPi = "../../train_data/trainElMuPi.json";
-        public const string leadConfig = "../../train_data/LeadNetworkConfig.json";
-        public const string fragHeFeConfig = "../../train_data/FragHeFeNetworkConfig.json";
-        public const string prLeConfig = "../../train_data/PrLeNetworkConfig.json";
-        public const string elMuPiConfig = "../../train_data/ElMuPiNetworkConfig.json";
-        public const string dataTest = "../../test_data/testCollection.json";
-        public const string fragTest = "../../test_data/testFrag.json";
+        public static string lead = "lead";
+        public static string fragHeFe = "fragHeFe";
+        public static string prLe = "prLe";
+        public static string elMuPi = "elMuPi";
+        public static string workingDir = "";
+        public static string dataLearnLead = "train_data/trainLeadNew.json";
+        public static string dataLearnFrag = "train_data/trainFragHeFeNew.json";
+        public static string dataLearnPrLe = "train_data/trainPrLe_ElMuPi.json";
+        public static string dataLearnElMuPi = "train_data/trainElMuPi.json";
+        public static string leadConfig = "train_data/LeadNetworkConfig.json";
+        public static string fragHeFeConfig = "train_data/FragHeFeNetworkConfig.json";
+        public static string prLeConfig = "train_data/PrLeNetworkConfig.json";
+        public static string elMuPiConfig = "train_data/ElMuPiNetworkConfig.json";
+        public static string dataTest = "test_data/testCollection.json";
+        public static string fragTest = "test_data/testFrag.json";
 
-        public const string fragOneLayerConfig = "../../train_data/FragHeFeNetworkConfig1.json";
-        public const string fragTwoBiggerConfig = "../../train_data/FragHeFeNetworkConfig2.json";
-        public const string fragThreeLayerConfig = "../../train_data/FragHeFeNetworkConfig3.json";
+        public static string fragOneLayerConfig = "train_data/FragHeFeNetworkConfig1.json";
+        public static string fragTwoBiggerConfig = "train_data/FragHeFeNetworkConfig2.json";
+        public static string fragThreeLayerConfig = "train_data/FragHeFeNetworkConfig3.json";
+        public static void SetWorkingDirectory(string dataDir)
+        {
+            if (dataDir[dataDir.Length - 1] == '/')
+                workingDir = dataDir;
+            else
+                workingDir = dataDir + "/";
+            dataLearnElMuPi = workingDir + dataLearnElMuPi;
+            dataLearnFrag = workingDir + dataLearnFrag;
+            dataLearnPrLe = workingDir + dataLearnPrLe;
+            dataLearnLead = workingDir + dataLearnLead;
+            leadConfig = workingDir + leadConfig;
+            fragHeFeConfig = workingDir + fragHeFeConfig;
+            prLeConfig = workingDir + prLeConfig;
+            elMuPiConfig = workingDir + elMuPiConfig;
+            dataTest = workingDir + dataTest;
+            fragTest = workingDir + fragTest;
+            fragOneLayerConfig = workingDir + fragOneLayerConfig;
+            fragTwoBiggerConfig = workingDir + fragTwoBiggerConfig;
+            fragThreeLayerConfig = workingDir + fragThreeLayerConfig;
+
+        }
     }
     public static class TestUtilExtensions
     {
