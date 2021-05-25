@@ -84,7 +84,7 @@ namespace ClassificationExperiment
                 SimpleClassifiers[1][i].SetTeacher("backProp", 0.5, 0.5);
 
                 SimpleClassifiers[2][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
-                SimpleClassifiers[2][i].SetTeacher("backProp", 0.9, 0.9);
+                SimpleClassifiers[2][i].SetTeacher("backProp", 1, 1);
 
                 SimpleClassifiers[3][i].ConfigureParams(new string[] { TestData.fragOneLayerConfig, TestData.dataLearnFrag });
                 SimpleClassifiers[4][i].ConfigureParams(new string[] { TestData.fragHeFeConfig, TestData.dataLearnFrag });
