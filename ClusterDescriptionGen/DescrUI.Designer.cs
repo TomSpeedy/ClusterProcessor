@@ -393,7 +393,7 @@
             this.ClientSize = new System.Drawing.Size(1443, 564);
             this.Controls.Add(this.groupBox1);
             this.Name = "DescrUI";
-            this.Text = "Form1";
+            this.Text = "Description Generator";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.EndingConditionGroupBox.ResumeLayout(false);

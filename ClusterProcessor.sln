@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterViewer", "ClusterUI\ClusterViewer.csproj", "{D523AAE3-4FCD-4B2A-B609-5E71F80A4CC8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClusterFilterConsole", "ClusterFilterConsole\ClusterFilterConsole.csproj", "{F70D7241-CEA9-44F4-A7E4-EFC13DD7842F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterFilter", "ClusterFilter\ClusterFilter.csproj", "{DC502441-3410-4D15-BEAE-CAB6D6871D2D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClusterDescriptionGen", "ClusterDescriptionGen\ClusterDescriptionGen.csproj", "{4B2F6CCA-57ED-4C8B-BBDF-F03614E525A8}"
@@ -31,10 +29,6 @@ Global
 		{D523AAE3-4FCD-4B2A-B609-5E71F80A4CC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D523AAE3-4FCD-4B2A-B609-5E71F80A4CC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D523AAE3-4FCD-4B2A-B609-5E71F80A4CC8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F70D7241-CEA9-44F4-A7E4-EFC13DD7842F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F70D7241-CEA9-44F4-A7E4-EFC13DD7842F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F70D7241-CEA9-44F4-A7E4-EFC13DD7842F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F70D7241-CEA9-44F4-A7E4-EFC13DD7842F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DC502441-3410-4D15-BEAE-CAB6D6871D2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DC502441-3410-4D15-BEAE-CAB6D6871D2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC502441-3410-4D15-BEAE-CAB6D6871D2D}.Release|Any CPU.ActiveCfg = Release|Any CPU

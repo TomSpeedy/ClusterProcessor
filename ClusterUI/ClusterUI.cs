@@ -332,84 +332,103 @@ namespace ClusterUI
 
             {
                 MessageBox.Show("Error - attribute ClFile is missing from loaded JSON object");
-                return false;
+                throw new ArgumentException();
             }
             if (!jsonRecord.ContainsKey(ClusterAttribute.PxFile.ToString()))
 
             {
                 MessageBox.Show("Error - attribute PxFile is missing from loaded JSON object");
-                return false;
+                throw new ArgumentException();
             }
             if (!jsonRecord.ContainsKey(ClusterAttribute.ClIndex.ToString()))
 
             {
                 MessageBox.Show("Error - attribute ClIndex is missing from loaded JSON object");
-                return false;
+                throw new ArgumentException();
             }
             try
             {
                 var baseJsonPath = Path.GetDirectoryName(InViewFilePathBox.Text).Replace('\\', '/');
-                clFile =  baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.ClFile.ToString()).Value;
-                pxFile = baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.PxFile.ToString()).Value;
+                clFile =  Path.GetFullPath(baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.ClFile.ToString()).Value).Replace("%20"," ");
+                pxFile = Path.GetFullPath(baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.PxFile.ToString()).Value).Replace("%20", " ");
                 clIndex = (int)jsonRecord.Property(ClusterAttribute.ClIndex.ToString()).Value;
             }
-            catch
+            catch (Exception ex)
             {
                 MessageBox.Show("Error - Invalid value of one of the attributes ClIndex, ClFile or PxFile");
-                return false;
+                throw ex;
             }
             return true;
         }
         private void LoadClustersFromJson()
         {
             int clIndex;
-            using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
-            {
-                using (JsonTextReader jReader = new JsonTextReader(sReader))
+            
+                using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
                 {
-                    jReader.Read();
-                    jReader.Read();
-                    if (!GetBaseClusterInfoFromJson(JObject.Load(jReader), out clFile, out pxFile, out clIndex))
-                        return;
+                    using (JsonTextReader jReader = new JsonTextReader(sReader))
+                    {
+                        jReader.Read();
+                        jReader.Read();
+                        if (!GetBaseClusterInfoFromJson(JObject.Load(jReader), out clFile, out pxFile, out clIndex))
+                            return;
+                    }
                 }
-            }
-            bool isDisplayingCluster = false;
-            if (CurrentBase != null)
-                isDisplayingCluster = true;
-            Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clIndex);
+                bool isDisplayingCluster = false;
+                if (CurrentBase != null)
+                    isDisplayingCluster = true;
+                Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clIndex);
 
-            if (cluster != null)
-            {
-                HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
-                PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
-                PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
-            }
-            CurrentBase = cluster;
+                if (cluster != null)
+                {
+                    HistogramPixPoints = new Histogram(cluster, pixel => pixel.Energy).Points;
+                    PictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+                    PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
+                }
+                CurrentBase = cluster;
 
-            NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
-            if (!isDisplayingCluster)
-                EnableButtons();
-            clusterNumber = 1;
-            InputType = InputType.Json;
-            ClusterIndexValueLabel.Text = clusterNumber.ToString();
+                NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
+                if (!isDisplayingCluster)
+                    EnableButtons();
+                clusterNumber = 1;
+                InputType = InputType.Json;
+                ClusterIndexValueLabel.Text = clusterNumber.ToString();
+            
+
 
         }
         public void LoadClustersClicked(object sender, EventArgs e)
         {
             clusterNumber = 1;
-            if (InViewFilePathBox.Text.EndsWith(".ini"))
+            try
             {
-                LoadClustersFromIni();
+                if (InViewFilePathBox.Text.EndsWith(".ini"))
+                {
+                    LoadClustersFromIni();
+                }
+                else if (InViewFilePathBox.Text.EndsWith(".json"))
+                {
+                    LoadClustersFromJson();
+                }
+                else
+                {
+                    MessageBox.Show("Error - file to load from must have suffix .ini or .json");
+                }
+                MessageBox.Show("Cluster collection successfully loaded");
             }
-            else if (InViewFilePathBox.Text.EndsWith(".json"))
+            catch (JsonReaderException)
             {
-                LoadClustersFromJson();
+                MessageBox.Show("Error - selected json file is not in a correct format");
             }
-            else 
+            catch (DirectoryNotFoundException)
             {
-                MessageBox.Show("Error - file to load from must have suffix .ini or .json");
+                MessageBox.Show("Error - referenced directory was not found");
             }
-            MessageBox.Show("Cluster collection successfully loaded");
+            catch
+            {
+                MessageBox.Show("Error - the selected file was not loaded");
+            }
+
         }
         public void View3DClicked(object sender, EventArgs e)
         {

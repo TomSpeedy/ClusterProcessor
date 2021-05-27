@@ -600,7 +600,7 @@ namespace ClassifierForClusters
 
             var resultVector = Network.Compute(orderedVector.ToArray());
 
-            const double epsilonConfidence = 0.01;
+            const double epsilonConfidence = 0.05;
 
             var classPrediction = new ClassPrediction(resultVector, OutputClasses);
             if (classPrediction.CalcConfidence() < epsilonConfidence)

@@ -55,7 +55,7 @@ namespace ClassifierForClusters
             var newProbabilities = ClassProbabilities.Values.ToList();
             newProbabilities.Sort();
             var secondMaxProb = newProbabilities[ClassProbabilities.Keys.Count() - 2];
-            return (maximumProb - secondMaxProb) / maximumProb;
+            return (maximumProb - secondMaxProb) ;
         }
 
         private ClassPrediction()

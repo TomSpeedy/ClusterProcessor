@@ -97,14 +97,11 @@ namespace ClassifierForClusters
                 string prLeConfig = dataDir + "train_data/PrLeNetworkConfig.json";
                 string elMuPiConfig = dataDir + "train_data/ElMuPiNetworkConfig.json";
                 leadNN.Train(leadConfig, dataLead, ref stopped, 1, seed.Value);
-                leadNN.Learn(dataLead, 1, ref stopped, seed: seed.Value);
                 fragHeFeNN.Train(fragHeFeConfig, dataFrag, ref stopped, 1, seed.Value);
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 2; i++)
                     fragHeFeNN.Learn(dataFrag, 1, ref stopped, seed: seed.Value);
                 prLeNN.Train(prLeConfig, dataPrLe, ref stopped, 1, seed.Value);
-
                 elMuPiNN.Train(elMuPiConfig, dataElMuPi, ref stopped, 1, seed.Value);
-                elMuPiNN.Learn(dataElMuPi, 1, ref stopped, seed: seed.Value);
 
 
             }
@@ -264,7 +261,7 @@ namespace ClassifierForClusters
         public virtual ClassPrediction Classify(Dictionary<ClusterAttribute, double> inputVector)
         {
             const string unclassified = "unclassified";
-            const double epsilonConfidence = 0.01;
+            const double epsilonConfidence = 0.05;
 
             var treePrediction = ClassifierTree.Classify(inputVector);
 
@@ -287,7 +284,7 @@ namespace ClassifierForClusters
                 classStreams.Add(unclassified, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + unclassified + ".json")));
             }
             JSONDecriptionWriter specialsWriter = null;
-            if (outputType != ClassificationOutputType.PrintClassesAndSpecials)
+            if (outputType == ClassificationOutputType.PrintClassesAndSpecials)
             {
                 specialsWriter = new JSONDecriptionWriter(new StreamWriter(inputPath + special + ".json"));
             }
@@ -328,7 +325,7 @@ namespace ClassifierForClusters
         /// </summary>
         public virtual void CheckSpecialClusters(Dictionary<ClusterAttribute, double> inputPairs, string wholeRecord, JSONDecriptionWriter writer, long processedCount)
         {
-            const int lowestPixCount = 100;
+            const int lowestPixCount = 150;
             const int lowestBranchCount = 3;
             if ((int)inputPairs[ClusterAttribute.PixelCount] > lowestPixCount)
                 if ((int)inputPairs[ClusterAttribute.BranchCount] > lowestBranchCount)

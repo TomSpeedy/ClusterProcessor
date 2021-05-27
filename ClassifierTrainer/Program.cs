@@ -29,8 +29,8 @@ namespace ClassifierTrainer
                 Console.WriteLine("Error - insufficient number of arguments passed");
                 return;
             }
-            string trainingData = args[1];
-            string configData = args[2];
+            string trainingData = args[0];
+            string configData = args[1];
             string seedParsed = GetOptionValue(args, seedOption);
             string maxRepParsed = GetOptionValue(args, maxRepetOption);
             string minAccParsed = GetOptionValue(args, minAccurOption);

@@ -8,6 +8,7 @@ using ClusterCalculator;
 using Accord.Neuro;
 using System.Globalization;
 using System.Threading;
+using System.IO;
 namespace ClassificationExperiment
 {
     interface ITest
@@ -17,21 +18,24 @@ namespace ClassificationExperiment
     }
     class Program
     {
-
+        
 
         static void Main(string[] args)
         {
+
+
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
+
             if (args.Length != 2)
             {
-                Console.WriteLine("Invalid argument count - the only argument should be the data directory path");
+                //Console.WriteLine("Invalid argument count - the only argument should be the data directory path");
                 //return;
             }
             args = new string[] { "", "D:\\source\\repos\\Example_data" };
             TestData.SetWorkingDirectory(args[1].Replace('\\', '/'));
             MultiLayeredClassifier classifier = new MultiLayeredClassifier();
 
-            Console.WriteLine("*************** TESTING THE BEST CLASSIFIER *****************");
+            /*Console.WriteLine("*************** TESTING THE BEST CLASSIFIER *****************");
             classifier.LoadFromFile(TestData.workingDir + "trained_models/bestClassifier.csf");
             classifier.TestModel(TestData.dataTest);
 
@@ -39,18 +43,21 @@ namespace ClassificationExperiment
             var testParameters = new TestDifferentParameters(10);
             testParameters.PrepareData();
             testParameters.Test();
-            Console.WriteLine("*************** END OF THE FIRST TEST *****************");
+            Console.WriteLine("*************** END OF THE FIRST TEST (press any key) *****************");
+            Console.ReadLine();*/
             Console.WriteLine("*************** START OF THE SECOND TEST (SIMPLE vs MULTI) *****************");
             var testSimpleVsMulti = new TestSimpleVsMulti(10);
             testSimpleVsMulti.PrepareData();
             testSimpleVsMulti.Test();
-            Console.WriteLine("*************** END OF THE SECOND TEST *****************");
+            Console.WriteLine("*************** END OF THE SECOND TEST (press any key) *****************");
+            Console.ReadLine();
             Console.WriteLine("*************** START OF THE THIRD TEST (CROSSVALIDATION)*****************");
             var testKFold = new TestCrossValidateSimple(6, 1);
             testKFold.PrepareData();
             testKFold.Test();
-            Console.WriteLine("*************** END OF THE THIRD TEST *****************");
-            
+            Console.WriteLine("*************** END OF THE THIRD TEST (press any key) *****************");
+            Console.ReadLine();
+
 
         }      
     }
@@ -129,8 +136,7 @@ namespace ClassificationExperiment
         public double AccuracyExpected { get; set; }
         MultiLayeredClassifier[] MultiClassifiers { get; set; }
         NNClassifier[] SimpleClassifiers { get; set; }
-        const string trainAllPath = "../../train_data/trainAll.json";
-        const string configAllPath = "../../train_data/AllConfig.json";
+     
         bool Stopped = false;
         public TestSimpleVsMulti(int testClassifierCount)
         {
@@ -143,12 +149,12 @@ namespace ClassificationExperiment
             {
                 Console.WriteLine($"******** Creating Simple Classifier {i} ***********");
                 SimpleClassifiers[i] = new NNClassifier();
-                SimpleClassifiers[i].Train(configAllPath, trainAllPath, ref Stopped, minimumAccuracy: 1, seed: i);
+                SimpleClassifiers[i].Train(TestData.configAllPath, TestData.trainAllPath, ref Stopped, minimumAccuracy: 1, seed: i);
                 for (int j = 0; j < i; j++)
                 {                  
-                    SimpleClassifiers[i].Learn( trainAllPath, successThreshold:1, ref Stopped,  seed: i, eval:true);
+                    SimpleClassifiers[i].Learn( TestData.trainAllPath, successThreshold:1, ref Stopped,  seed: i, eval:true);
                 }
-                SimpleClassifiers[i].Learn(trainAllPath, successThreshold: 0, ref Stopped, seed: i, eval: true);
+                SimpleClassifiers[i].Learn(TestData.trainAllPath, successThreshold: 0, ref Stopped, seed: i, eval: true);
                 MultiClassifiers[i] = new MultiLayeredClassifier();
                 Console.WriteLine($"******** Creating Multi Classifier {i} ***********");
                 MultiClassifiers[i].FromDefault(TestData.workingDir,seed: i);
@@ -275,6 +281,9 @@ namespace ClassificationExperiment
         public static string fragOneLayerConfig = "train_data/FragHeFeNetworkConfig1.json";
         public static string fragTwoBiggerConfig = "train_data/FragHeFeNetworkConfig2.json";
         public static string fragThreeLayerConfig = "train_data/FragHeFeNetworkConfig3.json";
+
+        public static string trainAllPath = "train_data/trainAll.json";
+        public static string configAllPath = "train_data/AllConfig.json";
         public static void SetWorkingDirectory(string dataDir)
         {
             if (dataDir[dataDir.Length - 1] == '/')
@@ -294,6 +303,8 @@ namespace ClassificationExperiment
             fragOneLayerConfig = workingDir + fragOneLayerConfig;
             fragTwoBiggerConfig = workingDir + fragTwoBiggerConfig;
             fragThreeLayerConfig = workingDir + fragThreeLayerConfig;
+            trainAllPath = workingDir + trainAllPath;
+            configAllPath = workingDir + configAllPath; 
 
         }
     }

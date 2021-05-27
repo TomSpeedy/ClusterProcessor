@@ -19,43 +19,65 @@ namespace ClassifierForClusters
 
     class Program
     {
-        
+        static void TrimFile()
+        {
+            const string filePath = "D:/source/repos/Example_data/train_data/trainElMuPi.json";
+            StreamReader reader = new StreamReader(filePath);
+            JsonTextReader jReader = new JsonTextReader(reader);
+            StreamWriter writer = new StreamWriter(filePath + "_new");
+            int lineCount = 300000;
+            jReader.Read();
+            for (int i = 0; i < lineCount; i++)
+            {
+                jReader.Read();
+                JObject jObject = JObject.Load(jReader);
+                writer.WriteLine(jObject);
+                
+            }
+            writer.Close();
+        }
         static void Main(string[] args)
         {
-            args = new string[] { "program", "D:/source/repos/Celko 2020 Example data/trained_models/bestClassifier.csf",
-                "D:/source/repos/Celko2020/ClusterDescriptionGen/bin/Debug/etstNoBackSlash.json", "--classes"  };
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
             const string distrOption = "--distr";     
             const string printClassesAndSpecialsOption = "--specials";
             const string multiOption = "--multi";
             IClassifier classifier;
-            if(args.Contains(multiOption))
-            { 
+            if (args.Contains(multiOption))
+            {
                 classifier = new MultiLayeredClassifier();
-            classifier.LoadFromFile(args[1]);
+                Console.WriteLine(args[0]);
+                classifier.LoadFromFile(args[0]);
+                
             }
             else
             {
                 classifier = new NNClassifier();
-                classifier.LoadFromFile(args[1]);
+                classifier.LoadFromFile(args[0]);
             }
+            
             if (args.Contains(distrOption))
             {
-                classifier.LoadFromFile(args[1]);
-                var histo = classifier.ClassifyCollection(args[2], ClassificationOutputType.Histogram);
-                foreach (var pair in histo)
-                {
-                    Console.WriteLine(pair.Key + ":" + pair.Value);
-                }
+                Console.WriteLine("Classification in progress..");
+                var histo = classifier.ClassifyCollection(args[1], ClassificationOutputType.Histogram);
+                PrintHistogram(histo);
             }
             else 
             {
-                classifier.LoadFromFile(args[1]);
-                var histo = classifier.ClassifyCollection(args[2], 
+                Console.WriteLine("Classification in progress..");
+                var histo = classifier.ClassifyCollection(args[1], 
                     args.Contains(printClassesAndSpecialsOption) ? ClassificationOutputType.PrintClassesAndSpecials
                        : ClassificationOutputType.PrintClasses);
+                PrintHistogram(histo);
             }
 
+        }
+        static void PrintHistogram(Dictionary<string, int> histogram)
+        {
+            foreach (var key in histogram.Keys)
+            {
+                Console.WriteLine($"{key} : {histogram[key]}");
+            }
         }
         
     }
