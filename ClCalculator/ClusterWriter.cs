@@ -136,9 +136,12 @@ namespace ClusterCalculator
         }
         public void Close()
         {
-            OutputStream.WriteLine();
-            OutputStream.WriteLine("]");
-            OutputStream.Close();
+            if(OutputStream.BaseStream.CanWrite)
+            {
+                OutputStream.WriteLine();
+                OutputStream.WriteLine("]");
+                OutputStream.Close();
+            }
         }
     }
 

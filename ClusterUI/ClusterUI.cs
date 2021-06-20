@@ -292,6 +292,36 @@ namespace ClusterUI
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 InViewFilePathBox.Text = fileDialog.FileName;
+            
+            clusterNumber = 1;
+            try
+            {
+                if (InViewFilePathBox.Text.EndsWith(".ini"))
+                {
+                    LoadClustersFromIni();
+                }
+                else if (InViewFilePathBox.Text.EndsWith(".json"))
+                {
+                    LoadClustersFromJson();
+                }
+                else
+                {
+                    MessageBox.Show("Error - file to load from must have suffix .ini or .json");
+                }
+                MessageBox.Show("Cluster collection successfully loaded");
+            }
+            catch (JsonReaderException)
+            {
+                MessageBox.Show("Error - selected json file is not in a correct format");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("Error - referenced directory was not found");
+            }
+            catch
+            {
+                MessageBox.Show("Error - the selected file was not loaded");
+            }
             }
         }
         private void LoadClustersFromIni()
@@ -399,35 +429,37 @@ namespace ClusterUI
         }
         public void LoadClustersClicked(object sender, EventArgs e)
         {
-            clusterNumber = 1;
-            try
-            {
-                if (InViewFilePathBox.Text.EndsWith(".ini"))
+
+                clusterNumber = 1;
+                try
                 {
-                    LoadClustersFromIni();
+                    if (InViewFilePathBox.Text.EndsWith(".ini"))
+                    {
+                        LoadClustersFromIni();
+                    }
+                    else if (InViewFilePathBox.Text.EndsWith(".json"))
+                    {
+                        LoadClustersFromJson();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error - file to load from must have suffix .ini or .json");
+                    }
+                    MessageBox.Show("Cluster collection successfully loaded");
                 }
-                else if (InViewFilePathBox.Text.EndsWith(".json"))
+                catch (JsonReaderException)
                 {
-                    LoadClustersFromJson();
+                    MessageBox.Show("Error - selected json file is not in a correct format");
                 }
-                else
+                catch (DirectoryNotFoundException)
                 {
-                    MessageBox.Show("Error - file to load from must have suffix .ini or .json");
+                    MessageBox.Show("Error - referenced directory was not found");
                 }
-                MessageBox.Show("Cluster collection successfully loaded");
-            }
-            catch (JsonReaderException)
-            {
-                MessageBox.Show("Error - selected json file is not in a correct format");
-            }
-            catch (DirectoryNotFoundException)
-            {
-                MessageBox.Show("Error - referenced directory was not found");
-            }
-            catch
-            {
-                MessageBox.Show("Error - the selected file was not loaded");
-            }
+                catch
+                {
+                    MessageBox.Show("Error - the selected file was not loaded");
+                }
+            
 
         }
         public void View3DClicked(object sender, EventArgs e)

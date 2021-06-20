@@ -41,12 +41,21 @@ namespace ClassifierForClusters
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
             const string distrOption = "--distr";     
             const string printClassesAndSpecialsOption = "--specials";
+            const string splitOption = "--split";
             const string multiOption = "--multi";
+            const string multiFileOption = "--multiFile";
+            const string singleFileOption = "--singleFile";
+            args = new string[] {
+                "D:/source/repos/Example_data/trained_models/bestClassifier.csf",
+                "D:/source/repos/Example_data/test_data/testCollection.json",
+                "--split",
+                "--singleFile",
+                "--multi"
+            };
             IClassifier classifier;
             if (args.Contains(multiOption))
             {
                 classifier = new MultiLayeredClassifier();
-                Console.WriteLine(args[0]);
                 classifier.LoadFromFile(args[0]);
                 
             }
@@ -55,22 +64,24 @@ namespace ClassifierForClusters
                 classifier = new NNClassifier();
                 classifier.LoadFromFile(args[0]);
             }
-            
+            ClassificationOutputType? outputType = null;
             if (args.Contains(distrOption))
             {
-                Console.WriteLine("Classification in progress..");
-                var histo = classifier.ClassifyCollection(args[1], ClassificationOutputType.Histogram);
-                PrintHistogram(histo);
+                outputType = ClassificationOutputType.Histogram;
             }
-            else 
+            else if(args.Contains(printClassesAndSpecialsOption))
+            {               
+                outputType = ClassificationOutputType.SplitClassesAndSpecials;                                      
+            }
+            else
             {
-                Console.WriteLine("Classification in progress..");
-                var histo = classifier.ClassifyCollection(args[1], 
-                    args.Contains(printClassesAndSpecialsOption) ? ClassificationOutputType.PrintClassesAndSpecials
-                       : ClassificationOutputType.PrintClasses);
-                PrintHistogram(histo);
-            }
-
+                outputType = ClassificationOutputType.SplitClasses;
+            }          
+            Console.WriteLine("Classification in progress..");
+            var histo = classifier.ClassifyCollection(args[1], ClassificationOutputType.SplitClasses, 
+                args.Contains(multiFileOption) ? ClassificationOutputFileCount.Multiple : ClassificationOutputFileCount.Single);
+            PrintHistogram(histo);
+           
         }
         static void PrintHistogram(Dictionary<string, int> histogram)
         {

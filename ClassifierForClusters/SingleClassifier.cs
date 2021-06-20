@@ -607,7 +607,7 @@ namespace ClassifierForClusters
                 classPrediction.MostProbableClassName = unclassified;
             return classPrediction;
         }
-        public Dictionary<string, int> ClassifyCollection(string inputPath, ClassificationOutputType outputType = ClassificationOutputType.PrintClasses)
+        public Dictionary<string, int> ClassifyCollection(string inputPath, ClassificationOutputType outputType = ClassificationOutputType.SplitClasses, ClassificationOutputFileCount outFileCount = ClassificationOutputFileCount.Multiple)
         {
             const string unclassified = "unclassified";
             const string special = "__special";
@@ -622,7 +622,7 @@ namespace ClassifierForClusters
                 classStreams.Add(unclassified, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + unclassified + ".json")));
             }
             JSONDecriptionWriter specialsWriter = null;
-            if (outputType != ClassificationOutputType.PrintClassesAndSpecials)
+            if (outputType != ClassificationOutputType.SplitClassesAndSpecials)
             {
                 specialsWriter = new JSONDecriptionWriter(new StreamWriter(inputPath + special + ".json"));
             }
@@ -645,7 +645,7 @@ namespace ClassifierForClusters
                     classStreams[predictedClass].Write(wholeRecord);
                 classHistogram[predictedClass]++;
                 processedCount++;
-                if (predictedClass == unclassified && outputType == ClassificationOutputType.PrintClassesAndSpecials)
+                if (predictedClass == unclassified && outputType == ClassificationOutputType.SplitClassesAndSpecials)
                     CheckSpecialClusters(inputVector, wholeRecord, specialsWriter, processedCount);
             }
             specialsWriter.Close();

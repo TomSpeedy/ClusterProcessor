@@ -19,7 +19,8 @@ namespace ClassifierForClusters
     {
         void LoadFromFile(string filePath);
         ClassPrediction Classify(Dictionary<ClusterAttribute, double> inputPairs);
-        Dictionary<string, int> ClassifyCollection(string inputFile, ClassificationOutputType processingType = ClassificationOutputType.PrintClasses);
+        Dictionary<string, int> ClassifyCollection(string inputFile, ClassificationOutputType processingType = ClassificationOutputType.SplitClasses, 
+            ClassificationOutputFileCount fileCount = ClassificationOutputFileCount.Multiple);
         ClusterAttribute[] ValidFields { get; }
         string[] OutputClasses { get; }
     }
@@ -269,24 +270,42 @@ namespace ClassifierForClusters
                 treePrediction.MostProbableClassName = unclassified;
             return treePrediction;
         }
-        public Dictionary<string, int> ClassifyCollection(string inputPath, ClassificationOutputType outputType = ClassificationOutputType.PrintClasses)
+        /// <summary>
+        /// Classifies the whole set of cluster in a single call
+        /// </summary>
+        /// <param name="inputPath"></param>
+        /// <param name="outputType"></param>
+        /// <returns></returns>
+        public Dictionary<string, int> ClassifyCollection(string inputPath, ClassificationOutputType outputType = ClassificationOutputType.SplitClasses, 
+            ClassificationOutputFileCount outFileCount = ClassificationOutputFileCount.Multiple)
         {
             const string unclassified = "unclassified";
             const string special = "__special";
+            const string output = "out";
             var classHistogram = new Dictionary<string, int>();
             var classStreams = new Dictionary<string, JSONDecriptionWriter>();
             if (outputType != ClassificationOutputType.Histogram)
             {
-                for (int i = 0; i < OutputClasses.Length; i++)
+                if(outFileCount == ClassificationOutputFileCount.Multiple)
                 {
-                    classStreams.Add(OutputClasses[i], new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + OutputClasses[i] + ".json")));
+                    for (int i = 0; i < OutputClasses.Length; i++)
+                    {
+                        classStreams.Add(OutputClasses[i], new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + OutputClasses[i] + ".json")));
+                    }
+                    classStreams.Add(unclassified, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + unclassified + ".json")));
                 }
-                classStreams.Add(unclassified, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + unclassified + ".json")));
+                else
+                {
+                    classStreams.Add(output, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + output + ".json")));
+                }
             }
             JSONDecriptionWriter specialsWriter = null;
-            if (outputType == ClassificationOutputType.PrintClassesAndSpecials)
+            if (outputType == ClassificationOutputType.SplitClassesAndSpecials)
             {
-                specialsWriter = new JSONDecriptionWriter(new StreamWriter(inputPath + special + ".json"));
+                if (outFileCount == ClassificationOutputFileCount.Multiple)
+                    specialsWriter = new JSONDecriptionWriter(new StreamWriter(inputPath + special + ".json"));
+                else
+                    specialsWriter = classStreams[output];
             }
             for (int i = 0; i < OutputClasses.Length; i++)
             {
@@ -304,13 +323,28 @@ namespace ClassifierForClusters
                 var inputVector = preprocessor.ReadWholeJsonToVector(jsonStream, ValidFields, processedCount, out string wholeRecord);
                 var predictedClass = Classify(inputVector).MostProbableClassName;
                 if (outputType != ClassificationOutputType.Histogram)
-                    classStreams[predictedClass].Write(wholeRecord);
+                {                    
+                    wholeRecord = AddClassToRecord(wholeRecord, predictedClass);
+                    bool isSpecial = false;
+                    if (predictedClass == unclassified && outputType == ClassificationOutputType.SplitClassesAndSpecials)
+                        isSpecial = CheckSpecialClusters(inputVector, wholeRecord, specialsWriter, processedCount);
+                    if(!isSpecial)
+                    {
+                        if (outFileCount == ClassificationOutputFileCount.Multiple)
+                        {
+                            classStreams[predictedClass].Write(wholeRecord);
+                        }
+                        else
+                        {                      
+                            classStreams[output].Write(wholeRecord);
+                        }
+                    }
+                }
                 classHistogram[predictedClass]++;
                 processedCount++;
-                if (predictedClass == unclassified && outputType == ClassificationOutputType.PrintClassesAndSpecials)
-                    CheckSpecialClusters(inputVector, wholeRecord, specialsWriter, processedCount);
             }
-            specialsWriter.Close();
+            if(specialsWriter != null)
+                specialsWriter.Close();
             if (outputType != ClassificationOutputType.Histogram)
             {
                 foreach (var outputStreamPair in classStreams)
@@ -320,19 +354,35 @@ namespace ClassifierForClusters
             }
             return classHistogram;
         }
+        string AddClassToRecord(string wholeJsonRecord, string predictedClass)
+        {
+            const string classKey = "Class";
+            StringReader inputString = new StringReader(wholeJsonRecord);
+            var jsonString = new JsonTextReader(inputString);
+            jsonString.Read();
+            JObject jsonCluster = JObject.Load(jsonString);
+            if (jsonCluster.ContainsKey(classKey))
+                jsonCluster[classKey] = predictedClass;
+            else
+                jsonCluster.Add(classKey, predictedClass);
+            return jsonCluster.ToString();
+
+        }
         /// <summary>
         /// checks if a cluster can be considered special
         /// </summary>
-        public virtual void CheckSpecialClusters(Dictionary<ClusterAttribute, double> inputPairs, string wholeRecord, JSONDecriptionWriter writer, long processedCount)
+        public virtual bool CheckSpecialClusters(Dictionary<ClusterAttribute, double> inputPairs, string wholeRecord, JSONDecriptionWriter writer, long processedCount)
         {
             const int lowestPixCount = 150;
             const int lowestBranchCount = 3;
             if ((int)inputPairs[ClusterAttribute.PixelCount] > lowestPixCount)
                 if ((int)inputPairs[ClusterAttribute.BranchCount] > lowestBranchCount)
                 {
+                    wholeRecord = AddClassToRecord(wholeRecord, "special");
                     writer.Write(wholeRecord);
+                    return true;
                 }
-
+            return false;
         }
 
     }
@@ -416,7 +466,14 @@ namespace ClassifierForClusters
     public enum ClassificationOutputType
     {
         Histogram,
-        PrintClasses,
-        PrintClassesAndSpecials
+        SplitClasses,
+        SplitClassesAndSpecials
     }
+    [Serializable]
+    public enum ClassificationOutputFileCount
+    {
+        Single,
+        Multiple
+    }
+
 }
