@@ -68,7 +68,7 @@ namespace ClusterFilter
                 }
                 ProcessedCount++;
             }
-            outputCLFile.Close();
+            clusterWriter.Close();
             done = true;
         }
 

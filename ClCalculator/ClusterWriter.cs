@@ -12,6 +12,7 @@ namespace ClusterCalculator
     public interface IClusterWriter
     {
         void WriteClusterInfo(ClusterInfo clusterInfo);
+        void Close();
     }
     /// <summary>
     /// Writes the cluster to the given output in MM format
@@ -26,6 +27,10 @@ namespace ClusterCalculator
         public void WriteClusterInfo(ClusterInfo clusterInfo)
         {
             OutputStream.WriteLine($"{clusterInfo.FirstToA} {clusterInfo.PixCount} {clusterInfo.LineStart} {clusterInfo.ByteStart}");
+        }
+        public void Close()
+        {
+            OutputStream.Close();
         }
     }
     public interface IDescriptionWriter

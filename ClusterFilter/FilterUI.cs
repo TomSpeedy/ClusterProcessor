@@ -108,12 +108,12 @@ namespace ClusterFilter
                      int.TryParse(ToLinearityTextBox.Text, out int resultUpperL) ? resultUpperL : 1, ConvexitySkeletFilterCheckBox.Checked);
 
                 var vertexCountFilter = new VertexCountFilter(new StreamReader(pxFile),
-                    int.TryParse(FromVertexCountTextBox.Text, out int resultLowerV) ? resultLowerP : 0,
-                    int.TryParse(ToVertexCountTextBox.Text, out int resultUpperV) ? resultUpperP : int.MaxValue);
+                    int.TryParse(FromVertexCountTextBox.Text, out int resultLowerV) ? resultLowerV : 0,
+                    int.TryParse(ToVertexCountTextBox.Text, out int resultUpperV) ? resultUpperV : int.MaxValue);
 
                 var widthFilter = new WidthFilter(new StreamReader(pxFile),
-                    double.TryParse(FromWidthTextBox.Text, out double resultLowerW) ? resultLowerE : 0,
-                    double.TryParse(ToWidthTextBox.Text, out double resultUpperW) ? resultUpperE : double.MaxValue);
+                    double.TryParse(FromWidthTextBox.Text, out double resultLowerW) ? resultLowerW : 0,
+                    double.TryParse(ToWidthTextBox.Text, out double resultUpperW) ? resultUpperW : double.MaxValue);
 
                 var branchCountFilter = new BranchCountFilter(new StreamReader(pxFile),
                     double.TryParse(FromBranchCountTextBox.Text, out double resultLowerB) ? resultLowerB : 0,
@@ -154,8 +154,7 @@ namespace ClusterFilter
                 CurrentFilter = multiFilter;
                 
                 multiFilter.Process(new StreamReader(clFile), filteredOut, ref FilteringDone);
-
-                
+           
                 MessageBox.Show(doneMessage);
             }
             catch (IOException)
