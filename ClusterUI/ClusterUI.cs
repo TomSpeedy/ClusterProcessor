@@ -39,6 +39,7 @@ namespace ClusterUI
         private System.Windows.Forms.Timer RotationTimer { get; set; }
         private Button CurrentlyPressedRotateButton { get; set; }
         private ScatterChart ScatterPlotChart { get; set; }
+        private string CurrentFileName { get; set; }
 
         private IClusterReader ClusterReader { get; }
         public ClusterUI()
@@ -78,7 +79,7 @@ namespace ClusterUI
                 string clFile, pxFile;
                 try
                 {
-                    using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+                    using (StreamReader sReader = new StreamReader(CurrentFileName))
                     {
                         using (JsonTextReader jReader = new JsonTextReader(sReader))
                         {
@@ -139,7 +140,7 @@ namespace ClusterUI
                 string clFile, pxFile;
                 try
                 {
-                    using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+                    using (StreamReader sReader = new StreamReader(CurrentFileName))
                     {
                         using (JsonTextReader jReader = new JsonTextReader(sReader))
                         {
@@ -202,7 +203,7 @@ namespace ClusterUI
                     string clFile, pxFile;
                     try
                     {
-                        using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+                        using (StreamReader sReader = new StreamReader(CurrentFileName))
                         {
                             using (JsonTextReader jReader = new JsonTextReader(sReader))
                             {
@@ -291,18 +292,18 @@ namespace ClusterUI
             fileDialog.Filter = "ini files (*.ini), json files(*.json)|*.ini;*.json";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                InViewFilePathBox.Text = fileDialog.FileName;
+                CurrentFileName = fileDialog.FileName;
             
             clusterNumber = 1;
             try
             {
-                if (InViewFilePathBox.Text.EndsWith(".ini"))
+                if (CurrentFileName.EndsWith(".ini"))
                 {
-                    LoadClustersFromIni();
+                    LoadClustersFromIni(CurrentFileName);
                 }
-                else if (InViewFilePathBox.Text.EndsWith(".json"))
+                else if (CurrentFileName.EndsWith(".json"))
                 {
-                    LoadClustersFromJson();
+                    LoadClustersFromJson(CurrentFileName);
                 }
                 else
                 {
@@ -324,7 +325,7 @@ namespace ClusterUI
             }
             }
         }
-        private void LoadClustersFromIni()
+        private void LoadClustersFromIni(string filePath)
         {
             try
             {
@@ -332,7 +333,7 @@ namespace ClusterUI
                 bool isDisplayingCluster = false;
                 if (CurrentBase != null)
                     isDisplayingCluster = true;
-                ClusterReader.GetTextFileNames(new StreamReader(InViewFilePathBox.Text), InViewFilePathBox.Text, out pxFile, out clFile);
+                ClusterReader.GetTextFileNames(new StreamReader(filePath), filePath, out pxFile, out clFile);
                 Cluster cluster = ClusterReader.LoadFromText(new StreamReader(pxFile), new StreamReader(clFile), clusterNumber);
 
                 if (cluster != null)
@@ -343,7 +344,7 @@ namespace ClusterUI
                 }
                 CurrentBase = cluster;
                 ClusterIndexValueLabel.Text = clusterNumber.ToString();
-                NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
+                NowViewingLabel.Text = "Now Viewing: \n" + filePath.Substring(filePath.LastIndexOf('\\') + 1);
                 if (!isDisplayingCluster)
                     EnableButtons();
                 InputType = InputType.Ini;
@@ -378,7 +379,7 @@ namespace ClusterUI
             }
             try
             {
-                var baseJsonPath = Path.GetDirectoryName(InViewFilePathBox.Text).Replace('\\', '/');
+                var baseJsonPath = Path.GetDirectoryName(CurrentFileName).Replace('\\', '/');
                 clFile =  Path.GetFullPath(baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.ClFile.ToString()).Value).Replace("%20"," ");
                 pxFile = Path.GetFullPath(baseJsonPath + '/' + (string)jsonRecord.Property(ClusterAttribute.PxFile.ToString()).Value).Replace("%20", " ");
                 clIndex = (int)jsonRecord.Property(ClusterAttribute.ClIndex.ToString()).Value;
@@ -390,11 +391,11 @@ namespace ClusterUI
             }
             return true;
         }
-        private void LoadClustersFromJson()
+        private void LoadClustersFromJson(string filePath)
         {
             int clIndex;
             
-                using (StreamReader sReader = new StreamReader(InViewFilePathBox.Text))
+                using (StreamReader sReader = new StreamReader(filePath))
                 {
                     using (JsonTextReader jReader = new JsonTextReader(sReader))
                     {
@@ -417,7 +418,7 @@ namespace ClusterUI
                 }
                 CurrentBase = cluster;
 
-                NowViewingLabel.Text = "Now Viewing: \n" + InViewFilePathBox.Text.Substring(InViewFilePathBox.Text.LastIndexOf('\\') + 1);
+                NowViewingLabel.Text = "Now Viewing: \n" + filePath.Substring(filePath.LastIndexOf('\\') + 1);
                 if (!isDisplayingCluster)
                     EnableButtons();
                 clusterNumber = 1;
@@ -427,49 +428,16 @@ namespace ClusterUI
 
 
         }
-        public void LoadClustersClicked(object sender, EventArgs e)
-        {
 
-                clusterNumber = 1;
-                try
-                {
-                    if (InViewFilePathBox.Text.EndsWith(".ini"))
-                    {
-                        LoadClustersFromIni();
-                    }
-                    else if (InViewFilePathBox.Text.EndsWith(".json"))
-                    {
-                        LoadClustersFromJson();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error - file to load from must have suffix .ini or .json");
-                    }
-                    MessageBox.Show("Cluster collection successfully loaded");
-                }
-                catch (JsonReaderException)
-                {
-                    MessageBox.Show("Error - selected json file is not in a correct format");
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    MessageBox.Show("Error - referenced directory was not found");
-                }
-                catch
-                {
-                    MessageBox.Show("Error - the selected file was not loaded");
-                }
-            
-
-        }
         public void View3DClicked(object sender, EventArgs e)
         {
             //AnalysisPCA anal = new AnalysisPCA();
             if (CurrentBase == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();
+
            /*Point3D[] points3D = ToPoints3D(anal.Transform(Current.Points))*/ 
-            var points3D = ToPoints3D(zCalculator.TransformPoints(CurrentBase));
+            var points3D = ToPoints3D(zCalculator.TransformPoints(CurrentImage.Keys.ToList()));
             ScatterChart chart = new ScatterChart(winChartViewer, points3D);
             ScatterPlotChart = chart;
             EnableRotateButtons();

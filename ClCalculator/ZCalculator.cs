@@ -10,8 +10,8 @@ namespace ClusterCalculator
 {
     public interface IZCalculator
     {
-        PointD3[] TransformPoints(Cluster cluster);
-        double CalculateZ(PixelPoint point, Cluster cluster);
+        PointD3[] TransformPoints(IList<PixelPoint> cluster);
+        double CalculateZ(PixelPoint point, double firstToA);
     }
     /// <summary>
     /// calculates the relative z coordinate with respect to the first arrived pixel
@@ -20,25 +20,25 @@ namespace ClusterCalculator
     {
         //Set default: 500 um, 110 V depl, bias: 230 V, mob: 45 V s / um2
         private Configuration Configuration { get; }
-        private Cluster Cluster { get; set; }
+
         public ZCalculator() 
         {
             Configuration = new Configuration(thickness: 500d, mobility: 45d, ud: 110d, ub: 230d);
         }
-        public PointD3[] TransformPoints(Cluster cluster)
+        public PointD3[] TransformPoints(IList<PixelPoint> points2D)
         {
-            Cluster = cluster;
-            var points3D = new PointD3[cluster.Points.Length];
+            var points3D = new PointD3[points2D.Count];
+            var firstToA = points2D.Min(point => point.ToA);
             for (int i = 0; i < points3D.Length; i++)
             {
-                var z = CalculateZ(cluster.Points[i], Cluster);
-                points3D[i] = new PointD3(cluster.Points[i].xCoord, cluster.Points[i].yCoord, (float)z);
+                var z = CalculateZ(points2D[i], firstToA);
+                points3D[i] = new PointD3(points2D[i].xCoord, points2D[i].yCoord, (float)z);
             }
             return points3D;
         }
-        public double CalculateZ(PixelPoint point, Cluster Cluster)
+        public double CalculateZ(PixelPoint point, double FirstToA)
         {
-            var relativeToA = point.ToA - Cluster.FirstToA;
+            var relativeToA = point.ToA - FirstToA;
             return (Configuration.Thick / (2 * Configuration.Ud)) * (Configuration.Ud + Configuration.Ub) *
                 (1 - Math.Exp((-2) * Configuration.Ud * Configuration.Mob * relativeToA / Math.Pow(Configuration.Thick, 2)));
         }

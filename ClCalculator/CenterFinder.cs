@@ -87,11 +87,12 @@ namespace ClusterCalculator
             //hash set used to quickly determine if point is already considered to be possible mid points
             var hashMidPoints = possibleMidPoints.ToHashSet();
             var skeletPoints = skeletCluster.Points.ToList();
+            var firstToA = skeletPoints.Min(point => point.ToA);
             skeletPoints.Sort((left, right) =>
             {
-                if (ZCalculator.CalculateZ(left, skeletCluster) < ZCalculator.CalculateZ(right, skeletCluster))
+                if (ZCalculator.CalculateZ(left, firstToA) < ZCalculator.CalculateZ(right, firstToA))
                     return 1;
-                if (ZCalculator.CalculateZ(left, skeletCluster) > ZCalculator.CalculateZ(right, skeletCluster))
+                if (ZCalculator.CalculateZ(left, firstToA) > ZCalculator.CalculateZ(right, firstToA))
                     return -1;
                 return 0;
             });

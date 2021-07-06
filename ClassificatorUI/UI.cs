@@ -191,7 +191,7 @@ namespace ClassificatorUI
             multiClassifier.FromLinearTrees(classifiers, splitClasses);
             try
             {
-                multiClassifier.StoreToFile(MergedClassifierNameTextBox.Text);
+                multiClassifier.StoreToFile(MergedClassifierNameTextBox.Text + ".csf");
             }
             catch 
             {

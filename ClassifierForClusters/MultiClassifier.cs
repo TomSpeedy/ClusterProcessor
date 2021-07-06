@@ -281,7 +281,7 @@ namespace ClassifierForClusters
         {
             const string unclassified = "unclassified";
             const string special = "__special";
-            const string output = "out";
+            const string output = "classified";
             var classHistogram = new Dictionary<string, int>();
             var classStreams = new Dictionary<string, JSONDecriptionWriter>();
             if (outputType != ClassificationOutputType.Histogram)
@@ -290,20 +290,20 @@ namespace ClassifierForClusters
                 {
                     for (int i = 0; i < OutputClasses.Length; i++)
                     {
-                        classStreams.Add(OutputClasses[i], new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + OutputClasses[i] + ".json")));
+                        classStreams.Add(OutputClasses[i], new JSONDecriptionWriter(new StreamWriter(inputPath.Substring(0, inputPath.LastIndexOf('.')) + "_" + OutputClasses[i] + ".json")));
                     }
-                    classStreams.Add(unclassified, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + unclassified + ".json")));
+                    classStreams.Add(unclassified, new JSONDecriptionWriter(new StreamWriter(inputPath.Substring(0, inputPath.LastIndexOf('.')) + "_" + unclassified + ".json")));
                 }
                 else
                 {
-                    classStreams.Add(output, new JSONDecriptionWriter(new StreamWriter(inputPath + "_" + output + ".json")));
+                    classStreams.Add(output, new JSONDecriptionWriter(new StreamWriter(inputPath.Substring(0,inputPath.LastIndexOf('.')) + "_" + output + ".json")));
                 }
             }
             JSONDecriptionWriter specialsWriter = null;
             if (outputType == ClassificationOutputType.SplitClassesAndSpecials)
             {
                 if (outFileCount == ClassificationOutputFileCount.Multiple)
-                    specialsWriter = new JSONDecriptionWriter(new StreamWriter(inputPath + special + ".json"));
+                    specialsWriter = new JSONDecriptionWriter(new StreamWriter(inputPath.Substring(0, inputPath.LastIndexOf('.')) + special + ".json"));
                 else
                     specialsWriter = classStreams[output];
             }

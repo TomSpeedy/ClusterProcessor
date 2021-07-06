@@ -28,24 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ClusterHistogram = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.showHistogram = new System.Windows.Forms.Button();
             this.PreviousButton = new System.Windows.Forms.Button();
             this.NextButton = new System.Windows.Forms.Button();
             this.PictureBox = new System.Windows.Forms.PictureBox();
             this.HideHistogramButton = new System.Windows.Forms.Button();
-            this.ViewClusters = new System.Windows.Forms.Button();
             this.ViewGroup = new System.Windows.Forms.GroupBox();
             this.BrowseViewButton = new System.Windows.Forms.Button();
-            this.OrLabel = new System.Windows.Forms.Label();
-            this.InViewFilePathBox = new System.Windows.Forms.TextBox();
-            this.FilePathLabel = new System.Windows.Forms.Label();
             this.ClusterIndexValueLabel = new System.Windows.Forms.Label();
             this.ClusterIndexLabel = new System.Windows.Forms.Label();
             this.skeletonizeButton = new System.Windows.Forms.Button();
@@ -87,16 +83,16 @@
             // 
             // ClusterHistogram
             // 
-            chartArea3.Name = "ChartArea1";
-            this.ClusterHistogram.ChartAreas.Add(chartArea3);
-            legend3.Name = "Legend1";
-            this.ClusterHistogram.Legends.Add(legend3);
+            chartArea1.Name = "ChartArea1";
+            this.ClusterHistogram.ChartAreas.Add(chartArea1);
+            legend1.Name = "Legend1";
+            this.ClusterHistogram.Legends.Add(legend1);
             this.ClusterHistogram.Location = new System.Drawing.Point(615, 481);
             this.ClusterHistogram.Name = "ClusterHistogram";
-            series3.ChartArea = "ChartArea1";
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.ClusterHistogram.Series.Add(series3);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.ClusterHistogram.Series.Add(series1);
             this.ClusterHistogram.Size = new System.Drawing.Size(632, 253);
             this.ClusterHistogram.TabIndex = 0;
             this.ClusterHistogram.Text = "Collection Histogram";
@@ -156,24 +152,9 @@
             this.HideHistogramButton.UseVisualStyleBackColor = true;
             this.HideHistogramButton.Click += new System.EventHandler(this.HideHistogramClicked);
             // 
-            // ViewClusters
-            // 
-            this.ViewClusters.Location = new System.Drawing.Point(7, 94);
-            this.ViewClusters.Margin = new System.Windows.Forms.Padding(2);
-            this.ViewClusters.Name = "ViewClusters";
-            this.ViewClusters.Size = new System.Drawing.Size(381, 62);
-            this.ViewClusters.TabIndex = 9;
-            this.ViewClusters.Text = "Load Clusters";
-            this.ViewClusters.UseVisualStyleBackColor = true;
-            this.ViewClusters.Click += new System.EventHandler(this.LoadClustersClicked);
-            // 
             // ViewGroup
             // 
             this.ViewGroup.Controls.Add(this.BrowseViewButton);
-            this.ViewGroup.Controls.Add(this.OrLabel);
-            this.ViewGroup.Controls.Add(this.InViewFilePathBox);
-            this.ViewGroup.Controls.Add(this.FilePathLabel);
-            this.ViewGroup.Controls.Add(this.ViewClusters);
             this.ViewGroup.Location = new System.Drawing.Point(9, 10);
             this.ViewGroup.Margin = new System.Windows.Forms.Padding(2);
             this.ViewGroup.Name = "ViewGroup";
@@ -185,44 +166,14 @@
             // 
             // BrowseViewButton
             // 
-            this.BrowseViewButton.Location = new System.Drawing.Point(291, 46);
+            this.BrowseViewButton.Location = new System.Drawing.Point(14, 85);
             this.BrowseViewButton.Margin = new System.Windows.Forms.Padding(2);
             this.BrowseViewButton.Name = "BrowseViewButton";
-            this.BrowseViewButton.Size = new System.Drawing.Size(81, 20);
+            this.BrowseViewButton.Size = new System.Drawing.Size(164, 51);
             this.BrowseViewButton.TabIndex = 13;
             this.BrowseViewButton.Text = "Browse...";
             this.BrowseViewButton.UseVisualStyleBackColor = true;
             this.BrowseViewButton.Click += new System.EventHandler(this.BrowseViewButtonClicked);
-            // 
-            // OrLabel
-            // 
-            this.OrLabel.AutoSize = true;
-            this.OrLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.OrLabel.Location = new System.Drawing.Point(263, 47);
-            this.OrLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.OrLabel.Name = "OrLabel";
-            this.OrLabel.Size = new System.Drawing.Size(24, 17);
-            this.OrLabel.TabIndex = 12;
-            this.OrLabel.Text = "Or";
-            // 
-            // InViewFilePathBox
-            // 
-            this.InViewFilePathBox.Location = new System.Drawing.Point(118, 47);
-            this.InViewFilePathBox.Margin = new System.Windows.Forms.Padding(2);
-            this.InViewFilePathBox.Name = "InViewFilePathBox";
-            this.InViewFilePathBox.Size = new System.Drawing.Size(141, 20);
-            this.InViewFilePathBox.TabIndex = 11;
-            // 
-            // FilePathLabel
-            // 
-            this.FilePathLabel.AutoSize = true;
-            this.FilePathLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.FilePathLabel.Location = new System.Drawing.Point(20, 47);
-            this.FilePathLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.FilePathLabel.Name = "FilePathLabel";
-            this.FilePathLabel.Size = new System.Drawing.Size(94, 17);
-            this.FilePathLabel.TabIndex = 10;
-            this.FilePathLabel.Text = "File path(.ini):";
             // 
             // ClusterIndexValueLabel
             // 
@@ -279,17 +230,17 @@
             // 
             // ClusterPixHistogram
             // 
-            chartArea4.Name = "ChartArea1";
-            this.ClusterPixHistogram.ChartAreas.Add(chartArea4);
-            legend4.Name = "Legend1";
-            this.ClusterPixHistogram.Legends.Add(legend4);
+            chartArea2.Name = "ChartArea1";
+            this.ClusterPixHistogram.ChartAreas.Add(chartArea2);
+            legend2.Name = "Legend1";
+            this.ClusterPixHistogram.Legends.Add(legend2);
             this.ClusterPixHistogram.Location = new System.Drawing.Point(623, 754);
             this.ClusterPixHistogram.Name = "ClusterPixHistogram";
             this.ClusterPixHistogram.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            series4.ChartArea = "ChartArea1";
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.ClusterPixHistogram.Series.Add(series4);
+            series2.ChartArea = "ChartArea1";
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.ClusterPixHistogram.Series.Add(series2);
             this.ClusterPixHistogram.Size = new System.Drawing.Size(632, 205);
             this.ClusterPixHistogram.TabIndex = 15;
             this.ClusterPixHistogram.Visible = false;
@@ -567,7 +518,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.ClusterHistogram)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PictureBox)).EndInit();
             this.ViewGroup.ResumeLayout(false);
-            this.ViewGroup.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ClusterPixHistogram)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.winChartViewer)).EndInit();
             this.ShowDetailsGroupBox.ResumeLayout(false);
@@ -588,12 +538,8 @@
         private System.Windows.Forms.Button NextButton;
         private System.Windows.Forms.PictureBox PictureBox;
         private System.Windows.Forms.Button HideHistogramButton;
-        private System.Windows.Forms.Button ViewClusters;
         private System.Windows.Forms.GroupBox ViewGroup;
         private System.Windows.Forms.Button BrowseViewButton;
-        private System.Windows.Forms.Label OrLabel;
-        private System.Windows.Forms.TextBox InViewFilePathBox;
-        private System.Windows.Forms.Label FilePathLabel;
         private System.Windows.Forms.Button skeletonizeButton;
         private System.Windows.Forms.Button showPixHistogramButton;
         private System.Windows.Forms.Button hidePixHistogramButton;

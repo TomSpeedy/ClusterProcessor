@@ -48,7 +48,7 @@ namespace ClassifierForClusters
             args = new string[] {
                 "D:/source/repos/Example_data/trained_models/bestClassifier.csf",
                 "D:/source/repos/Example_data/test_data/testCollection.json",
-                "--split",
+                "--default",
                 "--singleFile",
                 "--multi"
             };
@@ -81,6 +81,7 @@ namespace ClassifierForClusters
             var histo = classifier.ClassifyCollection(args[1], ClassificationOutputType.SplitClasses, 
                 args.Contains(multiFileOption) ? ClassificationOutputFileCount.Multiple : ClassificationOutputFileCount.Single);
             PrintHistogram(histo);
+            Console.ReadLine();
            
         }
         static void PrintHistogram(Dictionary<string, int> histogram)
