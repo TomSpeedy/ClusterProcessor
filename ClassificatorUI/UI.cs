@@ -178,7 +178,7 @@ namespace ClassificatorUI
                     if (index > 0)
                         splitClasses.Add(splitClassesInBox[index - 1]);
                     index++;
-                }
+                }               
                 catch 
                 {
                     Console.WriteLine($"Error - classifier {index} could not be loaded");
@@ -187,18 +187,25 @@ namespace ClassificatorUI
             }       
 
             MultiLayeredClassifier multiClassifier = new MultiLayeredClassifier();
-
-            multiClassifier.FromLinearTrees(classifiers, splitClasses);
+            try
+            {
+                multiClassifier.FromLinearTrees(classifiers, splitClasses);
+            }
+            catch (ArgumentException)
+            {
+                MessageBox.Show($"Error - Classifiers cannot be combined because the specified split classes do not match the classes of the actual classifiers");
+                return;
+            }
             try
             {
                 multiClassifier.StoreToFile(MergedClassifierNameTextBox.Text + ".csf");
             }
             catch 
             {
-                Console.WriteLine($"Error - classifier cannot be stored into a selected file");
+                MessageBox.Show($"Error - classifier cannot be stored into a selected file");
                 return;
             }
-            MessageBox.Show("Classifier successfully merged");
+            MessageBox.Show("Classifiers successfully combined");
 
         }
         public void StopButtonClicked(object sender, EventArgs e)

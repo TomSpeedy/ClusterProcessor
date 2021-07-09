@@ -40,7 +40,6 @@ namespace ClassifierForClusters
             }
             if (topDownClassifiers.Count == 1)
             {
-
                 ClassifierTree = new ClassifierRoot<IClassifier>(topDownClassifiers[0]);
             }
             else
@@ -50,10 +49,20 @@ namespace ClassifierForClusters
                 {
 
                     var parent = new ClassifierNode<IClassifier>(topDownClassifiers[i]);
+                    if (!parent.Model.OutputClasses.ToList().Contains(splitClasses[i]))
+                    {
+                        Console.WriteLine($"Classifiers cannot be merged because classifier {i} does not contain required split class: \'{splitClasses[i]}\'");
+                        throw new ArgumentException();
+                    }
                     parent.Descendants.Add(splitClasses[i], node);
                     node = parent;
-                }
+                }               
                 ClassifierTree = new ClassifierRoot<IClassifier>(topDownClassifiers[0]);
+                if (!ClassifierTree.Model.OutputClasses.ToList().Contains(splitClasses[0]))
+                {
+                    Console.WriteLine($"Classifiers cannot be merged because classifier {0} does not contain required split class: \'{splitClasses[0]}\'");
+                    throw new ArgumentException();
+                }
                 ClassifierTree.Descendants.Add(splitClasses[0], node);
             }
             OutputClasses = ClassifierTree.GetAllOuputClasses();

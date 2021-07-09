@@ -273,20 +273,20 @@ namespace ClassificatorUI
             this.ApplicationGroupBox.Size = new System.Drawing.Size(847, 273);
             this.ApplicationGroupBox.TabIndex = 1;
             this.ApplicationGroupBox.TabStop = false;
-            this.ApplicationGroupBox.Text = "Classifier Merging";
+            this.ApplicationGroupBox.Text = "Classifier Combining";
             // 
             // MergedClassifierLabel
             // 
             this.MergedClassifierLabel.AutoSize = true;
             this.MergedClassifierLabel.Location = new System.Drawing.Point(6, 181);
             this.MergedClassifierLabel.Name = "MergedClassifierLabel";
-            this.MergedClassifierLabel.Size = new System.Drawing.Size(118, 13);
+            this.MergedClassifierLabel.Size = new System.Drawing.Size(129, 13);
             this.MergedClassifierLabel.TabIndex = 24;
-            this.MergedClassifierLabel.Text = "Merged Classifier Name";
+            this.MergedClassifierLabel.Text = "Combined Classifier Name";
             // 
             // MergedClassifierNameTextBox
             // 
-            this.MergedClassifierNameTextBox.Location = new System.Drawing.Point(130, 178);
+            this.MergedClassifierNameTextBox.Location = new System.Drawing.Point(141, 178);
             this.MergedClassifierNameTextBox.Name = "MergedClassifierNameTextBox";
             this.MergedClassifierNameTextBox.Size = new System.Drawing.Size(100, 20);
             this.MergedClassifierNameTextBox.TabIndex = 23;
@@ -297,7 +297,7 @@ namespace ClassificatorUI
             this.MergeClassifiersButton.Name = "MergeClassifiersButton";
             this.MergeClassifiersButton.Size = new System.Drawing.Size(159, 37);
             this.MergeClassifiersButton.TabIndex = 22;
-            this.MergeClassifiersButton.Text = "Merge Classifiers";
+            this.MergeClassifiersButton.Text = "Combine Classifiers";
             this.MergeClassifiersButton.UseVisualStyleBackColor = true;
             this.MergeClassifiersButton.Click += new System.EventHandler(this.MergeClassifiersClicked);
             // 

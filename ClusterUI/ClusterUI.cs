@@ -667,7 +667,7 @@ namespace ClusterUI
             attributeCalculator.Calculate(CurrentBase, attributesToGet, ref attributePairs);
             Form attributeForm = new Form()
             {
-                Width = 300,
+                Width = 400,
                 Height = 500,
 
 
@@ -678,6 +678,7 @@ namespace ClusterUI
                 Width = 300,
                 Height = 500,
                 Multiline = true,
+                ScrollBars = ScrollBars.Both,
                 Text = JsonConvert.SerializeObject(attributePairs, Formatting.Indented)
 
             }; 
