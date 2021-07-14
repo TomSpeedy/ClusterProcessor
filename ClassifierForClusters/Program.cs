@@ -19,39 +19,15 @@ namespace ClassifierForClusters
 
     class Program
     {
-        static void TrimFile()
-        {
-            const string filePath = "D:/source/repos/Example_data/train_data/trainElMuPi.json";
-            StreamReader reader = new StreamReader(filePath);
-            JsonTextReader jReader = new JsonTextReader(reader);
-            StreamWriter writer = new StreamWriter(filePath + "_new");
-            int lineCount = 300000;
-            jReader.Read();
-            for (int i = 0; i < lineCount; i++)
-            {
-                jReader.Read();
-                JObject jObject = JObject.Load(jReader);
-                writer.WriteLine(jObject);
-                
-            }
-            writer.Close();
-        }
+        
         static void Main(string[] args)
         {
             Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
             const string distrOption = "--distr";     
             const string printClassesAndSpecialsOption = "--specials";
-            const string splitOption = "--split";
             const string multiOption = "--multi";
             const string multiFileOption = "--multiFile";
-            const string singleFileOption = "--singleFile";
-            args = new string[] {
-                "D:/source/repos/Example_data/trained_models/bestClassifier.csf",
-                "D:/source/repos/Example_data/test_data/testCollection.json",
-                "--default",
-                "--singleFile",
-                "--multi"
-            };
+
             IClassifier classifier;
             if (args.Contains(multiOption))
             {
@@ -78,7 +54,7 @@ namespace ClassifierForClusters
                 outputType = ClassificationOutputType.SplitClasses;
             }          
             Console.WriteLine("Classification in progress..");
-            var histo = classifier.ClassifyCollection(args[1], ClassificationOutputType.SplitClasses, 
+            var histo = classifier.ClassifyCollection(args[1], outputType.Value, 
                 args.Contains(multiFileOption) ? ClassificationOutputFileCount.Multiple : ClassificationOutputFileCount.Single);
             PrintHistogram(histo);
             Console.ReadLine();
