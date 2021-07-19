@@ -214,7 +214,7 @@ namespace ClassificatorUI
             }
             try
             {
-                multiClassifier.StoreToFile((CombinedClassifierDirTextBox.Text + '/' + MergedClassifierNameTextBox.Text).Replace('\\', '/'));
+                multiClassifier.StoreToFile((CombinedClassifierDirTextBox.Text + '/' + MergedClassifierNameTextBox.Text).Replace('\\', '/') + ".csf");
             }
             catch 
             {
