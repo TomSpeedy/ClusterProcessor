@@ -20,8 +20,15 @@ namespace ClusterCalculator
         VertexFinder VertexFinder { get; set; }
         BranchAnalyzer BranchAnalyzer { get; set; }
         ClusterClassCollection ClassCollection { get; set; }
+        string FutureOutputPath { get; }
         const int minNeighborCount = 3;
-
+        public DefaultAttributeCalculator(string outputPath)
+        {
+            FutureOutputPath = outputPath;
+        }
+        public DefaultAttributeCalculator()
+        {
+        }
         NeighbourCountFilter NeighbourCountFilter = new NeighbourCountFilter(nCount => nCount >= minNeighborCount, NeighbourCountOption.WithYpsilonNeighbours);
         /// <summary>
         /// Performs the calculation of all attributes
@@ -147,20 +154,28 @@ namespace ClusterCalculator
                     case ClusterAttribute.RelLowEnergyPixels:
                         attributePairs[attribute] = (current.Points.Length - energyFilter.Process(current.Points).Count) / (double)current.Points.Length;
                         break;
-                    case ClusterAttribute.ClFile:                       
+                    case ClusterAttribute.ClFile:
+                        if (FutureOutputPath == null)
+                        {
+                            throw new ArgumentException("Error - the output directory must be known in order to compute path to clFile");
+                        }
                         string absPath =  
                             ((FileStream)ClassCollection.Partitions[ClassCollection.PartitionIndex].Collection.ClFile.BaseStream)
                             .Name.Replace('\\', '/');
                         Uri absPathUri = new Uri(absPath);
-                        Uri relativeUri = new Uri(Directory.GetCurrentDirectory().Replace('\\', '/') + "/file").MakeRelativeUri(absPathUri);
+                        Uri relativeUri = new Uri(FutureOutputPath.Replace('\\', '/')).MakeRelativeUri(absPathUri);
                         attributePairs[attribute] = "\"" +  relativeUri.ToString() + "\"";
                         break;
                     case ClusterAttribute.PxFile:
+                        if (FutureOutputPath == null)
+                        {
+                            throw new ArgumentException("Error - the output directory must be known in order to compute path to pxFile");
+                        }
                         absPath =
                             ((FileStream)ClassCollection.Partitions[ClassCollection.PartitionIndex].Collection.PxFile.BaseStream)
                             .Name.Replace('\\','/');
                         absPathUri = new Uri(absPath);
-                        relativeUri = new Uri(Directory.GetCurrentDirectory() + "\\file").MakeRelativeUri(absPathUri);
+                        relativeUri = new Uri(FutureOutputPath.Replace('\\', '/')).MakeRelativeUri(absPathUri);
                         attributePairs[attribute] = "\"" + relativeUri.ToString() + "\"";
                         break;
                     case ClusterAttribute.ClIndex:
@@ -196,7 +211,7 @@ namespace ClusterCalculator
         /// </summary>
         /// <param name="current"> cluster to process </param>
         /// <param name="attributesToGet"> attributes for calculation </param>
-        /// <param name="attributePairs"> ke value pairs of attributes</param>
+        /// <param name="attributePairs"> the value pairs of attributes</param>
         public void Calculate(Cluster current,  IList<ClusterAttribute> attributesToGet, ref Dictionary<ClusterAttribute, object> attributePairs)
         {
             

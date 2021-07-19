@@ -69,12 +69,25 @@ namespace ClassificatorUI
             this.BrowseRootModelButton = new System.Windows.Forms.Button();
             this.RootTrainedLabel = new System.Windows.Forms.Label();
             this.RootTrainedModelTextBox = new System.Windows.Forms.TextBox();
+            this.OutputDirLabel = new System.Windows.Forms.Label();
+            this.OutputDirTextBox = new System.Windows.Forms.TextBox();
+            this.BrowseOutputDirButton = new System.Windows.Forms.Button();
+            this.OutputFileNameLabel = new System.Windows.Forms.Label();
+            this.OutpuFileNameTextBox = new System.Windows.Forms.TextBox();
+            this.BrowseDirCombinedButton = new System.Windows.Forms.Button();
+            this.CombinedClassifierDirTextBox = new System.Windows.Forms.TextBox();
+            this.CombinedClassifierDirLabel = new System.Windows.Forms.Label();
             this.TrainingGroupBox.SuspendLayout();
             this.ApplicationGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // TrainingGroupBox
             // 
+            this.TrainingGroupBox.Controls.Add(this.OutpuFileNameTextBox);
+            this.TrainingGroupBox.Controls.Add(this.OutputFileNameLabel);
+            this.TrainingGroupBox.Controls.Add(this.BrowseOutputDirButton);
+            this.TrainingGroupBox.Controls.Add(this.OutputDirTextBox);
+            this.TrainingGroupBox.Controls.Add(this.OutputDirLabel);
             this.TrainingGroupBox.Controls.Add(this.StopButton);
             this.TrainingGroupBox.Controls.Add(this.BrowseTrainedModelButton);
             this.TrainingGroupBox.Controls.Add(this.TrainedModelTextBox);
@@ -101,7 +114,7 @@ namespace ClassificatorUI
             // 
             // StopButton
             // 
-            this.StopButton.Location = new System.Drawing.Point(165, 135);
+            this.StopButton.Location = new System.Drawing.Point(165, 177);
             this.StopButton.Name = "StopButton";
             this.StopButton.Size = new System.Drawing.Size(129, 23);
             this.StopButton.TabIndex = 19;
@@ -111,7 +124,7 @@ namespace ClassificatorUI
             // 
             // BrowseTrainedModelButton
             // 
-            this.BrowseTrainedModelButton.Location = new System.Drawing.Point(296, 92);
+            this.BrowseTrainedModelButton.Location = new System.Drawing.Point(657, 132);
             this.BrowseTrainedModelButton.Name = "BrowseTrainedModelButton";
             this.BrowseTrainedModelButton.Size = new System.Drawing.Size(75, 23);
             this.BrowseTrainedModelButton.TabIndex = 18;
@@ -121,7 +134,7 @@ namespace ClassificatorUI
             // 
             // TrainedModelTextBox
             // 
-            this.TrainedModelTextBox.Location = new System.Drawing.Point(165, 94);
+            this.TrainedModelTextBox.Location = new System.Drawing.Point(526, 135);
             this.TrainedModelTextBox.Name = "TrainedModelTextBox";
             this.TrainedModelTextBox.Size = new System.Drawing.Size(100, 20);
             this.TrainedModelTextBox.TabIndex = 17;
@@ -129,7 +142,7 @@ namespace ClassificatorUI
             // TrainedModelLabel
             // 
             this.TrainedModelLabel.AutoSize = true;
-            this.TrainedModelLabel.Location = new System.Drawing.Point(9, 99);
+            this.TrainedModelLabel.Location = new System.Drawing.Point(399, 142);
             this.TrainedModelLabel.Name = "TrainedModelLabel";
             this.TrainedModelLabel.Size = new System.Drawing.Size(121, 13);
             this.TrainedModelLabel.TabIndex = 15;
@@ -205,7 +218,7 @@ namespace ClassificatorUI
             // 
             // TrainClassifierButton
             // 
-            this.TrainClassifierButton.Location = new System.Drawing.Point(6, 135);
+            this.TrainClassifierButton.Location = new System.Drawing.Point(6, 177);
             this.TrainClassifierButton.Name = "TrainClassifierButton";
             this.TrainClassifierButton.Size = new System.Drawing.Size(139, 23);
             this.TrainClassifierButton.TabIndex = 4;
@@ -247,6 +260,9 @@ namespace ClassificatorUI
             // 
             // ApplicationGroupBox
             // 
+            this.ApplicationGroupBox.Controls.Add(this.BrowseDirCombinedButton);
+            this.ApplicationGroupBox.Controls.Add(this.CombinedClassifierDirTextBox);
+            this.ApplicationGroupBox.Controls.Add(this.CombinedClassifierDirLabel);
             this.ApplicationGroupBox.Controls.Add(this.MergedClassifierLabel);
             this.ApplicationGroupBox.Controls.Add(this.MergedClassifierNameTextBox);
             this.ApplicationGroupBox.Controls.Add(this.MergeClassifiersButton);
@@ -270,7 +286,7 @@ namespace ClassificatorUI
             this.ApplicationGroupBox.Controls.Add(this.RootTrainedModelTextBox);
             this.ApplicationGroupBox.Location = new System.Drawing.Point(12, 242);
             this.ApplicationGroupBox.Name = "ApplicationGroupBox";
-            this.ApplicationGroupBox.Size = new System.Drawing.Size(847, 273);
+            this.ApplicationGroupBox.Size = new System.Drawing.Size(847, 289);
             this.ApplicationGroupBox.TabIndex = 1;
             this.ApplicationGroupBox.TabStop = false;
             this.ApplicationGroupBox.Text = "Classifier Combining";
@@ -278,7 +294,7 @@ namespace ClassificatorUI
             // MergedClassifierLabel
             // 
             this.MergedClassifierLabel.AutoSize = true;
-            this.MergedClassifierLabel.Location = new System.Drawing.Point(6, 181);
+            this.MergedClassifierLabel.Location = new System.Drawing.Point(6, 214);
             this.MergedClassifierLabel.Name = "MergedClassifierLabel";
             this.MergedClassifierLabel.Size = new System.Drawing.Size(129, 13);
             this.MergedClassifierLabel.TabIndex = 24;
@@ -286,14 +302,14 @@ namespace ClassificatorUI
             // 
             // MergedClassifierNameTextBox
             // 
-            this.MergedClassifierNameTextBox.Location = new System.Drawing.Point(141, 178);
+            this.MergedClassifierNameTextBox.Location = new System.Drawing.Point(165, 211);
             this.MergedClassifierNameTextBox.Name = "MergedClassifierNameTextBox";
             this.MergedClassifierNameTextBox.Size = new System.Drawing.Size(100, 20);
             this.MergedClassifierNameTextBox.TabIndex = 23;
             // 
             // MergeClassifiersButton
             // 
-            this.MergeClassifiersButton.Location = new System.Drawing.Point(18, 219);
+            this.MergeClassifiersButton.Location = new System.Drawing.Point(6, 246);
             this.MergeClassifiersButton.Name = "MergeClassifiersButton";
             this.MergeClassifiersButton.Size = new System.Drawing.Size(159, 37);
             this.MergeClassifiersButton.TabIndex = 22;
@@ -453,6 +469,74 @@ namespace ClassificatorUI
             this.RootTrainedModelTextBox.Size = new System.Drawing.Size(100, 20);
             this.RootTrainedModelTextBox.TabIndex = 2;
             // 
+            // OutputDirLabel
+            // 
+            this.OutputDirLabel.AutoSize = true;
+            this.OutputDirLabel.Location = new System.Drawing.Point(6, 97);
+            this.OutputDirLabel.Name = "OutputDirLabel";
+            this.OutputDirLabel.Size = new System.Drawing.Size(98, 13);
+            this.OutputDirLabel.TabIndex = 20;
+            this.OutputDirLabel.Text = "Output file directory";
+            // 
+            // OutputDirTextBox
+            // 
+            this.OutputDirTextBox.Location = new System.Drawing.Point(165, 94);
+            this.OutputDirTextBox.Name = "OutputDirTextBox";
+            this.OutputDirTextBox.Size = new System.Drawing.Size(100, 20);
+            this.OutputDirTextBox.TabIndex = 23;
+            // 
+            // BrowseOutputDirButton
+            // 
+            this.BrowseOutputDirButton.Location = new System.Drawing.Point(296, 91);
+            this.BrowseOutputDirButton.Name = "BrowseOutputDirButton";
+            this.BrowseOutputDirButton.Size = new System.Drawing.Size(75, 23);
+            this.BrowseOutputDirButton.TabIndex = 24;
+            this.BrowseOutputDirButton.Text = "Browse";
+            this.BrowseOutputDirButton.UseVisualStyleBackColor = true;
+            this.BrowseOutputDirButton.Click += new System.EventHandler(this.BrowseOutputFolderClicked);
+            // 
+            // OutputFileNameLabel
+            // 
+            this.OutputFileNameLabel.AutoSize = true;
+            this.OutputFileNameLabel.Location = new System.Drawing.Point(11, 132);
+            this.OutputFileNameLabel.Name = "OutputFileNameLabel";
+            this.OutputFileNameLabel.Size = new System.Drawing.Size(84, 13);
+            this.OutputFileNameLabel.TabIndex = 25;
+            this.OutputFileNameLabel.Text = "Output file name";
+            // 
+            // OutpuFileNameTextBox
+            // 
+            this.OutpuFileNameTextBox.Location = new System.Drawing.Point(165, 129);
+            this.OutpuFileNameTextBox.Name = "OutpuFileNameTextBox";
+            this.OutpuFileNameTextBox.Size = new System.Drawing.Size(100, 20);
+            this.OutpuFileNameTextBox.TabIndex = 26;
+            // 
+            // BrowseDirCombinedButton
+            // 
+            this.BrowseDirCombinedButton.Location = new System.Drawing.Point(284, 177);
+            this.BrowseDirCombinedButton.Name = "BrowseDirCombinedButton";
+            this.BrowseDirCombinedButton.Size = new System.Drawing.Size(75, 23);
+            this.BrowseDirCombinedButton.TabIndex = 27;
+            this.BrowseDirCombinedButton.Text = "Browse";
+            this.BrowseDirCombinedButton.UseVisualStyleBackColor = true;
+            this.BrowseDirCombinedButton.Click += new System.EventHandler(this.BrowseOutputDirCombinedClicked);
+            // 
+            // CombinedClassifierDirTextBox
+            // 
+            this.CombinedClassifierDirTextBox.Location = new System.Drawing.Point(165, 177);
+            this.CombinedClassifierDirTextBox.Name = "CombinedClassifierDirTextBox";
+            this.CombinedClassifierDirTextBox.Size = new System.Drawing.Size(100, 20);
+            this.CombinedClassifierDirTextBox.TabIndex = 26;
+            // 
+            // CombinedClassifierDirLabel
+            // 
+            this.CombinedClassifierDirLabel.AutoSize = true;
+            this.CombinedClassifierDirLabel.Location = new System.Drawing.Point(6, 180);
+            this.CombinedClassifierDirLabel.Name = "CombinedClassifierDirLabel";
+            this.CombinedClassifierDirLabel.Size = new System.Drawing.Size(143, 13);
+            this.CombinedClassifierDirLabel.TabIndex = 25;
+            this.CombinedClassifierDirLabel.Text = "Combined Classifier Directory";
+            // 
             // ClassifierUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -512,6 +596,14 @@ namespace ClassificatorUI
         private System.Windows.Forms.Button BrowseTrainedModelButton;
         private System.Windows.Forms.TextBox TrainedModelTextBox;
         private System.Windows.Forms.Button StopButton;
+        private System.Windows.Forms.TextBox OutpuFileNameTextBox;
+        private System.Windows.Forms.Label OutputFileNameLabel;
+        private System.Windows.Forms.Button BrowseOutputDirButton;
+        private System.Windows.Forms.TextBox OutputDirTextBox;
+        private System.Windows.Forms.Label OutputDirLabel;
+        private System.Windows.Forms.Button BrowseDirCombinedButton;
+        private System.Windows.Forms.TextBox CombinedClassifierDirTextBox;
+        private System.Windows.Forms.Label CombinedClassifierDirLabel;
     }
 }
 

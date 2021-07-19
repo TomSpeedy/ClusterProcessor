@@ -112,12 +112,12 @@ namespace ClassifierForClusters
                 string fragHeFeConfig = dataDir + "train_data/FragHeFeNetworkConfig.json";
                 string prLeConfig = dataDir + "train_data/PrLeNetworkConfig.json";
                 string elMuPiConfig = dataDir + "train_data/ElMuPiNetworkConfig.json";
-                leadNN.Train(leadConfig, dataLead, ref stopped, 1, seed.Value);
-                fragHeFeNN.Train(fragHeFeConfig, dataFrag, ref stopped, 1, seed.Value);
+                leadNN.Train(leadConfig, dataLead, ref stopped, outputFile: null, 1, seed.Value);
+                fragHeFeNN.Train(fragHeFeConfig, dataFrag, ref stopped, outputFile: null, 1, seed.Value);
                 for (int i = 0; i < 2; i++)
-                    fragHeFeNN.Learn(dataFrag, 1, ref stopped, seed: seed.Value);
-                prLeNN.Train(prLeConfig, dataPrLe, ref stopped, 1, seed.Value);
-                elMuPiNN.Train(elMuPiConfig, dataElMuPi, ref stopped, 1, seed.Value);
+                    fragHeFeNN.Learn(dataFrag, 1, ref stopped, outputFile: null, seed: seed.Value);
+                prLeNN.Train(prLeConfig, dataPrLe, ref stopped, outputFile: null, 1, seed.Value);
+                elMuPiNN.Train(elMuPiConfig, dataElMuPi, ref stopped, outputFile: null, 1, seed.Value);
 
 
             }

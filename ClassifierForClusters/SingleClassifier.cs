@@ -19,7 +19,7 @@ namespace ClassifierForClusters
 {
     public interface ITrainableClassifier : IClassifier
     {
-        double Train(string configFilePath, string trainDataPath, ref bool stopCondition, double minimumAccuracy = 0, int seed = 42);
+        double Train(string configFilePath, string trainDataPath, ref bool stopCondition,  string outputFile,  double minimumAccuracy = 0, int seed = 42);
 
     }
     /// <summary>
@@ -247,7 +247,7 @@ namespace ClassifierForClusters
         /// <param name="minimumAccuracy"></param>
         /// <param name="seed"> seed for splitting the data into train and test set</param>
         /// <returns></returns>
-        public double Train(string configFilePath, string trainDataPath, ref bool stopCondition, double minimumAccuracy = 0, int seed = 42)
+        public double Train(string configFilePath, string trainDataPath, ref bool stopCondition, string outputFile,  double minimumAccuracy = 0, int seed = 42)
         {
 
             int clusterCount = ConfigureParams(new string[] { configFilePath, trainDataPath });
@@ -256,7 +256,7 @@ namespace ClassifierForClusters
                 .OrderBy(index => rand.Next())    //permutating the indices
                 .Take((int)(TrainProportion * clusterCount))
                 .OrderBy(index => index).ToArray();  //sorting for faster further browsing
-            return Learn(trainDataPath, minimumAccuracy, ref stopCondition, eval: true, trainIndices, seed);
+            return Learn(trainDataPath, minimumAccuracy, ref stopCondition, outputFile, eval: true, trainIndices, seed);
 
         }
         /// <summary>
@@ -269,7 +269,7 @@ namespace ClassifierForClusters
         /// <param name="trainIndices"> if we prepared train indices in advance, pass them here</param>
         /// <param name="seed"> seed for dataset splitting </param>
         /// <returns></returns>
-        public double Learn(string learnJsonPath, double successThreshold, ref bool stopCondition, bool eval = true, int[] trainIndices = null, int seed = 42)
+        public double Learn(string learnJsonPath, double successThreshold, ref bool stopCondition, string outputFile, bool eval = true, int[] trainIndices = null, int seed = 42)
         {
             if (trainIndices == null)
             {
@@ -338,13 +338,13 @@ namespace ClassifierForClusters
             }
             if (!eval)
                 return -1;
-            return Eval(learnJsonPath, successThreshold, trainIndices);
+            return Eval(learnJsonPath, successThreshold, trainIndices, outputFile);
 
         }
         /// <summary>
         /// evaluate the trained network after learning
         /// </summary>
-        private double Eval(string learnJsonPath, double successThreshold, int[] trainIndices)
+        private double Eval(string learnJsonPath, double successThreshold, int[] trainIndices, string outputFile)
         {
             Console.WriteLine("Evaluation on test data in progress...");
 
@@ -431,10 +431,10 @@ namespace ClassifierForClusters
             {
                 PrintConfusionMatrix(confusionMatrix);
             }
-            if (successRate >= successThreshold)
+            if (successRate > successThreshold)
             {
                 successRate = (Math.Truncate(successRate * 1000)) / 1000d;
-                StoreToFile(learnJsonPath + "_trained_" + successRate + "_" + DateTime.Now.ToString().Replace('/', '-').Replace(':', '-') + ".csf");
+                StoreToFile(outputFile + ".csf");
             }
             return successRate;
         }
@@ -555,9 +555,9 @@ namespace ClassifierForClusters
                 currentTrainIndices.Sort();
                 for (int learnIteration = 0; learnIteration < learnIterationsCount; learnIteration++)
                 {
-                    Learn(learnJsonPath, 1, ref done, eval: false, currentTrainIndices, seed: seed);
+                    Learn(learnJsonPath, 1, ref done, outputFile:null, eval: false, currentTrainIndices, seed: seed);
                 }
-                accuracies[i] = Eval(learnJsonPath, 1, splitTrainIndices[i].Sorted());
+                accuracies[i] = Eval(learnJsonPath, 2, splitTrainIndices[i].Sorted(), null);
                 Network.Randomize();
             }
 
@@ -600,7 +600,7 @@ namespace ClassifierForClusters
 
             var resultVector = Network.Compute(orderedVector.ToArray());
 
-            const double epsilonConfidence = 0.05;
+            const double epsilonConfidence = 0.02;
 
             var classPrediction = new ClassPrediction(resultVector, OutputClasses);
             if (classPrediction.CalcConfidence() < epsilonConfidence)

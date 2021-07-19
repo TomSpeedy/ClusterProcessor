@@ -22,9 +22,9 @@ namespace ClusterUI
 {
     public partial class ClusterUI : Form
     {
-      
+
         double MouseZoomFactor { get; set; }
-        double CenterImageX {get; set;} = 0.5;
+        double CenterImageX { get; set; } = 0.5;
         double CenterImageY { get; set; } = 0.5;
         int CurrentZoom { get; set; } = 1;
         int clusterNumber = 1;
@@ -110,7 +110,7 @@ namespace ClusterUI
                         }
                     }
                 }
-                catch 
+                catch
                 {
                     clusterNumber--;
                 }
@@ -132,7 +132,7 @@ namespace ClusterUI
                     PictureBox.Image = GetClusterImage(point => point.Energy, cluster);
                 }
             }
-           
+
             else
             {
                 //load from json file
@@ -172,7 +172,7 @@ namespace ClusterUI
                     clusterNumber++;
                 }
             }
-            
+
             ClusterIndexValueLabel.Text = clusterNumber.ToString();
 
         }
@@ -197,7 +197,7 @@ namespace ClusterUI
                         MessageBox.Show("Error, cluster with given index was not found.");
                     }
                 }
-                else 
+                else
                 {
                     int clIndex;
                     string clFile, pxFile;
@@ -231,11 +231,11 @@ namespace ClusterUI
                                 else
                                 {
                                     MessageBox.Show("Error, cluster with given index was not found.");
-                                }                               
+                                }
                             }
                         }
                     }
-                    catch 
+                    catch
                     {
                         MessageBox.Show("Error, cluster with given index was not found.");
                     }
@@ -243,17 +243,17 @@ namespace ClusterUI
                 }
             }
         }
-        public void LoadClassifierClicked(object sender, EventArgs e)
+        private void LoadClassifier(string classifierPath)
         {
             Classifier = new MultiLevelClassifier();
             try
             {
-               Classifier.LoadFromFile(ClassifierTextBox.Text);
+               Classifier.LoadFromFile(classifierPath);
             }
             catch 
             {
                 Classifier = new NNClassifier();
-                Classifier.LoadFromFile(ClassifierTextBox.Text);
+                Classifier.LoadFromFile(classifierPath);
             }
             ClassifyButton.Enabled = true;
         }
@@ -283,7 +283,7 @@ namespace ClusterUI
             fileDialog.Filter = "Classifier files (*.csf)|*.csf";
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                ClassifierTextBox.Text = fileDialog.FileName;
+                LoadClassifier(fileDialog.FileName);
             }
         }
         public void BrowseViewButtonClicked(object sender, EventArgs e)

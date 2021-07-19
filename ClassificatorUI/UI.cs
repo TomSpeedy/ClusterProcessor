@@ -80,6 +80,22 @@ namespace ClassificatorUI
                 }
             }
         }
+        public void BrowseOutputFolderClicked(object sender, EventArgs e)
+        {
+            var directoryDialog = new FolderBrowserDialog();
+            if (directoryDialog.ShowDialog() == DialogResult.OK)
+            {
+                OutputDirTextBox.Text = directoryDialog.SelectedPath.Replace('\\', '/');
+            }
+        }
+        public void BrowseOutputDirCombinedClicked(object sender, EventArgs e)
+        {
+            var directoryDialog = new FolderBrowserDialog();
+            if (directoryDialog.ShowDialog() == DialogResult.OK)
+            {
+                CombinedClassifierDirTextBox.Text = directoryDialog.SelectedPath.Replace('\\', '/');
+            }
+        }
         /// <summary>
         /// Handles training of the new classifier
         /// </summary>
@@ -125,7 +141,7 @@ namespace ClassificatorUI
                 {
                     try
                     {
-                        accuracy = classifier.Train(ClassifierConfigTextBox.Text, TrainJsonFileTextBox.Text, ref TrainingStopped, minAccuracy, seed);
+                        accuracy = classifier.Train(ClassifierConfigTextBox.Text, TrainJsonFileTextBox.Text, ref TrainingStopped, (OutputDirTextBox.Text + '/' + OutpuFileNameTextBox.Text).Replace('\\', '/'), minAccuracy, seed);
                         iterationCount++;
                     }
                     catch (IOException)
@@ -198,7 +214,7 @@ namespace ClassificatorUI
             }
             try
             {
-                multiClassifier.StoreToFile(MergedClassifierNameTextBox.Text + ".csf");
+                multiClassifier.StoreToFile((CombinedClassifierDirTextBox.Text + '/' + MergedClassifierNameTextBox.Text).Replace('\\', '/'));
             }
             catch 
             {

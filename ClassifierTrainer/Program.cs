@@ -35,6 +35,7 @@ namespace ClassifierTrainer
             }
             string trainingData = args[0];
             string configData = args[1];
+            string outputFilePath = args[2];
             string seedParsed = GetOptionValue(args, seedOption);
             string maxRepParsed = GetOptionValue(args, maxRepetOption);
             string minAccParsed = GetOptionValue(args, minAccurOption);
@@ -67,7 +68,7 @@ namespace ClassifierTrainer
             bool stopped = false;
             while (iterationCount < maxRepetCount && accuracy <= minAccuracy)
             {
-                accuracy = classifier.Train(configData, trainingData, ref stopped, minAccuracy, seed);
+                accuracy = classifier.Train(configData, trainingData, ref stopped, outputFilePath, minAccuracy, seed);
                 iterationCount++;
             }
             Console.WriteLine("The training process has successfully ended");

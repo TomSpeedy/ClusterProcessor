@@ -57,26 +57,16 @@ namespace ClusterDescriptionGen
                     
             }
         }
-        public void BrowseConfigButtonClicked(object sender, EventArgs e)
-         {
-             using (var dialog = new FolderBrowserDialog())
-             {
-                 if (dialog.ShowDialog() == DialogResult.OK)
-                 {
-                    for(int i = 0; i < SelectedInputListView.Items.Count; ++i)
-                    {
-                        if(SelectedInputListView.Items[i].SubItems.Count < 3)
-                        {
-                            //TODO check if folder contains a.txt ...
-                            SelectedInputListView.Items[i].SubItems.Add(dialog.SelectedPath + '\\');
-                            break;
-                        }
-
-                    }
+        public void BrowseOutputDirClicked(object sender, EventArgs e)
+        {
+            using (var dialog = new FolderBrowserDialog())
+            {
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    OutputDirTextBox.Text = dialog.SelectedPath;
                 }
-             }
-         }   
-        
+            }
+        }        
         public void RemoveSelectedButtonClicked(object sender, EventArgs e)
         {
 
@@ -95,7 +85,7 @@ namespace ClusterDescriptionGen
                 MessageBox.Show("Nothing to process - no attributes have been ticked");
                 return false;
             }
-            if (OutputTextbox.Text == "")
+            if (OutputNameTextBox.Text == "")
             {
                 MessageBox.Show("Cannot start processing - please name the output file");
                 return false;
@@ -130,7 +120,7 @@ namespace ClusterDescriptionGen
             //process the clusters in a different thread to stay responsive
             Thread processingThread = new Thread(() =>
                 GenerateDescription(iniFiles, classes, classesProportional, endCond, allignBy,
-                                    parallelProcessing, attributes, maxPartitionRead)) ;
+                                    parallelProcessing, attributes, maxPartitionRead));
             CheckProgressTimer.Interval = 1000;
             CheckProgressTimer.Tick += TimerTicked;
             CheckProgressTimer.Start();
@@ -197,7 +187,7 @@ namespace ClusterDescriptionGen
         {
             Dictionary<ClusterClassPartition, int> writtenCount = new Dictionary<ClusterClassPartition, int>();
 
-            ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter(OutputTextbox.Text + ".json"));
+            ClDescriptionWriter = new JSONDecriptionWriter(new StreamWriter((OutputDirTextBox.Text + '/' + OutputNameTextBox.Text + ".json").Replace('\\', '/')));
             IClusterReader clusterReader = new MMClusterReader();
 
             List<ClusterClassCollection> clusterEnumCollections = new List<ClusterClassCollection>();
@@ -229,7 +219,7 @@ namespace ClusterDescriptionGen
             int clustersProcessedCount = 0; 
             int maxClusterCount = 10000000;
             Random random = new Random();
-            IAttributeCalculator attrCalc = new DefaultAttributeCalculator();
+            IAttributeCalculator attrCalc = new DefaultAttributeCalculator((OutputDirTextBox.Text + '/' + OutputNameTextBox.Text + ".json").Replace('\\', '/'));
 
             var probabilities = new double[clusterEnumCollections.Count];
             long totalLength = 0;

@@ -102,7 +102,7 @@ namespace ClassificationExperiment
                 for (int j = 0; j < SimpleClassifiers.Length; j++)
                 {
                     SimpleClassifiers[j][i].TrainProportion = 0.2;
-                    SimpleClassifiers[j][i].Learn( TestData.dataLearnFrag, 1, ref stopCondition, eval : false);
+                    SimpleClassifiers[j][i].Learn( TestData.dataLearnFrag, 1, ref stopCondition, outputFile: null, eval : false);
                 }
             }
         }
@@ -149,12 +149,12 @@ namespace ClassificationExperiment
             {
                 Console.WriteLine($"******** Creating Simple Classifier {i} ***********");
                 SimpleClassifiers[i] = new NNClassifier();
-                SimpleClassifiers[i].Train(TestData.configAllPath, TestData.trainAllPath, ref Stopped, minimumAccuracy: 1, seed: i);
+                SimpleClassifiers[i].Train(TestData.configAllPath, TestData.trainAllPath, ref Stopped, minimumAccuracy: 1, outputFile: null, seed: i);
                 for (int j = 0; j < i; j++)
                 {                  
-                    SimpleClassifiers[i].Learn( TestData.trainAllPath, successThreshold:1, ref Stopped,  seed: i, eval:true);
+                    SimpleClassifiers[i].Learn( TestData.trainAllPath, successThreshold:1, ref Stopped, outputFile: null, seed: i, eval:true);
                 }
-                SimpleClassifiers[i].Learn(TestData.trainAllPath, successThreshold: 0, ref Stopped, seed: i, eval: true);
+                SimpleClassifiers[i].Learn(TestData.trainAllPath, successThreshold: 0, ref Stopped, outputFile: null, seed: i, eval: true);
                 MultiClassifiers[i] = new MultiLevelClassifier();
                 Console.WriteLine($"******** Creating Multi Classifier {i} ***********");
                 MultiClassifiers[i].FromDefault(TestData.workingDir,seed: i);

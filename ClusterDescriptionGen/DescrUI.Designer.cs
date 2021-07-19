@@ -53,11 +53,14 @@
             this.SelectInputListLabel = new System.Windows.Forms.Label();
             this.AttributeCheckedList = new System.Windows.Forms.CheckedListBox();
             this.ProcessButton = new System.Windows.Forms.Button();
-            this.OutputTextbox = new System.Windows.Forms.TextBox();
+            this.OutputNameTextBox = new System.Windows.Forms.TextBox();
             this.BrowseButton = new System.Windows.Forms.Button();
-            this.OutputLabel = new System.Windows.Forms.Label();
+            this.OutputNameLabel = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.InputLabel = new System.Windows.Forms.Label();
+            this.OutputDirLabel = new System.Windows.Forms.Label();
+            this.OutputDirTextBox = new System.Windows.Forms.TextBox();
+            this.BrowseOutputDirButton = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.EndingConditionGroupBox.SuspendLayout();
             this.DistributionGroupBox.SuspendLayout();
@@ -66,6 +69,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.BrowseOutputDirButton);
+            this.groupBox1.Controls.Add(this.OutputDirTextBox);
+            this.groupBox1.Controls.Add(this.OutputDirLabel);
             this.groupBox1.Controls.Add(this.StopProcessingButton);
             this.groupBox1.Controls.Add(this.UsedPartitionDataRatioLabel);
             this.groupBox1.Controls.Add(this.UsedPartitionDataRatioTextBox);
@@ -81,9 +87,9 @@
             this.groupBox1.Controls.Add(this.SelectInputListLabel);
             this.groupBox1.Controls.Add(this.AttributeCheckedList);
             this.groupBox1.Controls.Add(this.ProcessButton);
-            this.groupBox1.Controls.Add(this.OutputTextbox);
+            this.groupBox1.Controls.Add(this.OutputNameTextBox);
             this.groupBox1.Controls.Add(this.BrowseButton);
-            this.groupBox1.Controls.Add(this.OutputLabel);
+            this.groupBox1.Controls.Add(this.OutputNameLabel);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.InputLabel);
             this.groupBox1.Location = new System.Drawing.Point(29, 24);
@@ -121,7 +127,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(22, 407);
+            this.button2.Location = new System.Drawing.Point(22, 472);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(120, 23);
             this.button2.TabIndex = 19;
@@ -328,7 +334,7 @@
             "PxFile",
             "ClIndex",
             "Branches"});
-            this.AttributeCheckedList.Location = new System.Drawing.Point(22, 97);
+            this.AttributeCheckedList.Location = new System.Drawing.Point(22, 154);
             this.AttributeCheckedList.Name = "AttributeCheckedList";
             this.AttributeCheckedList.Size = new System.Drawing.Size(245, 304);
             this.AttributeCheckedList.TabIndex = 8;
@@ -343,12 +349,12 @@
             this.ProcessButton.UseVisualStyleBackColor = true;
             this.ProcessButton.Click += new System.EventHandler(this.ProcessButtonClicked);
             // 
-            // OutputTextbox
+            // OutputNameTextBox
             // 
-            this.OutputTextbox.Location = new System.Drawing.Point(98, 71);
-            this.OutputTextbox.Name = "OutputTextbox";
-            this.OutputTextbox.Size = new System.Drawing.Size(100, 20);
-            this.OutputTextbox.TabIndex = 5;
+            this.OutputNameTextBox.Location = new System.Drawing.Point(149, 114);
+            this.OutputNameTextBox.Name = "OutputNameTextBox";
+            this.OutputNameTextBox.Size = new System.Drawing.Size(100, 20);
+            this.OutputNameTextBox.TabIndex = 5;
             // 
             // BrowseButton
             // 
@@ -360,14 +366,14 @@
             this.BrowseButton.UseVisualStyleBackColor = true;
             this.BrowseButton.Click += new System.EventHandler(this.BrowseProcessButtonClicked);
             // 
-            // OutputLabel
+            // OutputNameLabel
             // 
-            this.OutputLabel.AutoSize = true;
-            this.OutputLabel.Location = new System.Drawing.Point(19, 74);
-            this.OutputLabel.Name = "OutputLabel";
-            this.OutputLabel.Size = new System.Drawing.Size(73, 13);
-            this.OutputLabel.TabIndex = 3;
-            this.OutputLabel.Text = "Select output:";
+            this.OutputNameLabel.AutoSize = true;
+            this.OutputNameLabel.Location = new System.Drawing.Point(18, 117);
+            this.OutputNameLabel.Name = "OutputNameLabel";
+            this.OutputNameLabel.Size = new System.Drawing.Size(102, 13);
+            this.OutputNameLabel.TabIndex = 3;
+            this.OutputNameLabel.Text = "Select output name:";
             // 
             // label2
             // 
@@ -385,6 +391,32 @@
             this.InputLabel.Size = new System.Drawing.Size(101, 13);
             this.InputLabel.TabIndex = 0;
             this.InputLabel.Text = "Add input (partition):";
+            // 
+            // OutputDirLabel
+            // 
+            this.OutputDirLabel.AutoSize = true;
+            this.OutputDirLabel.Location = new System.Drawing.Point(19, 74);
+            this.OutputDirLabel.Name = "OutputDirLabel";
+            this.OutputDirLabel.Size = new System.Drawing.Size(116, 13);
+            this.OutputDirLabel.TabIndex = 23;
+            this.OutputDirLabel.Text = "Select output directory:";
+            // 
+            // OutputDirTextBox
+            // 
+            this.OutputDirTextBox.Location = new System.Drawing.Point(149, 71);
+            this.OutputDirTextBox.Name = "OutputDirTextBox";
+            this.OutputDirTextBox.Size = new System.Drawing.Size(100, 20);
+            this.OutputDirTextBox.TabIndex = 24;
+            // 
+            // BrowseOutputDirButton
+            // 
+            this.BrowseOutputDirButton.Location = new System.Drawing.Point(265, 71);
+            this.BrowseOutputDirButton.Name = "BrowseOutputDirButton";
+            this.BrowseOutputDirButton.Size = new System.Drawing.Size(75, 23);
+            this.BrowseOutputDirButton.TabIndex = 25;
+            this.BrowseOutputDirButton.Text = "Browse";
+            this.BrowseOutputDirButton.UseVisualStyleBackColor = true;
+            this.BrowseOutputDirButton.Click += new System.EventHandler(this.BrowseOutputDirClicked);
             // 
             // DescrUI
             // 
@@ -411,9 +443,9 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckedListBox AttributeCheckedList;
         private System.Windows.Forms.Button ProcessButton;
-        private System.Windows.Forms.TextBox OutputTextbox;
+        private System.Windows.Forms.TextBox OutputNameTextBox;
         private System.Windows.Forms.Button BrowseButton;
-        private System.Windows.Forms.Label OutputLabel;
+        private System.Windows.Forms.Label OutputNameLabel;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label InputLabel;
         private System.Windows.Forms.ListView SelectedInputListView;
@@ -438,6 +470,9 @@
         private System.Windows.Forms.Label UsedPartitionDataRatioLabel;
         private System.Windows.Forms.TextBox UsedPartitionDataRatioTextBox;
         private System.Windows.Forms.Button StopProcessingButton;
+        private System.Windows.Forms.Label OutputDirLabel;
+        private System.Windows.Forms.TextBox OutputDirTextBox;
+        private System.Windows.Forms.Button BrowseOutputDirButton;
     }
 }
 
