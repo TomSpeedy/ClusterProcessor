@@ -245,7 +245,7 @@ namespace ClusterUI
         }
         public void LoadClassifierClicked(object sender, EventArgs e)
         {
-            Classifier = new MultiLayeredClassifier();
+            Classifier = new MultiLevelClassifier();
             try
             {
                Classifier.LoadFromFile(ClassifierTextBox.Text);

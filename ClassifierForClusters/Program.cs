@@ -31,7 +31,7 @@ namespace ClassifierForClusters
             IClassifier classifier;
             if (args.Contains(multiOption))
             {
-                classifier = new MultiLayeredClassifier();
+                classifier = new MultiLevelClassifier();
                 classifier.LoadFromFile(args[0]);
                 
             }

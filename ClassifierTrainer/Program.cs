@@ -8,10 +8,14 @@ namespace ClassifierTrainer
 {
     class Program
     {
+        /// <summary>
+        /// Parses the values of the option arguments
+        /// </summary>
+
         static string GetOptionValue(string[] args, string optionName)
         {
             if (!args.Contains(optionName))
-                return null;
+                return "";
             var optionIndex = Array.IndexOf(args, optionName);
             if (optionIndex == args.Length - 1)
                 throw new ArgumentException($"Error - Option {optionName} was not followed by any value");

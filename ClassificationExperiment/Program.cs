@@ -33,7 +33,7 @@ namespace ClassificationExperiment
             }
             args = new string[] { "", "D:\\source\\repos\\Example_data" };
             TestData.SetWorkingDirectory(args[1].Replace('\\', '/'));
-            MultiLayeredClassifier classifier = new MultiLayeredClassifier();
+            MultiLevelClassifier classifier = new MultiLevelClassifier();
 
             /*Console.WriteLine("*************** TESTING THE BEST CLASSIFIER *****************");
             classifier.LoadFromFile(TestData.workingDir + "trained_models/bestClassifier.csf");
@@ -134,13 +134,13 @@ namespace ClassificationExperiment
     {
         public double VarianceExpected { get; set; }
         public double AccuracyExpected { get; set; }
-        MultiLayeredClassifier[] MultiClassifiers { get; set; }
+        MultiLevelClassifier[] MultiClassifiers { get; set; }
         NNClassifier[] SimpleClassifiers { get; set; }
      
         bool Stopped = false;
         public TestSimpleVsMulti(int testClassifierCount)
         {
-            MultiClassifiers = new MultiLayeredClassifier[testClassifierCount];
+            MultiClassifiers = new MultiLevelClassifier[testClassifierCount];
             SimpleClassifiers = new NNClassifier[testClassifierCount];
         }
         public void PrepareData()
@@ -155,7 +155,7 @@ namespace ClassificationExperiment
                     SimpleClassifiers[i].Learn( TestData.trainAllPath, successThreshold:1, ref Stopped,  seed: i, eval:true);
                 }
                 SimpleClassifiers[i].Learn(TestData.trainAllPath, successThreshold: 0, ref Stopped, seed: i, eval: true);
-                MultiClassifiers[i] = new MultiLayeredClassifier();
+                MultiClassifiers[i] = new MultiLevelClassifier();
                 Console.WriteLine($"******** Creating Multi Classifier {i} ***********");
                 MultiClassifiers[i].FromDefault(TestData.workingDir,seed: i);
             }

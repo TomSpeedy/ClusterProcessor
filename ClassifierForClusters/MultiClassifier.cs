@@ -27,11 +27,14 @@ namespace ClassifierForClusters
     /// <summary>
     /// Multi level, non trainable classifier
     /// </summary>
-    public class MultiLayeredClassifier : IClassifier
+    public class MultiLevelClassifier : IClassifier
     {
         public virtual ClusterAttribute[] ValidFields { get; set; }
         public virtual string[] OutputClasses { get; set; }
         public ClassifierRoot<IClassifier> ClassifierTree { get; set; }
+        /// <summary>
+        /// Build multi classifier by composing multiple classifiers linearly
+        /// </summary>
         public void FromLinearTrees(List<IClassifier> topDownClassifiers, List<string> splitClasses)
         {
             if (splitClasses == null || topDownClassifiers == null || splitClasses.Count + 1 != topDownClassifiers.Count)
@@ -75,6 +78,9 @@ namespace ClassifierForClusters
             OutputClasses = ClassifierTree.GetAllOuputClasses();
             ValidFields = ClassifierTree.GetAllUsedAttributes();
         }
+        /// <summary>
+        /// Load or train the default classifier structure
+        /// </summary>
         public void FromDefault(string dataDir, int? seed = null)
         {
             string modelLead = dataDir +"trained_models/trainLeadNew.json_trained_0.994.csf";
@@ -135,7 +141,7 @@ namespace ClassifierForClusters
                 {
                     TypeNameHandling = TypeNameHandling.All
                 };
-                MultiLayeredClassifier classifier = JsonConvert.DeserializeObject<MultiLayeredClassifier>(mainDeserializer.ReadToEnd(), settings);
+                MultiLevelClassifier classifier = JsonConvert.DeserializeObject<MultiLevelClassifier>(mainDeserializer.ReadToEnd(), settings);
                 this.ClassifierTree = classifier.ClassifierTree;
                 this.OutputClasses = classifier.OutputClasses;
                 this.ValidFields = classifier.ValidFields;

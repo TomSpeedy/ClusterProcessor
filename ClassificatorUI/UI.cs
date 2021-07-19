@@ -186,7 +186,7 @@ namespace ClassificatorUI
                 }
             }       
 
-            MultiLayeredClassifier multiClassifier = new MultiLayeredClassifier();
+            MultiLevelClassifier multiClassifier = new MultiLevelClassifier();
             try
             {
                 multiClassifier.FromLinearTrees(classifiers, splitClasses);

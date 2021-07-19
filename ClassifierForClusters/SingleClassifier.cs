@@ -434,7 +434,7 @@ namespace ClassifierForClusters
             if (successRate >= successThreshold)
             {
                 successRate = (Math.Truncate(successRate * 1000)) / 1000d;
-                StoreToFile(learnJsonPath + "_trained " + successRate + ".csf");
+                StoreToFile(learnJsonPath + "_trained_" + successRate + "_" + DateTime.Now.ToString().Replace('/', '-').Replace(':', '-') + ".csf");
             }
             return successRate;
         }
