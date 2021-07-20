@@ -66,6 +66,7 @@
             this.FindByIndexButton = new System.Windows.Forms.Button();
             this.ZoomLabel = new System.Windows.Forms.Label();
             this.ClassificationGroupBox = new System.Windows.Forms.GroupBox();
+            this.LoadedClassifierTextBox = new System.Windows.Forms.TextBox();
             this.ClusterClassLabel = new System.Windows.Forms.Label();
             this.BrowseClassifierButton = new System.Windows.Forms.Button();
             this.ClassifierLabel = new System.Windows.Forms.Label();
@@ -362,9 +363,9 @@
             // ClassifyButton
             // 
             this.ClassifyButton.Enabled = false;
-            this.ClassifyButton.Location = new System.Drawing.Point(174, 70);
+            this.ClassifyButton.Location = new System.Drawing.Point(122, 64);
             this.ClassifyButton.Name = "ClassifyButton";
-            this.ClassifyButton.Size = new System.Drawing.Size(115, 48);
+            this.ClassifyButton.Size = new System.Drawing.Size(178, 48);
             this.ClassifyButton.TabIndex = 30;
             this.ClassifyButton.Text = "Classify";
             this.ClassifyButton.UseVisualStyleBackColor = true;
@@ -426,6 +427,7 @@
             // 
             // ClassificationGroupBox
             // 
+            this.ClassificationGroupBox.Controls.Add(this.LoadedClassifierTextBox);
             this.ClassificationGroupBox.Controls.Add(this.ClusterClassLabel);
             this.ClassificationGroupBox.Controls.Add(this.BrowseClassifierButton);
             this.ClassificationGroupBox.Controls.Add(this.ClassifierLabel);
@@ -437,11 +439,19 @@
             this.ClassificationGroupBox.TabStop = false;
             this.ClassificationGroupBox.Text = "Classification";
             // 
+            // LoadedClassifierTextBox
+            // 
+            this.LoadedClassifierTextBox.Location = new System.Drawing.Point(6, 79);
+            this.LoadedClassifierTextBox.Name = "LoadedClassifierTextBox";
+            this.LoadedClassifierTextBox.ReadOnly = true;
+            this.LoadedClassifierTextBox.Size = new System.Drawing.Size(100, 20);
+            this.LoadedClassifierTextBox.TabIndex = 36;
+            // 
             // ClusterClassLabel
             // 
             this.ClusterClassLabel.AutoSize = true;
             this.ClusterClassLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.ClusterClassLabel.Location = new System.Drawing.Point(23, 137);
+            this.ClusterClassLabel.Location = new System.Drawing.Point(13, 140);
             this.ClusterClassLabel.Name = "ClusterClassLabel";
             this.ClusterClassLabel.Size = new System.Drawing.Size(123, 18);
             this.ClusterClassLabel.TabIndex = 35;
@@ -450,11 +460,11 @@
             // BrowseClassifierButton
             // 
             this.BrowseClassifierButton.Enabled = false;
-            this.BrowseClassifierButton.Location = new System.Drawing.Point(16, 70);
+            this.BrowseClassifierButton.Location = new System.Drawing.Point(122, 10);
             this.BrowseClassifierButton.Name = "BrowseClassifierButton";
-            this.BrowseClassifierButton.Size = new System.Drawing.Size(130, 48);
+            this.BrowseClassifierButton.Size = new System.Drawing.Size(178, 48);
             this.BrowseClassifierButton.TabIndex = 34;
-            this.BrowseClassifierButton.Text = "Browse";
+            this.BrowseClassifierButton.Text = "Load Classifier";
             this.BrowseClassifierButton.UseVisualStyleBackColor = true;
             this.BrowseClassifierButton.Click += new System.EventHandler(this.BrowseClassifierClicked);
             // 
@@ -546,6 +556,7 @@
         private System.Windows.Forms.Label ClassifierLabel;
         private System.Windows.Forms.Button BrowseClassifierButton;
         private System.Windows.Forms.Label ClusterClassLabel;
+        private System.Windows.Forms.TextBox LoadedClassifierTextBox;
     }
 }
 

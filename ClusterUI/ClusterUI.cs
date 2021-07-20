@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
-using System.Drawing.Text;
 using ChartDirector;
 using ClusterCalculator;
 using System.Globalization;
 using ClassifierForClusters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 namespace ClusterUI
 {
+    /// <summary>
+    /// class representing the form object
+    /// </summary>
     public partial class ClusterUI : Form
     {
 
@@ -176,6 +176,10 @@ namespace ClusterUI
             ClusterIndexValueLabel.Text = clusterNumber.ToString();
 
         }
+        /// <summary>
+        /// Searches the whole collection of clusters based on the given index
+        /// </summary>
+
         public void FindClusterByIndexClicked(object sender, EventArgs e)
         {
             RestoreZoom();
@@ -243,6 +247,10 @@ namespace ClusterUI
                 }
             }
         }
+        
+        /// <summary>
+        /// Loads the classifier stored at the given path
+        /// </summary>
         private void LoadClassifier(string classifierPath)
         {
             Classifier = new MultiLevelClassifier();
@@ -255,6 +263,7 @@ namespace ClusterUI
                 Classifier = new NNClassifier();
                 Classifier.LoadFromFile(classifierPath);
             }
+            LoadedClassifierTextBox.Text = PathParser.GetSuffixPath(classifierPath);
             ClassifyButton.Enabled = true;
         }
         public void ClassifyButtonClicked(object sender, EventArgs e)
@@ -325,6 +334,9 @@ namespace ClusterUI
             }
             }
         }
+        /// <summary>
+        /// Cluster loading from MM data format
+        /// </summary>
         private void LoadClustersFromIni(string filePath)
         {
             try
@@ -391,6 +403,10 @@ namespace ClusterUI
             }
             return true;
         }
+        /// <summary>
+        /// Cluster loading from JSON data format
+        /// </summary>
+        /// <param name="filePath"></param>
         private void LoadClustersFromJson(string filePath)
         {
             int clIndex;
@@ -431,12 +447,9 @@ namespace ClusterUI
 
         public void View3DClicked(object sender, EventArgs e)
         {
-            //AnalysisPCA anal = new AnalysisPCA();
             if (CurrentBase == null)
                 return;
             IZCalculator zCalculator = new ZCalculator();
-
-           /*Point3D[] points3D = ToPoints3D(anal.Transform(Current.Points))*/ 
             var points3D = ToPoints3D(zCalculator.TransformPoints(CurrentImage.Keys.ToList()));
             ScatterChart chart = new ScatterChart(winChartViewer, points3D);
             ScatterPlotChart = chart;
@@ -450,10 +463,13 @@ namespace ClusterUI
         {
             ClusterPixHistogram.Visible = false;
         }
+
+        /// <summary>
+        /// Handles histogram calculation and drawing
+        /// </summary>
+
         public async void ShowHistogramClicked(object sender, EventArgs e)
         {
-            //if (HistogramPoints == null)
-            // return;
             HistogramPoint[] HistogramPoints = null;
             Thread histogramCalculationThread = new Thread(() => { HistogramPoints = new Histogram(new StreamReader(clFile), cl => ((double)cl.PixCount)).Points; });
 
@@ -686,6 +702,9 @@ namespace ClusterUI
             attributeForm.Show();
         }
         #endregion
+        /// <summary>
+        /// Draws the image of a cluster based on the currently loaded cluster
+        /// </summary>
         public Image GetClusterImage(Func<PixelPoint, double> attributeGetter, Cluster cluster,bool storePixels = true, int zoom = 1)
         {
             const int bitmapSize = 256;
@@ -717,17 +736,13 @@ namespace ClusterUI
                         if (scaledX >= upperLeftX && scaledX < upperLeftX + 256 && scaledY >= upperLeftY && scaledY < upperLeftY + 256)
                             pixels.SetPixel(scaledX - upperLeftX, scaledY - upperLeftY, CurrentImage[pixel]);
                     }
-                /*if (pixel.GetDistance(center) <= 1)
-                    pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Blue);
-                else if (vertices.Contains(pixel))
-                    pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Purple);
-                else if (centers.Contains(pixel))
-                    pixels.SetPixel(pixel.xCoord, pixel.yCoord, Color.Green);
 
-                */
             }
             return pixels;
         }
+        /// <summary>
+        /// Handles visualiyation of the cluster branches
+        /// </summary>
 
         public Image DrawBranches(Branch branch, Color color)
         {
@@ -817,6 +832,9 @@ namespace ClusterUI
         double MinValue { get; set; }
         double MaxValue { get; set; }
         public HistogramPoint[] Points = new HistogramPoint[bucketCount];
+        /// <summary>
+        /// Constructs histogram for a collection of clusters
+        /// </summary>
         public Histogram (StreamReader clFile, Attribute<ClusterInfo> attributeGetter)
         {
             double[] buckets = new double[bucketCount];
@@ -837,6 +855,10 @@ namespace ClusterUI
             
             
         }
+        /// <summary>
+        /// Constructs histogram for a cluster
+        /// </summary>
+
         public Histogram(Cluster cluster, Attribute<PixelPoint> attributeGetter)
         {
             double[] buckets = new double[bucketCount];
@@ -865,10 +887,7 @@ namespace ClusterUI
         /// <summary>
         /// Determines range of x axis in collection histogram
         /// </summary>
-        /// <param name="clFile"></param>
-        /// <param name="pxFile"></param>
-        /// <param name="attributeGetter"></param>
-        /// <returns></returns>
+
         private (double min,double max) FindCollectionRange(StreamReader clFile, Attribute<ClusterInfo> attributeGetter)
         {
             double max = double.MinValue;
@@ -884,6 +903,9 @@ namespace ClusterUI
             return (min, max);
             
         }
+        /// <summary>
+        /// Determines range of x axis in pixel histogram
+        /// </summary>
         private (double min, double max) FindPixelRange(Cluster cluster, Attribute<PixelPoint> attributeGetter)
         {
             double max = double.MinValue;
@@ -910,24 +932,21 @@ namespace ClusterUI
         public int angleVert { get; set; }
         public int angleHoriz { get; set; }
         const string Title = "3D Trajectory";
-        //Name of demo module
         public string getName() { return Title; }
         public Point3D ToPoint3D(PointD3 point)
         {
             return new Point3D(point.X, point.Y, point.Z);
         }
-        //Number of charts produced in this demo module
+
         public int getNoOfCharts() { return 1; }
 
-        //Main code for creating chart.
-        //Note: the argument chartIndex is unused because this demo only has 1 chart.
+
         public ScatterChart(WinChartViewer viewer, Point3D[] points3D)
         {
             xData = points3D.Select(point => (double)point.X).ToArray();
             yData = points3D.Select(point => (double)point.Y).ToArray();
             zData = points3D.Select(point => (double)point.Z / 10D).ToArray();
 
-            // Create a ThreeDScatterChart object of size 720 x 600 pixels
             var chart = new ThreeDScatterChart(viewer.Width, viewer.Height);
             chart.setPlotRegion((viewer.Width / 2), (viewer.Height / 2), 200, 200, 200);
             chart.setColorAxis(370, 190, ChartDirector.Chart.Left, 300, ChartDirector.Chart.Right);
@@ -946,7 +965,6 @@ namespace ClusterUI
 
             Initialize(chart);
             chart.setViewAngle(angleVert, angleHoriz);
-            //viewer.ImageMap = chart.getHTMLImageMap("clickable", "",
             return chart;
         }
         private void Initialize(ThreeDScatterChart chart)
@@ -959,7 +977,7 @@ namespace ClusterUI
             // color depends on the z value of the symbol
             chart.addScatterGroup(this.xData, this.yData, this.zData, "Trajectory", ChartDirector.Chart.GlassSphere2Shape, 11,
                 ChartDirector.Chart.SameAsMainColor);
-            // Set the x, y and z axis titles using 10 points Arial Bold font
+
             chart.xAxis().setTitle("X-Axis", AxisLabelFont, AxisFontSize);
             chart.yAxis().setTitle("Y-Axis", AxisLabelFont, AxisFontSize);
             chart.zAxis().setTitle("Z-Axis", AxisLabelFont, AxisFontSize);
